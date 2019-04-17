@@ -1,5 +1,6 @@
 '''
 .. autoclass:: RestflyException
+.. autoclass:: UnexpectedValueError
 .. autoclass:: APIError
 .. autoclass:: RetryError
 .. autoclass:: BadRequestError
@@ -54,6 +55,17 @@ class RestflyException(Exception):
 
     def __repr__(self):
         return repr(self.__str__())
+
+
+class UnexpectedValueError(RestflyException):
+    '''
+    An unexpected value error is thrown whenever the value specified for a
+    parameter is outside the bounds of what is expected.  For example, if the
+    parameter **a** is expected to have a value of 1, 2, or 3, and it is instead
+    passed a value of 0, then it is an unexpected value, and this Exception
+    should be thrown by the package.
+    '''
+    pass
 
 
 # The following Exception codes have been written using the following link as

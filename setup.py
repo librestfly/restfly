@@ -5,8 +5,8 @@ long_description = 'Please refer to https://pytenable.readthedocs.io'
 
 setup(
     name='restfly',
-    version='0.1.0',
-    description='A library to make API wrappers easier',
+    version='1.0.0',
+    description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,
     author_email='steve@chigeek.com',
@@ -31,6 +31,5 @@ setup(
     packages=find_packages(exclude=['docs', 'tests']),
     install_requires=[
         'requests>=2.19',
-        'semver>=2.8.1',
     ],
 )

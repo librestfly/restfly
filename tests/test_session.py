@@ -1,7 +1,7 @@
 import pytest
 from requests import Request, Response
-from restfly.session import APISession
 from restfly.errors import *
+from restfly.session import APISession
 
 @pytest.fixture
 def api():
