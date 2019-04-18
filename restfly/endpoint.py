@@ -30,6 +30,8 @@ class APIEndpoint(object):
 
     def __init__(self, api):
         self._api = api
+        self._log = api._log
+
 
     def _check(self, name, obj, expected_type, choices=None, default=None,
                case=None, pattern=None, regex=None, items_type=None):
