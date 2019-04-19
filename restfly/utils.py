@@ -43,3 +43,34 @@ def force_case(obj, case):
             return obj.upper()
 
     return obj
+
+
+def trunc(text, limit, suffix='...'):
+    '''
+    Truncates a string to a given number of characters.  If a string extends
+    beyond the limit, then truncate and add an ellipses after the truncation.
+
+    Args:
+        text (str): The string to truncate
+        limit (int): The maximum limit that the string can be.
+        suffix (str):
+            What suffix should be appended to the truncated string when we
+            truncate?  If left unspecified, it will default to ``...``.
+
+
+    Returns:
+        str: The truncated string
+
+    Examples:
+        >>> x = trunc(x, 6)
+    '''
+    if len(text) >= limit:
+        if isinstance(suffix, str):
+            # If we have a suffix, then reduce the text string length further by
+            # the length of the suffix and then concatenate both the text and
+            # suffix together.
+            return '{}{}'.format(text[: limit - len(suffix)], suffix)
+        else:
+            # If no suffix, then simply reduce the string size.
+            return text[:limit]
+    return text

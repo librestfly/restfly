@@ -1,11 +1,6 @@
 import pytest
 from requests import Request, Response
 from restfly.errors import *
-from restfly.session import APISession
-
-@pytest.fixture
-def api():
-    return APISession(url='https://httpbin.org')
 
 def test_session_delete(api):
     resp = api.delete('delete', json={'test': 'value'})

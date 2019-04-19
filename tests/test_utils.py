@@ -1,5 +1,5 @@
 import pytest
-from restfly.utils import dict_merge, force_case
+from restfly.utils import dict_merge, force_case, trunc
 
 def test_force_case_single():
     assert force_case('TEST', 'lower') == 'test'
@@ -15,3 +15,8 @@ def test_dict_merge():
         's': {'a': 4, 'c': 3},
         'b': 2
     }
+
+def test_trunc():
+    assert trunc('Hello There!', 128) == 'Hello There!'
+    assert trunc('Too Small', 6) == 'Too...'
+    assert trunc('Too Small', 3, suffix=None) == 'Too'

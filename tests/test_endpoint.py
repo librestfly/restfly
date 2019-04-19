@@ -12,8 +12,8 @@ examples = {
 }
 
 @pytest.fixture
-def e():
-    return APIEndpoint(None)
+def e(api):
+    return APIEndpoint(api)
 
 def test_check_single_type(e):
     assert isinstance(e._check('test', 1, int), int)

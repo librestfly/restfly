@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
 
-long_description = 'Please refer to https://pytenable.readthedocs.io'
+long_description = 'Please refer to https://restfly.readthedocs.io'
 
 setup(
     name='restfly',
-    version='1.0.0',
+    version='1.0.1',
     description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,

@@ -1,0 +1,22 @@
+language: python
+python:
+- '2.7'
+- '3.4'
+- '3.5'
+- '3.6'
+install:
+- pip install -r test-requirements.txt
+script:
+- pytest --cov=restfly
+branches:
+  only:
+  - master
+  - stable
+deploy:
+  provider: pypi
+  user: stevemcgrath
+  skip_existing: true
+  on:
+    tags: true
+  password:
+    secure: PusSnl6mcC0TLt6VwoeS+TRPnjR5WFat2nMfbB4m4Pb46Hg8H+QeHJV4F8qUsFD0astTNCUh1mjA5xulvo/JEufSBuQmUxVowE7ZRa2TVO+mxyKx9hO0NjKG/8gtTQo+hxoE93fJKjjWflZ5rrH9gbHx0laUS1ewzEjB6G0zT+pq6wlivtsYPVXJtQfovWEwr/R8nBwdNFhcFSE7HIRPKpUHImHssi4CHqdV82Ayak0a9cmkfN9u8N1cZHMyhDm6oQ2I4pYVS6A0fr7jZpVEsHn5IqhYHz/OicDrvHjHQ728Pc4VFPQiZkEQ+6whUOc7NIa4e4pvEAxbhQ9ZkeA2QjbaAOhI7ng50+FB3wvMxtTMICueeWO4X1ZqNsnd6pRKorqWPq3lXs7NT52aTh6jox1NlrKo5sTFFbkhF81UiOscGEds7ESor0CxKnNlVqH3TudIxgrvxDRwkbjqGAUK2OEgg7af3DXimnPGhezXW8F04IA7aaLzeBMdieEOSSyuae6eijz//9+bvYbxG7tfYofA3NNy7N7aSkrv4GfKhwptM0JB2i/agoaOVMmlqDeVq6gwteFiVIMfr7ErOJjmM5TggEnrEyN0xmIYAwtQtNYPBv6RFlNuMrv8E/qD4rIHWzZYT49tFMD9tSTd0BgCLJraLsM77a/NxLiJO7z7FQM=
