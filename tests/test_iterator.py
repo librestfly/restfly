@@ -2,10 +2,11 @@ import pytest
 from restfly.iterator import APIIterator
 
 class ExampleIterator(APIIterator):
+    limit = 10
+    offset = 0
     def _get_page(self):
         self.total = 100
-        self.limit = 10
-        self.page = [{'id': i + self.offset} for i in range(10)]
+        self.page = [{'id': i + self.offset} for i in range(self.limit)]
         self.offset += self.limit
 
 def test_iterator():
