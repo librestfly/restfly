@@ -1,3 +1,12 @@
+'''
+Utils
+=====
+
+.. autofunction:: dict_merge
+.. autofunction:: force_case
+.. autofunction:: trunc
+
+'''
 import re
 
 def dict_merge(master, updates):
@@ -10,7 +19,14 @@ def dict_merge(master, updates):
         updates (dict): The dictionary that will overload the values in the master.
 
     Returns:
-        dict: The merged dictionary
+        :obj:`dict`:
+            The merged dictionary
+
+    Examples:
+        >>> a = {'one': 1, 'two': 2, 'three': {'four': 4}}
+        >>> b = {'a': 'a', 'three': {'b': 'b'}}
+        >>> dict_merge(a, b)
+        {'a': 'a', 'one': 1, 'two': 2, 'three': {'b': b, 'four': 4}}
     '''
     for key in updates:
         if key in master and isinstance(master[key], dict) and isinstance(updates[key], dict):
@@ -28,7 +44,25 @@ def force_case(obj, case):
         obj (Object): object to attempt to enforce the case upon.
 
     Returns:
-        obj: The modified object
+        :obj:`obj`:
+            The modified object
+
+    Examples:
+        A list of mixed types:
+
+        >>> a = ['a', 'list', 'of', 'strings', 'with', 'a', 1]
+        >>> force_Case(a, 'upper')
+        ['A', 'LIST', 'OF', 'STRINGS', 'WITH', 'A', 1]
+
+        A simple string:
+
+        >>> force_case('This is a TEST', 'lower')
+        'this is a test'
+
+        A non-string item that'll pass through:
+
+        >>> force_case(1, 'upper')
+        1
     '''
     if case == 'lower':
         if isinstance(obj, list):
@@ -59,10 +93,24 @@ def trunc(text, limit, suffix='...'):
 
 
     Returns:
-        str: The truncated string
+        :obj:`str`:
+            The truncated string
 
     Examples:
-        >>> x = trunc(x, 6)
+        A simple truncation:
+
+        >>> trunc('this is a test', 6)
+        'thi...'
+
+        Truncating with no suffix:
+
+        >>> trunc('this is a test', 6, suffix=None)
+        'this i'
+
+        Truncating with a custom suffix:
+
+        >>> trunc('this is a test', 6, suffix='->')
+        'this->'
     '''
     if len(text) >= limit:
         if isinstance(suffix, str):

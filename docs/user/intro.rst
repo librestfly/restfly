@@ -3,7 +3,7 @@
 Introduction
 ============
 
-.. image:: https://live.staticflickr.com/4472/23654215588_53edc402d8_k.jpg
+.. image:: https://live.staticflickr.com/5212/5388066518_615a70bfb1_b.jpg
 
 Philosophy
 ----------

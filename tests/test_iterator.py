@@ -4,9 +4,9 @@ from restfly.iterator import APIIterator
 class ExampleIterator(APIIterator):
     def _get_page(self):
         self.total = 100
-        self._limit = 10
-        self.page = [{'id': i + self._offset} for i in range(10)]
-        self._offset += self._limit
+        self.limit = 10
+        self.page = [{'id': i + self.offset} for i in range(10)]
+        self.offset += self.limit
 
 def test_iterator():
     items = ExampleIterator(None)

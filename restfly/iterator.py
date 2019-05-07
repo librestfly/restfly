@@ -1,5 +1,10 @@
 '''
+Iterators
+=========
+
 .. autoclass:: APIIterator
+    :members:
+    :private-members:
 '''
 
 
@@ -17,7 +22,18 @@ class APIIterator(object):
     to the user in a similar manner.
 
     Attributes:
-        count (int): The current number of records that have been returned
+        _api (restfly.session.APISession):
+            The APISession object that will be used for querying for the
+            data.
+        count (int):
+            The current number of records that have been returned
+        max_items (int):
+            The maximum number of items to return before stopping iteration.
+        max_pages (int):
+            The maximum number of pages to request before throwing stopping
+            iteration.
+        num_pages (int):
+            The number of pages that have been requested.
         page (list):
             The current page of data being walked through.  pages will be
             cycled through as the iterator requests more information from the
@@ -33,21 +49,34 @@ class APIIterator(object):
     max_items = None
     total = None
     page = []
-
-    # The API will be grafted on here.
     _api = None
 
-    # The page size limit
-    _limit = None
-
-    # The current record offset
-    _offset = 0
-
     def __init__(self, api, **kw):
+        '''
+        Args:
+            api (restfly.session.APISession):
+                The APISession object to use for this iterator.
+            **kw (dict):
+                The various attributes to add and or overload the iterator with.
+
+        Examples:
+            >>> i = APIIterator(api, max_pages=1, max_items=100)
+        '''
         self._api = api
         self.__dict__.update(kw)
 
     def _get_page(self):
+        '''
+        A method to be overloaded in order to instruct the iterator how to
+        retrieve the next page of data.
+
+        Examples:
+            >>> class ExampleIterator(APIIterator):
+            ...    def _get_page(self):
+            ...        self.total = 100
+            ...        self.page = [{'id': i + self._offset} for i in range(10)]
+            ...        self._offset += self._limit
+        '''
         pass
 
     def get(self, index, default=None):
@@ -56,7 +85,12 @@ class APIIterator(object):
 
         Args:
             index (int): The index of the item to retrieve.
-            default
+            default (obj): The returned object if the item does not exist.
+
+        Examples:
+            >>> a = APIIterator()
+            >>> a.get(2)
+            None
         '''
         try:
             return self.page[int(index)]

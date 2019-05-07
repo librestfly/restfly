@@ -3,6 +3,8 @@
 Quickstart
 ==========
 
+.. image:: https://live.staticflickr.com/3452/3214601797_112f2ea202_b.jpg
+
 Looking to hit the ground running?  This page gives a good primer to aid in
 getting started with RESTfly.
 

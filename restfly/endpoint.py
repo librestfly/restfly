@@ -1,5 +1,10 @@
 '''
+Endpoints
+=========
+
 .. autoclass:: APIEndpoint
+    :members:
+    :private-members:
 '''
 from .utils import force_case
 from .errors import UnexpectedValueError
@@ -12,6 +17,16 @@ class APIEndpoint(object):
     sired from.  The main benefit is the addition of the ``_check()``
     function from which it's possible to check the type & content of a
     variable to ensure that we are passing good data to the API.
+
+    Attributes:
+        _pattern_map (dict):
+            A definition of regex patterns that can be used with the
+            :obj:`_check` method.  These are used with the ``pattern`` argument.
+        _custom_pattern_map (dict):
+            A dictionary of custom regex pattern definitions, same as the
+            :obj:`_pattern_map` attribute.  As overloading this one will not
+            replace the default patterns, this one is considered additive.
+            The custom mapping is checked **after** the default patterns.
 
     Args:
         api (APISession):
@@ -68,16 +83,17 @@ class APIEndpoint(object):
                 the iterable.  NOTE: this will traverse the iterable.
 
         Returns:
-                obj: Either the object or the default object depending.
+            :obj:`Object`:
+                Either the object or the default object depending.
 
         Examples:
             Ensure that the value is an integer type:
 
-            >>> self._v('example', val, int)
+            >>> self._check('example', val, int)
 
             Ensure that the value of val is within 0 and 100:
 
-            >>> self._v('example', val, int, choices=list(range(100)))
+            >>> self._check('example', val, int, choices=list(range(100)))
         '''
         def validate_regex_pattern(regex, obj):
             if len(re.findall(regex, str(obj))) <= 0:

@@ -51,6 +51,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
+    'sphinx.ext.extlinks',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -80,7 +81,7 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
-add_module_names = False
+add_module_names = True
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 
@@ -98,7 +99,7 @@ html_theme = 'alabaster'
 html_theme_options = {
     'description': 'A Python library for building API libraries',
     'fixed_sidebar': False,
-    #'logo': 'logo.png',
+    'logo': 'logo.png',
     #'touch_icon': 'logo.png',
     'logo_name': 'RESTfly',
     'github_user': 'stevemcgrath',
@@ -138,23 +139,7 @@ htmlhelp_basename = 'restflydoc'
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
-
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
-
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
-}
+latex_elements = {}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
@@ -192,4 +177,11 @@ texinfo_documents = [
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'https://docs.python.org/': None,
+    'requests': ('http://docs.python-requests.org/en/master/', None)
+}
+
+extlinks = {
+    'requests': ('http://docs.python-requests.org/en/master/%s', 'requests')
+}

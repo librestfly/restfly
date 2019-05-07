@@ -5,7 +5,7 @@ long_description = 'Please refer to https://restfly.readthedocs.io'
 
 setup(
     name='restfly',
-    version='1.0.1',
+    version='1.0.2',
     description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,

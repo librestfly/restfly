@@ -1,8 +1,10 @@
 '''
+Errors
+======
+
 .. autoclass:: RestflyException
 .. autoclass:: UnexpectedValueError
 .. autoclass:: APIError
-.. autoclass:: RetryError
 .. autoclass:: BadRequestError
 .. autoclass:: UnauthorizedError
 .. autoclass:: ForbiddenError
