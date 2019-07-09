@@ -1,0 +1,94 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Restfly (Restfly/1.0.2; Restfly/1.0.2; Python/3.6.7)
+    method: GET
+    uri: https://httpbin.org/redirect-to?url=%2Fget
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Tue, 09 Jul 2019 21:24:59 GMT
+      Location:
+      - /get
+      Referrer-Policy:
+      - no-referrer-when-downgrade
+      Server:
+      - nginx
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 302
+      message: FOUND
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Restfly (Restfly/1.0.2; Restfly/1.0.2; Python/3.6.7)
+    method: GET
+    uri: https://httpbin.org/get
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA12OwQ6CMBBE73xF05MSaK1GiHjiYOLRmPgBCEtpQlrS1gMS/t1Skai3fTOzuzME
+        COFCc4MzNIwRmrCBogLtFYdOyMsSOusYhzTEPrSo8UmWqhKSTzZ/ii5CFdRtYWEJnpXxy4213V1I
+        ojRfvJsBHeccpE9cwdi67dFqHigjG7I9oj+89LZRku5IQtI1dofm4koLLuR0KN2RdE9YciCMsQj9
+        4Ps3fuj2U8pklH6VoxwsDsbgBQZR8O4cAQAA
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '198'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 09 Jul 2019 21:24:59 GMT
+      Referrer-Policy:
+      - no-referrer-when-downgrade
+      Server:
+      - nginx
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
