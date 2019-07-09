@@ -8,7 +8,7 @@ install:
 - pip install -r test-requirements.txt
 - pip install -e .
 script:
-- pytest --cov=restfly
+- pytest --cov=restfly --vcr-record=none
 branches:
   only:
   - master
