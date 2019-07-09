@@ -6,9 +6,14 @@ Sessions
     :members:
     :private-members:
 '''
-import requests, sys, time
+import requests, sys, time, warnings
 from .errors import *
 from . import __version__
+
+try:
+    from urlparse import urlparse
+except:
+    from urllib.parse import urlparse
 
 class APISession(object):
     '''
@@ -60,6 +65,7 @@ class APISession(object):
     _backoff = 1
     _proxies = None
     _identity = None
+    _ssl_verify = True
     _lib_identity = 'Restfly'
     _lib_version = __version__
     _restricted_paths = list()
@@ -123,6 +129,11 @@ class APISession(object):
             session (requests.Session, optional):
                 Provide a pre-built session instead of creating a requests
                 session at instantiation.
+            ssl_verify (bool, optional):
+                If SSL Verification needs to be disabled (for example when using
+                a self-signed certificate), then this parameter should be set to
+                ``False`` to disable verification and mask the Certificate
+                warnings.
             url (str, optional):
                 The base URL that the paths will be appended onto.
         '''
@@ -132,6 +143,7 @@ class APISession(object):
         self._backoff = float(kw.get('backoff', self._backoff))
         self._proxies = kw.get('proxies', self._proxies)
         self._identity = kw.get('identity', self._identity)
+        self._ssl_verify = kw.get('ssl_verify', self._ssl_verify)
 
         # Create the logging facility
         self._log = logging.getLogger('{}.{}'.format(
@@ -169,6 +181,13 @@ class APISession(object):
         if self._proxies:
             self._session.proxies.update(self._proxies)
 
+        # If the SSL verification is disabled then we will need to disable
+        # verification in the requests session and we also want to mask the
+        # certificate warnings.
+        if not self._ssl_verify:
+            self._session.verify = self._ssl_verify
+            warnings.filterwarnings('ignore', 'Unverified HTTPS request')
+
         # Update the User-Agent string with the information necessary.
         self._session.headers.update({
             'User-Agent': '{} ({}/{}; Restfly/{}; Python/{})'.format(
@@ -186,7 +205,7 @@ class APISession(object):
                 '.'.join([str(i) for i in sys.version_info][0:3])),
         })
 
-    def _resp_error_check(self, response): #stub
+    def _resp_error_check(self, response, **kwargs): #stub
         '''
         If there is a need for additional error checking (for example within the
         JSON response) then overload this method with the necessary checking.
@@ -194,6 +213,8 @@ class APISession(object):
         Args:
             response (request.Response):
                 The response object.
+            **kwargs (dict):
+                The request keyword arguments.
 
         Returns:
             :obj:`requests.Response`:
@@ -201,7 +222,7 @@ class APISession(object):
         '''
         return response
 
-    def _retry_request(self, response, retries, kwargs): #stub
+    def _retry_request(self, response, retries, **kwargs): #stub
         '''
         A method to be overloaded to return any modifications to the request
         upon retries.  By default just passes back what was send in the same
@@ -212,7 +233,7 @@ class APISession(object):
                 The response object
             retries (int):
                 The number of retries that have been performed.
-            kwargs (dict):
+            **kwargs (dict):
                 The keyword arguments that were passed to the request.
 
         Returns:
@@ -228,9 +249,16 @@ class APISession(object):
         method.
 
         Args:
-            method (str): The HTTP method
-            path (str): The URI path to append to the base path.
-            **kwargs (dict): The keyword arguments to pass to the requests lib.
+            method (str):
+                The HTTP method
+            path (str):
+                The URI path to append to the base path.
+            **kwargs (dict):
+                The keyword arguments to pass to the requests lib.
+            retry_on (list, optional):
+                A list of numeric response status codes to attempt retry on.
+                This behavior is additive to the retry parameter in the
+                exceptions.
 
         Returns:
             :obj:`requests.Response`:
@@ -240,33 +268,50 @@ class APISession(object):
             >>> api = APISession()
             >>> resp = api._request('GET', '/')
         '''
-        retries = 0
         err = None
+        retries = 0
+
+        # If retry_on is specified, then we will populate the retry_codes
+        # variable with a list of numeric status codes to additionally retry on.
+        # This is helpful if the API in question doesn't always behave in a
+        # consistent manner.
+        retry_codes = kwargs.get('retry_on', list())
+        kwargs.pop('retry_on', None)
+
+        # While the number of retries is less than the retry limit, loop.  As we
+        # will be returning from within the loop if we receive a successful
+        # response or a non-retryable error, the loop should only be handling
+        # the retries themselves.
         while retries <= self._retries:
+            # Check to see if the path is a relative path or a
+            if urlparse(path).netloc != '':
+                uri = path
+            else:
+                uri = '{}/{}'.format(self._url, path)
+
             if (('params' in kwargs and kwargs['params'])
               or ('json' in kwargs and kwargs['json'])):
                 if path not in self._restricted_paths:
                     # If the path is not one of the paths that would contain
                     # sensitive data (such as login information) then pass the
                     # log on unredacted.
-                    self._log.debug('path={}, query={}, body={}'.format(
-                        path, kwargs.get('params', {}), kwargs.get('json', {})))
+                    self._log.debug('uri={}, query={}, body={}'.format(
+                        uri, kwargs.get('params', {}), kwargs.get('json', {})))
                 else:
                     # The path was a restricted path, generate the log, however
                     # redact the information.
-                    self._log.debug('path={}, query={}, body={}'.format(
-                        path, 'REDACTED', 'REDACTED'))
+                    self._log.debug('uri={}, query={}, body={}'.format(
+                        uri, 'REDACTED', 'REDACTED'))
 
             # Make the call to the API and pull the status code.
-            resp = self._session.request(method,
-                '{}/{}'.format(self._url, path), **kwargs)
+            resp = self._session.request(method, uri, **kwargs)
             status = resp.status_code
 
             if status in self._error_map.keys():
                 # If a status code that we know about has returned, then we will
                 # want to raise the appropriate Error.
                 err = self._error_map[status]
-                if err.retryable:
+                if err.retryable or status in retry_codes:
                     # If the APIError fetched is retryable, we will want to
                     # attempt to retry our call.  If we see the "Retry-After"
                     # header, then we will respect that.  If no "Retry-After"
@@ -280,7 +325,7 @@ class APISession(object):
                     # The need to potentially modify the request for subsequent
                     # calls is the whole reason that we aren't using the default
                     # Retry logic that urllib3 supports.
-                    kwargs = self._retry_request(resp, retries, kwargs)
+                    kwargs = self._retry_request(resp, retries, **kwargs)
                     continue
                 else:
                     raise err(resp, retries=retries)
@@ -288,7 +333,7 @@ class APISession(object):
             elif status >= 200 and status <= 299:
                 # As everything looks ok, lets pass the response on to the error
                 # checker and then return the response.
-                return self._resp_error_check(resp)
+                return self._resp_error_check(resp, **kwargs)
 
             else:
                 # If all else fails, raise an error stating that we don't even

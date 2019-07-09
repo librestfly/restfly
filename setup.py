@@ -5,7 +5,7 @@ long_description = 'Please refer to https://restfly.readthedocs.io'
 
 setup(
     name='restfly',
-    version='1.0.2',
+    version='1.0.3',
     description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,
@@ -13,13 +13,12 @@ setup(
     url='https://github.com/stevemcgrath/restfly',
     license='MIT',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Topic :: Software Development',
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
