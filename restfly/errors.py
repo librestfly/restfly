@@ -95,16 +95,14 @@ class APIError(RestflyException):
         self.response = r
         self.code = r.status_code
         self.retries = retries
-        RestflyException.__init__(self, '{} {} >> {}'.format(
-            self.response.request.method,
-            self.response.request.url,
-            self.__str__()))
+        RestflyException.__init__(self, self.__str__())
 
     def __str__(self):
-        return '{}: {} {}'.format(
+        return '[{}: {}] {} body={}'.format(
             str(self.code),
             str(self.response.request.method),
-            str(self.response.request.url))
+            str(self.response.request.url),
+            str(self.response.content))
 
 
 class BadRequestError(APIError):  # 400 Response
