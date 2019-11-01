@@ -6,7 +6,7 @@ Sessions
     :members:
     :private-members:
 '''
-import requests, sys, time, warnings
+import requests, sys, time, warnings, os
 from .errors import *
 from . import __version__
 
@@ -23,6 +23,8 @@ class APISession(object):
     methods on it's own.
 
     Attributes:
+        _build (str):
+            The build number/version of the integration.
         _backoff (float):
             The default backoff timer to use when retrying.  The value is either
             a float or integer denoting the number of seconds to delay before
@@ -32,9 +34,12 @@ class APISession(object):
             The error mapping detailing what HTTP response code should throw
             what kind of error.  Specifically meant to be overloadable based on
             need.
-        _identity (str):
-            An optional identifier for the application to discern it amongst
-            other API calls.
+        _lib_name (str):
+            The name of the library.
+        _lib_version (str):
+            The version of the library.
+        _product (str):
+            The product name for the integration.
         _proxies (dict):
             A dictionary detailing what proxy should be used for what transport
             protocol.  This value will be passed to the session object after it
@@ -52,6 +57,10 @@ class APISession(object):
         _session (requests.Session):
             Provide a pre-built session instead of creating a requests session
             at instantiation.
+        _ssl_verify (bool):
+            Should SSL verification be performed?  If not, then inform requests
+            that we don't want to use SSL verification and suppress the SSL
+            certificate warnings.
         _url (str):
             The base URL path to use.  This should generally be a string value
             denoting the first half of the URI.  For example,
@@ -59,16 +68,21 @@ class APISession(object):
             :obj:`_request` method will join this string with the incoming path
             to construct the complete URI.  Note that the two strings will be
             joined with a backslash ``/``.
+        _vendor (str):
+            The vendor name for the integration.
     '''
     _url = None
     _retries = 3
     _backoff = 1
     _proxies = None
-    _identity = None
     _ssl_verify = True
-    _lib_identity = 'Restfly'
+    _lib_name = 'Restfly'
     _lib_version = __version__
     _restricted_paths = list()
+    _vendor = 'unknown'
+    _product = 'unknown'
+    _build = __version__
+    _adaptor = None
     _error_map = {
         400: BadRequestError,
         401: UnauthorizedError,
@@ -105,17 +119,20 @@ class APISession(object):
         511: NetworkAuthenticationRequiredError,
     }
 
-    def __init__(self, **kw):
+    def __init__(self, **kwargs):
         '''
         APISession initialization
 
         Args:
+            adaptor (Object, optional):
+                A Requests Session adaptor to bind to the session object.
             backoff (float, optional):
                 If a 429 response is returned, how much do we want to backoff
                 if the response didn't send a Retry-After header.
-            identity (str, optional):
-                An optional identifier for the application to discern it amongst
-                other API calls.
+            build (str, optional):
+                The build number to put into the User-Agent string.
+            product (str, optional):
+                The product name to put into the User-Agent string.
             proxies (dict, optional):
                 A dictionary detailing what proxy should be used for what
                 transport protocol.  This value will be passed to the session
@@ -136,23 +153,28 @@ class APISession(object):
                 warnings.
             url (str, optional):
                 The base URL that the paths will be appended onto.
+            vendor (str, optional):
+                The vendor name to put into the User-Agent string.
         '''
         # Assign the kw arguments to the private attributes.
-        self._url = kw.get('url', self._url)
-        self._retries = int(kw.get('retries', self._retries))
-        self._backoff = float(kw.get('backoff', self._backoff))
-        self._proxies = kw.get('proxies', self._proxies)
-        self._identity = kw.get('identity', self._identity)
-        self._ssl_verify = kw.get('ssl_verify', self._ssl_verify)
+        self._url = kwargs.get('url', self._url)
+        self._retries = int(kwargs.get('retries', self._retries))
+        self._backoff = float(kwargs.get('backoff', self._backoff))
+        self._proxies = kwargs.get('proxies', self._proxies)
+        self._ssl_verify = kwargs.get('ssl_verify', self._ssl_verify)
+        self._adaptor = kwargs.get('adaptor', self._adaptor)
+        self._vendor = kwargs.get('vendor', self._vendor)
+        self._product = kwargs.get('product', self._product)
+        self._build = kwargs.get('build', self._build)
 
         # Create the logging facility
         self._log = logging.getLogger('{}.{}'.format(
             self.__module__, self.__class__.__name__))
 
         # Initiate the session builder.
-        self._build_session(kw.get('session'))
+        self._build_session(**kwargs)
 
-    def _build_session(self, session=None):
+    def _build_session(self, **kwargs):
         '''
         The session builder.  User-agent strings, cookies, headers, etc that
         should persist for the session should be initiated here.  The session
@@ -171,11 +193,12 @@ class APISession(object):
 
             >>> class ExampleAPI(APISession):
             ...     def _build_session(self, session=None):
-            ...         APISession._build_session(self, session)
+            ...         super(APISession, self)._build_session(**kwargs)
             ...         self._session.auth = (self._username, self._password)
         '''
+        uname = os.uname()
         # link up the session to either the one passed or create a new session.
-        self._session = session if session else requests.Session()
+        self._session = kwargs.get('session', requests.Session())
 
         # If proxy support is needed, update the proxies in the session.
         if self._proxies:
@@ -190,19 +213,39 @@ class APISession(object):
 
         # Update the User-Agent string with the information necessary.
         self._session.headers.update({
-            'User-Agent': '{} ({}/{}; Restfly/{}; Python/{})'.format(
-                # If the identity was set, then use it, otherwise use the libs.
-                self._identity if self._identity else self._lib_identity,
+            'User-Agent': ' '.join([
+                'Integration/1.0 ({}; {}; Build/{})'.format(
 
-                # The Library identity and version
-                self._lib_identity,
-                self._lib_version,
+                    # The vendor name for the integration
+                    self._vendor,
 
-                # Restfly's version
-                __version__,
+                    # The product name of the integration
+                    self._product,
 
-                # The python version information
-                '.'.join([str(i) for i in sys.version_info][0:3])),
+                    # The build of the integration
+                    self._build
+                ),
+                '{}/{} (Restfly/{}; Python/{}; {}/{})'.format(
+
+                    # The name of the library being used
+                    self._lib_name,
+
+                    # The version of the library being used
+                    self._lib_version,
+
+                    # The version of Restfly
+                    __version__,
+
+                    # The python version string
+                    '.'.join([str(i) for i in sys.version_info][0:3]),
+
+                    # The source OS
+                    uname[0],
+
+                    # The source Arch
+                    uname[-1]
+                ),
+            ])
         })
 
     def _resp_error_check(self, response, **kwargs): #stub
@@ -242,7 +285,7 @@ class APISession(object):
         '''
         return kwargs
 
-    def _request(self, method, path, **kwargs):
+    def _request(self, method, path, **kw):
         '''
         The requests session base request method.  This is considered internal
         as it's generally recommended to use the bespoke methods for each HTTP
@@ -275,8 +318,7 @@ class APISession(object):
         # variable with a list of numeric status codes to additionally retry on.
         # This is helpful if the API in question doesn't always behave in a
         # consistent manner.
-        retry_codes = kwargs.get('retry_on', list())
-        kwargs.pop('retry_on', None)
+        retry_codes = kwargs.pop('retry_on', list())
 
         # While the number of retries is less than the retry limit, loop.  As we
         # will be returning from within the loop if we receive a successful
