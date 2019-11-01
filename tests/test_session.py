@@ -2,6 +2,10 @@ import pytest
 from requests import Request, Response
 from restfly.errors import *
 
+def test_user_agent_string(api):
+    ua = 'Integration/1.0 (pytest; auto-test; Build/b01)'
+    assert ua in api._session.headers['User-Agent']
+
 @pytest.mark.vcr()
 def test_session_delete(api):
     resp = api.delete('delete', json={'test': 'value'})
