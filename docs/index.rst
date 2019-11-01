@@ -1,7 +1,7 @@
 RESTfly: Simplifying API Libraries
 ==================================
 
-Release v\ |version|. (:ref: `Installation <install>`)
+Release v\ |version|.
 
 **RESTfly** (pronounced restfully) is a framework for building libraries to
 easily interact with RESTful APIs.
@@ -26,7 +26,6 @@ in a step-by-step manner.
     user/install
     user/quickstart
     user/advanced
-    user/authentication
 
 The API Documentation / Guide
 -----------------------------
@@ -39,3 +38,21 @@ this part of the documentation is what you're looking for.
     :glob:
 
     api/*
+
+Libraries Using RESTfly
+-----------------------
+
+RESTfly is a fairly new library based on the work of `Steve McGrath`_ within the
+pyTenable_ project.  There are several other projects also leveraging RESTfly
+listed below:
+
+- `Tenable -> Google Security Command Center Integration <https://github.com/tenable/integration-cscc>`_
+- `Tenable -> BigFix Integration <https://github.com/tenable/integration-bigfix>`_
+- `Tenable -> IBM CloudPak for Security Integration <https://github.com/tenable/integrations-ibm-cloudpak-for-security>`_
+- `Tenable -> BitDiscovery Integration <???>`_
+- `Tenable -> Azure Security Center Integration <https://github.com/tenable/integration-asc>`_
+- `Tenable -> JIRA Cloud Integration <https://github.com/tenable/integration-jira-cloud>`_
+
+
+.. _Steve McGrath: https://github.com/stevemcgrath
+.. _pyTenable: https://pytenable.readthedocs.io

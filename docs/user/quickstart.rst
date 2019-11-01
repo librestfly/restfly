@@ -11,7 +11,7 @@ getting started with RESTfly.
 First, make sure that:
 
 * RESTfly is :ref:`installed <install>`
-* RESTfly is :ref:`up-to-date <updates>`
+* RESTfly is up-to-date
 
 Now lets get started with a few examples:
 
@@ -125,3 +125,67 @@ however we will now have the ``users`` parameter to use::
 
 As you can imagine, we can keep bolting on APIEndpoints to the APISession as
 necessary and map out the API.
+
+Using Authentication
+--------------------
+
+Authentication is the next logical step here, and how it's implemented will
+likely vary significantly depending the API and how auth is handled.  For
+simplicities sake, we will be making the assumption of a simple API key that
+will be provided as an additional header with every call.  To handle this, we
+will need to make a couple of changes:
+
+* We will want to overload the constructor in order to provide the API key
+* We will want to overload the session builder to add the auth header.
+
+The resulting code will look like this:
+
+    >>> class ExampleAPI(APISession):
+    ...     _url = 'https://example.com/api'
+    ...
+    ...     def __init__(self, api_key, **kwargs):
+    ...         self._api_key = api_key
+    ...         super(ExampleAPI, self).__init__(**kwargs)
+    ...
+    ...     def _build_session(self, **kwargs):
+    ...         super(ExampleAPI, self)._build_session(**kwargs)
+    ...         self._session.headers.update({
+    ...             'X-API-Key': self._api_key,
+    ...         })
+
+As this is a stateless example above, there isn't any need to worry about
+session tokens, cookies, etc.  However if there was, then we simply take
+advantage of the cookiejar and session management that Requests gave us.
+Below is a simple example using Basic Auth:
+
+    >>> class ExampleAPI(APISession):
+    ...     _url = 'https://exmaple.com/api'
+    ...
+    ...     def login(self, username, password):
+    ...         self._session.auth = (username, password)
+    ...
+    ...     def logout(self):
+    ...         self._session.auth = None
+
+For something more involved using an API call, like needing to grab a session
+token, you could perform the following:
+
+    >>> class ExampleAPI(APISession):
+    ...     _url = 'https://example.com/api'
+    ...
+    ...     def login(self, username, password):
+    ...         token = self._api.post('auth',
+    ...             json={'user': username, 'passwd': password}).json()['token']
+    ...         self._session.headers.update({
+    ...             'X-Session-Token': token,
+    ...         })
+    ...
+    ...     def logout(self):
+    ...         self._api.delete('auth')
+    ...         self._session.headers.update({
+    ...             'X-Session-Token': None
+    ...         })
+
+Please note that for cookies, generally letting the Requests Session object's
+cookiejar handle the work is all you need.  While you can overload the Cookie
+header, it's generally discouraged.
