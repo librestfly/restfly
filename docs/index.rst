@@ -6,6 +6,18 @@ Release v\ |version|.
 **RESTfly** (pronounced restfully) is a framework for building libraries to
 easily interact with RESTful APIs.
 
+.. image:: https://travis-ci.org/SteveMcGrath/restfly.svg?branch=master
+   :target: https://travis-ci.org/SteveMcGrath/restfly
+.. image:: https://img.shields.io/pypi/v/restfly.svg
+   :target: https://pypi.org/project/restfly/
+.. image:: https://img.shields.io/pypi/pyversions/restfly.svg
+   :target: https://pypi.org/project/restfly/
+.. image:: https://img.shields.io/pypi/dm/restfly.svg
+   :target: https://github.com/stevemcgrath/restfly
+.. image:: https://img.shields.io/github/license/stevemcgrath/restfly.svg
+   :target: https://github.com/stevemcgrath/restfly
+
+
 .. image:: https://live.staticflickr.com/2815/10007461563_a02f26528f_c.jpg
 
 The User Guide
