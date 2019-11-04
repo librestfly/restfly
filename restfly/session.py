@@ -285,7 +285,7 @@ class APISession(object):
         '''
         return kwargs
 
-    def _request(self, method, path, **kw):
+    def _request(self, method, path, **kwargs):
         '''
         The requests session base request method.  This is considered internal
         as it's generally recommended to use the bespoke methods for each HTTP
