@@ -146,20 +146,25 @@ def check(name, obj, expected_type, **kwargs):
         default (obj, optional):
             if we want to return a default setting if the object is None,
             we can set one here.
-        case (string, optional):
+        case (str, optional):
             if we want to force the object values to be upper or lower case,
             then we will want to set this to either ``upper`` or ``lower``
             depending on the desired outcome.  The returned object will then
             also be in the specified case.
-        pattern (string, optional):
+        pattern (str, optional):
             Specify a regex pattern from the pattern map variable.
+        pattern_map (dict, optional):
+            Any additional items to add to the pattern mapping.
         regex (str, optional):
             Validate that the value of the object matches this pattern.
         items_type (type, optional):
             If the expected type is an iterable, and if all of the items
             within that iterable are expected to be a given type, then
             specifying the type here will enable checking each item within
-            the iterable.  NOTE: this will traverse the iterable.
+            the iterable.
+            NOTE: this will traverse the iterable and return a list object.
+        softcheck (bool, optional):
+            If the variable is a string type
 
     Returns:
         :obj:`Object`:
@@ -186,14 +191,52 @@ def check(name, obj, expected_type, **kwargs):
                 '{} has value of {}.  Expected one of {}'.format(
                     name, obj, ','.join([str(i) for i in choices])))
 
-    def validate_expected_type(expected, obj):
-        if not isinstance(obj, expected):
-            raise TypeError('{} is of type {}.  Expected {}.'.format(
+    def validate_expected_type(expected, obj, softcheck=True):
+        # Set the string types.
+        try:
+            string_types = (str, unicode)
+        except NameError:
+            string_types = (str)
+
+        if isinstance(obj, expected):
+            # if everything matches, then just return the object
+            return obj
+        elif (softcheck and isinstance(obj, string_types)
+          and expected not in [list, tuple]):
+            # if the expected type is not a list or tuple and it is a
+            # string type, then we will attempt to recast the object
+            # to be the expected type.
+            try:
+                new_obj = expected(obj)
+            except:
+                # if the recasting fails, then just pass through.
+                raise TypeError('{} is of type {}.  Expected {}.'.format(
+                    name,
+                    obj.__class__.__name__,
+                    expected_type.__name__
+                        if hasattr(expected, '__name__') else expected)
+                )
+            else:
+                if expected == bool:
+                    # if the expected type was boolean, then we will
+                    # want to ensure that the string is one of the
+                    # allowed values.  From there we will set the
+                    # object to be either True or False.  in either case
+                    # we will also want to make sure to set the
+                    # type_pass flag to ensure we don't raise a
+                    # TypeError later on.
+                    if obj.lower() in ['true', 'false', 'yes', 'no']:
+                        return obj.lower() in ['true', 'yes']
+                else:
+                    # In every other case, just set the object to be the
+                    # recasted object and set the type_pass flag.
+                    return new_obj
+        raise TypeError('{} is of type {}.  Expected {}.'.format(
             name,
             obj.__class__.__name__,
             expected_type.__name__
-                if hasattr(expected_type, '__name__') else expected_type
-        ))
+                if hasattr(expected, '__name__') else expected)
+        )
 
     def validate_normalized(obj, func, arg):
         if isinstance(obj, (list, tuple)):
@@ -239,13 +282,17 @@ def check(name, obj, expected_type, **kwargs):
 
     # If the object is none of the right types then we want to raise a
     # TypeError as it was something we weren't expecting.
-    validate_expected_type(expected_type, obj)
+    obj = validate_expected_type(
+        expected_type, obj, kwargs.get('softcheck', True))
 
     if kwargs.get('items_type'):
         # If the items within the list should also be of a specific type,
         # we can check those as well
+        lobj = list()
         for item in obj:
-            validate_expected_type(kwargs.get('items_type'), item)
+            lobj.append(validate_expected_type(
+                kwargs.get('items_type'), item, kwargs.get('softcheck', True)))
+        obj = lobj
 
     # if the object is only expected to have one of a finite set of values,
     # we should check against that and raise an exception if the the actual
@@ -256,8 +303,7 @@ def check(name, obj, expected_type, **kwargs):
     # If a pattern was specified, then we will want to pull the pattern from
     # the pattern map and validate that the
     if kwargs.get('pattern') and kwargs.get('pattern') in pmap.keys():
-        validate_normalized(obj, validate_regex_pattern,
-            pmap[kwargs.get('pattern')])
+        validate_normalized(obj, validate_regex_pattern, pmap[kwargs.get('pattern')])
 
     # If there wasn't a pattern matching that identifier, then throw an
     # IndexError

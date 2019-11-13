@@ -37,13 +37,23 @@ def test_check_single_type():
 def test_check_list_items_type():
     assert isinstance(check('test', [1, 2], list, items_type=int), list)
 
+def test_check_single_type_softchecking():
+    assert isinstance(check('test', '1', int), int)
+
+def test_check_single_type_softcheck_fail():
+    with pytest.raises(TypeError):
+        check('test', '1', int, softcheck=False)
+
 def test_check_type_fail():
     with pytest.raises(TypeError):
         check('test', 1, str)
 
 def test_check_list_items_fail():
     with pytest.raises(TypeError):
-        check('test', [1, 2, '3'], list, items_type=int)
+        check('test', [1, 2, 'three'], list, items_type=int)
+
+def test_check_list_items_softcheck():
+    assert check('test', [1, 2, '3'], list, items_type=int) == [1, 2, 3]
 
 def test_check_choices():
     check('test', [1, 2, 3], list, choices=list(range(5)))
