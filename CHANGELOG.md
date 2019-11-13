@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1]
+### Fixed
+- The Integrations UA string broke on Windows (os.uname vs platform.uname)
+
+### Added
+- "Soft" typechecking within the check utility function.
+
 ## [1.1.0]
 - Migrated the check logic out of the Endpoint and into Utils.
 - User-Agent String now follows the Integration/1.0 Standard
@@ -30,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0]
 - Initial Version
 
+[1.1.1]: https://github.com/tenable/pyTenable/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/tenable/pyTenable/compare/1.0.3...1.1.0
 [1.0.3]: https://github.com/tenable/pyTenable/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/tenable/pyTenable/compare/1.0.1...1.0.2
