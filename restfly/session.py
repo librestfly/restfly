@@ -6,7 +6,7 @@ Sessions
     :members:
     :private-members:
 '''
-import requests, sys, time, warnings, os
+import requests, sys, time, warnings, platform
 from .errors import *
 from . import __version__
 
@@ -196,7 +196,7 @@ class APISession(object):
             ...         super(APISession, self)._build_session(**kwargs)
             ...         self._session.auth = (self._username, self._password)
         '''
-        uname = os.uname()
+        uname = platform.uname()
         # link up the session to either the one passed or create a new session.
         self._session = kwargs.get('session', requests.Session())
 
@@ -243,7 +243,7 @@ class APISession(object):
                     uname[0],
 
                     # The source Arch
-                    uname[-1]
+                    uname[-2]
                 ),
             ])
         })
