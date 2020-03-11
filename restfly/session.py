@@ -6,7 +6,11 @@ Sessions
     :members:
     :private-members:
 '''
-import requests, sys, time, warnings, platform
+import requests, sys, time, warnings, platform, json
+from requests.exceptions import (
+    ConnectionError as RequestsConnectionError,
+    RequestException as RequestsRequestException
+)
 from .errors import *
 from . import __version__
 
@@ -83,6 +87,7 @@ class APISession(object):
     _product = 'unknown'
     _build = __version__
     _adaptor = None
+    _timeout = None
     _error_map = {
         400: BadRequestError,
         401: UnauthorizedError,
@@ -166,6 +171,8 @@ class APISession(object):
         self._vendor = kwargs.get('vendor', self._vendor)
         self._product = kwargs.get('product', self._product)
         self._build = kwargs.get('build', self._build)
+        self._error_func = kwargs.get('error_func', api_error_func)
+        self._timeout = kwargs.get('timeout', self._timeout)
 
         # Create the logging facility
         self._log = logging.getLogger('{}.{}'.format(
@@ -337,51 +344,74 @@ class APISession(object):
                     # If the path is not one of the paths that would contain
                     # sensitive data (such as login information) then pass the
                     # log on unredacted.
-                    self._log.debug('uri={}, query={}, body={}'.format(
-                        uri, kwargs.get('params', {}), kwargs.get('json', {})))
+                    self._log.debug(json.dumps({
+                            'method': method,
+                            'url': '{}/{}'.format(self._url, path),
+                            'params': kwargs.get('params', {}),
+                            'body': kwargs.get('json', {})
+                        })
+                    )
                 else:
                     # The path was a restricted path, generate the log, however
                     # redact the information.
-                    self._log.debug('uri={}, query={}, body={}'.format(
-                        uri, 'REDACTED', 'REDACTED'))
+                    self._log.debug(json.dumps({
+                            'method': method,
+                            'url': '{}/{}'.format(self._url, path),
+                            'params': 'REDACTED',
+                            'body': 'REDACTED'
+                        })
+                    )
 
             # Make the call to the API and pull the status code.
-            resp = self._session.request(method, uri, **kwargs)
-            status = resp.status_code
+            try:
+                resp = self._session.request(method,
+                    '{}/{}'.format(self._url, path),
+                    timeout=self._timeout, **kwargs)
+                status = resp.status_code
 
-            if status in self._error_map.keys():
-                # If a status code that we know about has returned, then we will
-                # want to raise the appropriate Error.
-                err = self._error_map[status]
-                if err.retryable or status in retry_codes:
-                    # If the APIError fetched is retryable, we will want to
-                    # attempt to retry our call.  If we see the "Retry-After"
-                    # header, then we will respect that.  If no "Retry-After"
-                    # header exists, then we will use the _backoff attribute to
-                    # build a back-off timer based on the number of retries we
-                    # have already performed.
-                    retries += 1
-                    time.sleep(resp.headers.get(
-                        'retry-after', retries * self._backoff))
+            # Here we will catch any underlying exceptions thrown from the
+            # requests library, log them, iterate the retry counter, then
+            # release the attempt for the next iteration.
+            except (RequestsConnectionError, RequestsRequestException) as err:
+                self._log.error('Requests Library Error: {}'.format(str(err)))
+                time.sleep(1)
+                retries += 1
 
-                    # The need to potentially modify the request for subsequent
-                    # calls is the whole reason that we aren't using the default
-                    # Retry logic that urllib3 supports.
-                    kwargs = self._retry_request(resp, retries, **kwargs)
-                    continue
-                else:
-                    raise err(resp, retries=retries)
-
-            elif status >= 200 and status <= 299:
-                # As everything looks ok, lets pass the response on to the error
-                # checker and then return the response.
-                return self._resp_error_check(resp, **kwargs)
-
+            # The following code will run when a request successfully returned.
             else:
-                # If all else fails, raise an error stating that we don't even
-                # know whats happening.
-                raise APIError(resp, retries=retries)
-        raise err(resp, retries=retries)
+                if status in self._error_map.keys():
+                    # If a status code that we know about has returned, then we
+                    # will want to raise the appropriate Error.
+                    err = self._error_map[status]
+                    if err.retryable or status in retry_codes:
+                        # If the APIError fetched is retryable, we will want to
+                        # attempt to retry our call.  If we see the
+                        # "Retry-After" header, then we will respect that.  If
+                        # no "Retry-After" header exists, then we will use the
+                        # _backoff attribute to build a back-off timer based on
+                        # the number of retries we have already performed.
+                        retries += 1
+                        time.sleep(resp.headers.get(
+                            'retry-after', retries * self._backoff))
+
+                        # The need to potentially modify the request for
+                        # subsequent calls is the whole reason that we aren't
+                        # using the default Retry logic that urllib3 supports.
+                        kwargs = self._retry_request(resp, retries, **kwargs)
+                        continue
+                    else:
+                        raise err(resp, retries=retries, func=self._error_func)
+
+                elif status >= 200 and status <= 299:
+                    # As everything looks ok, lets pass the response on to the
+                    # error checker and then return the response.
+                    return self._resp_error_check(resp, **kwargs)
+
+                else:
+                    # If all else fails, raise an error stating that we don't
+                    # even know whats happening.
+                    raise APIError(resp, retries=retries, func=self._error_func)
+        raise err(resp, retries=retries, func=self._error_func)
 
     def get(self, path, **kwargs):
         '''
