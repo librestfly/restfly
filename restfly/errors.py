@@ -40,20 +40,59 @@ Errors
 '''
 import logging
 
+
+def api_error_func(r, **kwargs):
+    '''
+    Default message function for APIErrors
+
+    Args:
+        r (request.Response):
+            The HTTP response that caused the error to be thrown.
+        **kwargs (dict):
+            The keyword argument dictionary from the APIError
+
+    Returns:
+        :obj:`str`:
+            The string message for the error.
+    '''
+    return '[{}: {}] {} body={}'.format(
+        str(r.status_code),
+        str(r.request.method),
+        str(r.request.url),
+        str(r.content))
+
+
+def base_msg_func(msg, **kwargs):
+    '''
+    Default function used for RestflyException
+
+    Args:
+        msg (str):
+            The message string to be returned
+        **kwargs (dict):
+            The keyword argument dictionary from the RestflyException
+
+    Returns:
+        :obj:`str`:
+            The string message
+    '''
+    return str(msg)
+
+
 class RestflyException(Exception):
     '''
     Base exception class that sets up logging and handles some basic scaffolding
     for all other exception classes.  This exception should never be directly
     seen.
     '''
-    def __init__(self, msg):
+    def __init__(self, msg, **kwargs):
         self._log = logging.getLogger('{}.{}'.format(
-            self.__module__, self.__class__.__name__))
-        self.msg = str(msg)
-        self._log.error(self.msg)
+                self.__module__, self.__class__.__name__))
+        self.msg = kwargs.get('func', base_msg_func)(msg, **kwargs)
+        self._log.error(self.__str__())
 
     def __str__(self):
-        return self.msg
+        return str(self.msg)
 
     def __repr__(self):
         return repr(self.__str__())
@@ -70,9 +109,27 @@ class UnexpectedValueError(RestflyException):
     pass
 
 
+class ConnectionError(RestflyException):
+    '''
+    A connection-error is thrown only for products like Tenable.sc or Nessus,
+    where the application may be installed anywhere.  This error is thrown if
+    we are unable to complete the initial connection or gather the basic
+    information about the application that is necessary.
+    '''
+    pass
+
+
+class PackageMissingError(RestflyException):
+    '''
+    In situations where an optional library is needed, this exception will be
+    thrown if the optional library is needed, however is unavailable.
+    '''
+    pass
+
+
+
 # The following Exception codes have been written using the following link as
-# a baseline (and the ):
-# https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+# a baseline:  https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 
 
 class APIError(RestflyException):
@@ -91,18 +148,12 @@ class APIError(RestflyException):
     retryable = False
     retries = None
 
-    def __init__(self, r, retries=None):
+    def __init__(self, r, **kwargs):
+        kwargs['func'] = kwargs.get('func', api_error_func)
         self.response = r
         self.code = r.status_code
-        self.retries = retries
-        RestflyException.__init__(self, self.__str__())
-
-    def __str__(self):
-        return '[{}: {}] {} body={}'.format(
-            str(self.code),
-            str(self.response.request.method),
-            str(self.response.request.url),
-            str(self.response.content))
+        self.retries = kwargs.get('retries')
+        super(APIError, self).__init__(r, **kwargs)
 
 
 class BadRequestError(APIError):  # 400 Response
