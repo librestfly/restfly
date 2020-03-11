@@ -3,13 +3,94 @@ Utils
 =====
 
 .. autofunction:: check
+.. autofunction:: dict_clean
+.. autofunction:: dict_flatten
 .. autofunction:: dict_merge
 .. autofunction:: force_case
 .. autofunction:: trunc
 
 '''
 from .errors import UnexpectedValueError
-import re
+import re, collections
+
+
+def dict_flatten(d, parent_key='', sep='.'):
+    '''
+    Flattens a nested dict.
+
+    Args:
+        d (dict):
+            The dictionary to flatten
+        sep (str, optional):
+            The seperation character.  If left unspecified, the default is '.'.
+
+    Examples:
+        >>> x = {'a': 1, 'b': {'c': 2}}
+        >>> dict_flatten(x)
+            {'a': 1, 'b.c': 2}
+
+    Shamelessly ripped from `this <https://stackoverflow.com/a/6027615>`_
+    Stackoverflow answer.
+    '''
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
+# backwards compat with pre 1.2.
+flatten = dict_flatten
+
+
+def dict_clean(d):
+    '''
+    Recursively removes dictionary keys where the value is None
+
+    Args:
+        d (dict):
+            The dictionary to clean
+
+    Returns:
+        :obj:`dict`:
+            The cleaned dictionary
+
+    Examples:
+        >>> x = {'a': 1, 'b': {'c': 2, 'd': None}, 'e': None}
+        >>> clean_dict(x)
+            {'a': 1, 'b': {'c': 2}}
+    '''
+    clean = dict()
+    for key, value in d.items():
+
+        # if the value is a dictionary, then we will recursively clean.
+        if isinstance(value, dict):
+            new_value = dict_clean(value)
+            if len(new_value.keys()) > 0:
+                clean[key] = new_value
+
+        # if the value is a list, we will check for any dictionaries within
+        # the list and recursively clean.
+        elif isinstance(value, list):
+            new_value = list()
+            for item in value:
+                if isinstance(item, dict):
+                    new_item = dict_clean(item)
+                    if len(new_item.keys()) > 0:
+                        new_value.append(new_item)
+                else:
+                    new_value.append(item)
+            clean[key] = new_value
+
+        # if the value isn't None, then store the value under the key.
+        elif value is not None:
+            clean[key] = value
+
+    return clean
+
 
 def dict_merge(master, updates):
     '''
@@ -179,8 +260,15 @@ def check(name, obj, expected_type, **kwargs):
 
         >>> check('example', val, int, choices=list(range(100)))
     '''
+    # Set the string types.
+    try:
+        string_types = (str, unicode)
+    except NameError:
+        string_types = (str)
+
     def validate_regex_pattern(regex, obj):
-        if len(re.findall(regex, str(obj))) <= 0:
+        if (isinstance(obj, string_types)
+          and len(re.findall(regex, str(obj))) <= 0):
             raise UnexpectedValueError(
                 '{} has value of {}.  Does not match pattern {}'.format(
                     name, obj, regex))
@@ -192,17 +280,11 @@ def check(name, obj, expected_type, **kwargs):
                     name, obj, ','.join([str(i) for i in choices])))
 
     def validate_expected_type(expected, obj, softcheck=True):
-        # Set the string types.
-        try:
-            string_types = (str, unicode)
-        except NameError:
-            string_types = (str)
-
         if isinstance(obj, expected):
             # if everything matches, then just return the object
             return obj
-        elif (softcheck and isinstance(obj, string_types)
-          and expected not in [list, tuple]):
+        elif ((softcheck and isinstance(obj, string_types)
+          and expected not in [list, tuple])):
             # if the expected type is not a list or tuple and it is a
             # string type, then we will attempt to recast the object
             # to be the expected type.
@@ -275,10 +357,7 @@ def check(name, obj, expected_type, **kwargs):
     # types list.  NOTE this is for Python2 only, as Python3 treats all
     # strings as type string.
     if expected_type == str:
-        try:
-            expected_type = (str, unicode)
-        except NameError:
-            pass
+        expected_type = string_types
 
     # If the object is none of the right types then we want to raise a
     # TypeError as it was something we weren't expecting.

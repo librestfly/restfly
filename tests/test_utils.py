@@ -1,6 +1,13 @@
 import pytest
 from restfly.errors import UnexpectedValueError
-from restfly.utils import dict_merge, force_case, trunc, check
+from restfly.utils import (
+    check,
+    dict_clean,
+    dict_flatten,
+    dict_merge,
+    force_case,
+    trunc
+)
 
 def test_force_case_single():
     assert force_case('TEST', 'lower') == 'test'
@@ -16,6 +23,18 @@ def test_dict_merge():
         's': {'a': 4, 'c': 3},
         'b': 2
     }
+
+def test_dict_flatten():
+    assert dict_flatten({'a': 1, 'b': {'c': 2}}) == {'a': 1, 'b.c': 2}
+
+def test_dict_clean():
+    dirty = {
+        'a': 1,
+        'b': {'c': 2, 'd': None},
+        'e': None,
+        'f': [{'g': 1, 'h': None}, {'i': None}]
+    }
+    assert dict_clean(dirty) == {'a': 1, 'b': {'c': 2}, 'f': [{'g': 1}]}
 
 def test_trunc():
     assert trunc('Hello There!', 128) == 'Hello There!'
@@ -106,6 +125,9 @@ def test_check_pattern_mapping_ipv6_fail():
 
 def test_check_regex_pattern():
     check('test', '12345', str, regex=r'^\d+$')
+
+def test_check_pattern_int_pass():
+    check('test', 1, (int, str), pattern='ipv4')
 
 def test_check_regex_fail():
     with pytest.raises(UnexpectedValueError):
