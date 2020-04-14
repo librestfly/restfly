@@ -11,6 +11,7 @@ from requests.exceptions import (
     ConnectionError as RequestsConnectionError,
     RequestException as RequestsRequestException
 )
+from .utils import dict_merge
 from .errors import *
 from . import __version__
 
@@ -34,10 +35,14 @@ class APISession(object):
             a float or integer denoting the number of seconds to delay before
             the next retry attempt.  The number will be multiplied by the number
             of retries attempted.
+        _base_error_map (dict):
+            The error mapping detailing what HTTP response code should throw
+            what kind of error.  As this is the base mapping, overloading this
+            would remove any pre-set error mappings.
         _error_map (dict):
             The error mapping detailing what HTTP response code should throw
-            what kind of error.  Specifically meant to be overloadable based on
-            need.
+            what kind of error.  This error map will overload specific error
+            mappings.
         _lib_name (str):
             The name of the library.
         _lib_version (str):
@@ -88,7 +93,8 @@ class APISession(object):
     _build = __version__
     _adaptor = None
     _timeout = None
-    _error_map = {
+    _error_map = dict()
+    _base_error_map = {
         400: BadRequestError,
         401: UnauthorizedError,
         403: ForbiddenError,
@@ -161,6 +167,13 @@ class APISession(object):
             vendor (str, optional):
                 The vendor name to put into the User-Agent string.
         '''
+        # Construct the error map from the base mapping, then overload the map
+        # with anything specified in the error map parameter and then store the
+        # final result in the error map parameter.  This allows for overloading
+        # specific items if necessary without having to re-construct the whole
+        # map.
+        self._error_map = dict_merge(self._base_error_map, self._error_map)
+
         # Assign the kw arguments to the private attributes.
         self._url = kwargs.get('url', self._url)
         self._retries = int(kwargs.get('retries', self._retries))
