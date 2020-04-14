@@ -1,0 +1,42 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Integration/1.0 (pytest; auto-test; Build/b01) Restfly/1.2.0 (Restfly/1.2.0;
+        Python/3.6.7; Darwin/x86_64)
+    method: GET
+    uri: https://httpbin.org/get
+  response:
+    body:
+      string: "{\n  \"args\": {}, \n  \"headers\": {\n    \"Accept\": \"*/*\", \n
+        \   \"Accept-Encoding\": \"gzip, deflate\", \n    \"Host\": \"httpbin.org\",
+        \n    \"User-Agent\": \"Integration/1.0 (pytest; auto-test; Build/b01) Restfly/1.2.0
+        (Restfly/1.2.0; Python/3.6.7; Darwin/x86_64)\", \n    \"X-Amzn-Trace-Id\":
+        \"Root=1-5e95c190-41200e286c9db02cb92d86cd\"\n  }, \n  \"origin\": \"73.75.169.111\",
+        \n  \"url\": \"https://httpbin.org/get\"\n}\n"
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '390'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 14 Apr 2020 13:58:40 GMT
+      Server:
+      - gunicorn/19.9.0
+    status:
+      code: 200
+      message: OK
+version: 1

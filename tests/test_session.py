@@ -1,10 +1,37 @@
 import pytest
 from requests import Request, Response
+from restfly import __version__ as version, APISession
 from restfly.errors import *
 
 def test_user_agent_string(api):
-    ua = 'Integration/1.0 (pytest; auto-test; Build/b01)'
+    ua = 'Integration/1.0 (pytest; auto-test; Build/{version})'.format(
+        version=version
+    )
     assert ua in api._session.headers['User-Agent']
+
+def test_example_context_manager():
+    '''
+    This test creates a simple "authentication" to validate that the
+    context management is actually working as expected.  As the _authenticate
+    method is automatically run when entering the context, and _deauthenticate
+    is run upon exit, we will simply be modifying the authed variable in the
+    outer scope and asserting that its being properly set.
+    '''
+    authed = None
+    class Example(APISession):
+        _url = 'https://httpbin.org'
+
+        def _authenticate(self, **kwargs):
+            nonlocal authed
+            authed = True
+
+        def _deauthenticate(self):
+            nonlocal authed
+            authed = False
+
+    with Example() as ex:
+        assert authed == True
+    assert authed == False
 
 @pytest.mark.vcr()
 def test_session_delete(api):
