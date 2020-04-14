@@ -133,6 +133,18 @@ class APISession(object):
         511: NetworkAuthenticationRequiredError,
     }
 
+    def __enter__(self):
+        '''
+        Context Manager __enter__ built-in method. See PEP-343 for more details.
+        '''
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        '''
+        Context Manager __exit__ built-in method. See PEP-343 for more details.
+        '''
+        return self._deauthenticate()
+
     def __init__(self, **kwargs):
         '''
         APISession initialization
@@ -196,6 +208,7 @@ class APISession(object):
 
         # Initiate the session builder.
         self._build_session(**kwargs)
+        self._authenticate(**kwargs)
 
     def _build_session(self, **kwargs):
         '''
@@ -270,6 +283,16 @@ class APISession(object):
                 ),
             ])
         })
+
+    def _authenticate(self, **kwargs):
+        '''
+        '''
+        pass
+
+    def _deauthenticate(self, **kwargs):
+        '''
+        '''
+        pass
 
     def _resp_error_check(self, response, **kwargs): #stub
         '''
