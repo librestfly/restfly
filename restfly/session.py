@@ -70,6 +70,9 @@ class APISession(object):
             Should SSL verification be performed?  If not, then inform requests
             that we don't want to use SSL verification and suppress the SSL
             certificate warnings.
+        _timeout (int):
+            The number of seconds to wait with no data returned before declaring
+            the request as stalled and timing-out the request.
         _url (str):
             The base URL path to use.  This should generally be a string value
             denoting the first half of the URI.  For example,
@@ -345,8 +348,14 @@ class APISession(object):
         # response or a non-retryable error, the loop should only be handling
         # the retries themselves.
         while retries <= self._retries:
-            # Check to see if the path is a relative path or a
-            if urlparse(path).netloc != '':
+            # Check to see if the path is a relative path or a full path  If
+            # we were able to successfully parse a network location using
+            # urlparse, then we will assume that this is a full path and pass
+            # the URL as-is.  If it's a relative path, then we will append the
+            # baseurl to the path.  In either case, the constructed uri string
+            # is what we will be using for the rest of the method for making
+            # the actual calls.
+            if len(urlparse(path).netloc) > 0:
                 uri = path
             else:
                 uri = '{}/{}'.format(self._url, path)
@@ -359,7 +368,7 @@ class APISession(object):
                     # log on unredacted.
                     self._log.debug(json.dumps({
                             'method': method,
-                            'url': '{}/{}'.format(self._url, path),
+                            'url': uri,
                             'params': kwargs.get('params', {}),
                             'body': kwargs.get('json', {})
                         })
@@ -369,7 +378,7 @@ class APISession(object):
                     # redact the information.
                     self._log.debug(json.dumps({
                             'method': method,
-                            'url': '{}/{}'.format(self._url, path),
+                            'url': uri,
                             'params': 'REDACTED',
                             'body': 'REDACTED'
                         })
@@ -377,8 +386,7 @@ class APISession(object):
 
             # Make the call to the API and pull the status code.
             try:
-                resp = self._session.request(method,
-                    '{}/{}'.format(self._url, path),
+                resp = self._session.request(method, uri,
                     timeout=self._timeout, **kwargs)
                 status = resp.status_code
 
@@ -455,7 +463,7 @@ class APISession(object):
 
         Args:
             path (str):
-                The path to be appented onto the base URL for the request.
+                The path to be appended onto the base URL for the request.
             **kwargs (dict):
                 Keyword arguments to be passed to the Requests library.
 
