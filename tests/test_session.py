@@ -1,4 +1,4 @@
-import pytest
+import pytest, sys
 from requests import Request, Response
 from restfly import __version__ as version, APISession
 from restfly.errors import *
@@ -17,16 +17,16 @@ def test_example_context_manager():
     is run upon exit, we will simply be modifying the authed variable in the
     outer scope and asserting that its being properly set.
     '''
-    authed = None
+    global authed
     class Example(APISession):
         _url = 'https://httpbin.org'
 
         def _authenticate(self, **kwargs):
-            nonlocal authed
+            global authed
             authed = True
 
         def _deauthenticate(self):
-            nonlocal authed
+            global authed
             authed = False
 
     with Example() as ex:
