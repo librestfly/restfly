@@ -32,7 +32,7 @@ in a step-by-step manner.
     constructed, and should not be considered a complete walkthrough.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 4
 
     user/intro
     user/install
@@ -46,7 +46,6 @@ If you are looking for information on a specific function, class, or method,
 this part of the documentation is what you're looking for.
 
 .. toctree::
-    :maxdepth: 2
     :glob:
 
     api/*

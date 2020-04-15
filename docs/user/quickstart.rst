@@ -75,9 +75,11 @@ common CRUD operations for a given model.  Lets start with this example::
     >>> from restfly.endpoint import APIEndpoint
     >>>
     >>> class UserAPI(APIEndpoint):
+    ...     _path = 'users'
+    ...
     ...     def create(self, username, password, name):
     ...         '''POST https://exmaple.com/api/users'''
-    ...         return self._api.post('users', json={
+    ...         return self._post(json={
     ...             'username': username,
     ...             'password': password,
     ...             'name': name
@@ -85,16 +87,16 @@ common CRUD operations for a given model.  Lets start with this example::
     ...
     ...     def update(self, id, **kwargs):
     ...         '''PATCH https://exmaple.com/api/users/{id}'''
-    ...         return self._api.patch('users/{}'.format(id),
-    ...             json=kwargs).json() # Returns user id
+    ...         return self._patch(str(id), json=kwargs).json()
+    ...         # Returns user id
     ...
     ...     def delete(self, id):
     ...         '''DELETE https://exmaple.com/api/users/{id}'''
-    ...         return self._api.delete('users/{}'.format(id)).json()
+    ...         return self._delete(str(id)).json()
     ...
     ...     def list(self):
     ...         '''GET https://exmaple.com/api/users'''
-    ...         return self._api.get('users').json()
+    ...         return self._get().json()
 
 It covers a the basics of CRUD operations for the ``users`` endpoint.  Now we
 just need to link it up to an APISession class so that it's usable.  Doing so

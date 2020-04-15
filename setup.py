@@ -1,7 +1,33 @@
 from setuptools import setup, find_packages
 
 
-long_description = 'Please refer to https://restfly.readthedocs.io'
+long_description = '''
+RESTfly: Simplifying API Libraries
+==================================
+
+**RESTfly** (pronounced restfully) is a framework for building libraries to
+easily interact with RESTful APIs.
+
+.. image:: https://travis-ci.org/SteveMcGrath/restfly.svg?branch=master
+   :target: https://travis-ci.org/SteveMcGrath/restfly
+.. image:: https://img.shields.io/pypi/v/restfly.svg
+   :target: https://pypi.org/project/restfly/
+.. image:: https://img.shields.io/pypi/pyversions/restfly.svg
+.. image:: https://img.shields.io/pypi/dm/restfly.svg
+.. image:: https://img.shields.io/github/license/stevemcgrath/restfly.svg
+   :target: https://github.com/SteveMcGrath/restfly/blob/master/LICENSE
+
+
+.. image:: https://restfly.readthedocs.io/en/latest/_static/logo.png
+
+RESTfly is a simple library designed to provide the scaffolding to make API
+interaction libraries for just about any RESTful API.  With an emphasis on
+simplicity and readability of the resulting library code thats written, the
+idea here is provide something that is not only useful for folks to use, but
+can also serve as a reference implimentation of the given APIs.
+
+Please refer to the full documentation at https://restfly.readthedocs.io.
+'''
 
 setup(
     name='restfly',

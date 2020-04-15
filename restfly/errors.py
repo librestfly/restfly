@@ -2,41 +2,41 @@
 Errors
 ======
 
-.. autoclass:: RestflyException
-.. autoclass:: UnexpectedValueError
-.. autoclass:: APIError
-.. autoclass:: BadRequestError
-.. autoclass:: UnauthorizedError
-.. autoclass:: ForbiddenError
-.. autoclass:: NotFoundError
-.. autoclass:: InvalidMethodError
-.. autoclass:: NotAcceptableError
-.. autoclass:: ProxyAuthenticationError
-.. autoclass:: RequestTimeoutError
-.. autoclass:: RequestConflictError
-.. autoclass:: NoLongerExistsError
-.. autoclass:: LengthRequiredError
-.. autoclass:: PreconditionFailedError
-.. autoclass:: PayloadTooLargeError
-.. autoclass:: URITooLongError
-.. autoclass:: UnsupportedMediaTypeError
-.. autoclass:: RangeNotSatisfiableError
-.. autoclass:: ExpectationFailedError
-.. autoclass:: TeapotResponseError
-.. autoclass:: MisdirectRequestError
-.. autoclass:: TooEarlyError
-.. autoclass:: UpgradeRequiredError
-.. autoclass:: PreconditionRequiredError
-.. autoclass:: TooManyRequestsError
-.. autoclass:: RequestHeaderFieldsTooLargeError
-.. autoclass:: UnavailableForLegalReasonsError
-.. autoclass:: ServerError
-.. autoclass:: MethodNotImplementedError
-.. autoclass:: BadGatewayError
-.. autoclass:: ServiceUnavailableError
-.. autoclass:: GatewayTimeoutError
-.. autoclass:: NotExtendedError
-.. autoclass:: NetworkAuthenticationRequiredError
+.. autoexception:: RestflyException
+.. autoexception:: UnexpectedValueError
+.. autoexception:: APIError
+.. autoexception:: BadRequestError
+.. autoexception:: UnauthorizedError
+.. autoexception:: ForbiddenError
+.. autoexception:: NotFoundError
+.. autoexception:: InvalidMethodError
+.. autoexception:: NotAcceptableError
+.. autoexception:: ProxyAuthenticationError
+.. autoexception:: RequestTimeoutError
+.. autoexception:: RequestConflictError
+.. autoexception:: NoLongerExistsError
+.. autoexception:: LengthRequiredError
+.. autoexception:: PreconditionFailedError
+.. autoexception:: PayloadTooLargeError
+.. autoexception:: URITooLongError
+.. autoexception:: UnsupportedMediaTypeError
+.. autoexception:: RangeNotSatisfiableError
+.. autoexception:: ExpectationFailedError
+.. autoexception:: TeapotResponseError
+.. autoexception:: MisdirectRequestError
+.. autoexception:: TooEarlyError
+.. autoexception:: UpgradeRequiredError
+.. autoexception:: PreconditionRequiredError
+.. autoexception:: TooManyRequestsError
+.. autoexception:: RequestHeaderFieldsTooLargeError
+.. autoexception:: UnavailableForLegalReasonsError
+.. autoexception:: ServerError
+.. autoexception:: MethodNotImplementedError
+.. autoexception:: BadGatewayError
+.. autoexception:: ServiceUnavailableError
+.. autoexception:: GatewayTimeoutError
+.. autoexception:: NotExtendedError
+.. autoexception:: NetworkAuthenticationRequiredError
 '''
 import logging
 
