@@ -11,6 +11,7 @@ from requests.exceptions import (
     ConnectionError as RequestsConnectionError,
     RequestException as RequestsRequestException
 )
+from box import Box, BoxList
 from .utils import dict_merge
 from .errors import *
 from . import __version__
@@ -28,6 +29,9 @@ class APISession(object):
     methods on it's own.
 
     Attributes:
+        _box (bool):
+            Should responses be converted to Box objects automatically by
+            default?  If left unspecified, the default is `False`
         _build (str):
             The build number/version of the integration.
         _backoff (float):
@@ -96,6 +100,8 @@ class APISession(object):
     _build = __version__
     _adaptor = None
     _timeout = None
+    _box = False
+    _box_attrs = dict()
     _error_map = dict()
     _base_error_map = {
         400: BadRequestError,
@@ -201,6 +207,8 @@ class APISession(object):
         self._build = kwargs.get('build', self._build)
         self._error_func = kwargs.get('error_func', api_error_func)
         self._timeout = kwargs.get('timeout', self._timeout)
+        self._box = kwargs.get('box', self._box)
+        self._box_attrs = kwargs.get('box_attrs', self._box_attrs)
 
         # Create the logging facility
         self._log = logging.getLogger('{}.{}'.format(
@@ -348,6 +356,12 @@ class APISession(object):
                 A list of numeric response status codes to attempt retry on.
                 This behavior is additive to the retry parameter in the
                 exceptions.
+            box (bool, optional):
+                A request-specific override as to if the response should
+                attempted to be converted into a Box object.
+            box_attrs (dict, optional):
+                A request-specific override with a list of key-values to
+                pass to the box constructor.
 
         Returns:
             :obj:`requests.Response`:
@@ -359,6 +373,16 @@ class APISession(object):
         '''
         err = None
         retries = 0
+
+        # Ensure that the box variable is set to either Box or BoxList.  Then we
+        # want to ensure that "box" is removed from the keyword list.
+        box = kwargs.pop('box', self._box)
+        if box != False and not isinstance(box, (Box, BoxList)):
+            box = Box
+
+        # Similarly to the box var, we will want to do the same thing with the
+        # box_attrs keyword.
+        box_attrs = kwargs.pop('box_attrs', self._box_attrs)
 
         # If retry_on is specified, then we will populate the retry_codes
         # variable with a list of numeric status codes to additionally retry on.
@@ -449,7 +473,32 @@ class APISession(object):
                 elif status >= 200 and status <= 299:
                     # As everything looks ok, lets pass the response on to the
                     # error checker and then return the response.
-                    return self._resp_error_check(resp, **kwargs)
+                    resp = self._resp_error_check(resp, **kwargs)
+
+                    # If boxification is enabled, then we will want to return
+                    # JSON responses with Box objects.  If the content type
+                    # isn't JSON, then return a regular Response object.  As we
+                    # can't always trust that the content-type header has been
+                    # set, if no content-type header is returned to us, we will
+                    # assume that the caller is expecting the response to be
+                    # a JSON body.
+                    ctype = resp.headers.get('content-type', 'application/json')
+                    if box and 'application/json' in ctype:
+
+                        # we want to make a quick check to ensure that there is
+                        # actually some data to pass to Box.  If there isn't,
+                        # then we should just return back a None response.
+                        if int(resp.headers.get('content-length', 0)) > 0:
+                            if box_attrs.get('default_box'):
+                                self._log.debug(
+                                    'unknown attributes will return as {}'.format(
+                                        box_attrs.get('default_box_attr', Box)
+                                ))
+                            return box.from_json(resp.content, **box_attrs)
+                        else:
+                            return None
+                    else:
+                        return resp
 
                 else:
                     # If all else fails, raise an error stating that we don't

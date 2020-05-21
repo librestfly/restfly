@@ -14,6 +14,7 @@ from .errors import UnexpectedValueError
 import re, collections
 
 
+
 def dict_flatten(d, parent_key='', sep='.'):
     '''
     Flattens a nested dict.
@@ -349,8 +350,14 @@ def check(name, obj, expected_type, **kwargs):
 
     # If the object sent to us has a None value, then we will return None.
     # If a default was set, then we will return the default value.
-    if obj == None:
+    allow_none = kwargs.get('allow_none', True)
+    if obj == None and allow_none:
         return kwargs.get('default')
+
+    # If the allow_none keyword was passed and set to False, we should raise an
+    # unexpected value error if none was seen.
+    elif obj == None and not allow_none:
+        raise UnexpectedValueError('{} has no value.'.format(name))
 
     # If we are checking for a string type, we will also want to check for
     # unicode type transparently, so add the unicode type to the expected

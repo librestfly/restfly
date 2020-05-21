@@ -15,6 +15,13 @@ class APIEndpoint(object):
     function from which it's possible to check the type & content of a
     variable to ensure that we are passing good data to the API.
 
+    Attributes:
+        _path (str):
+            The URI path to append to the base path as is specified in the
+            APISession object.  This can become quite useful if most of the
+            CRUD follows the same pathing.  It is only used when using the
+            APIEndpoint verbs (_get, _post, _put, etc.).
+
     Args:
         api (APISession):
             The APISession (or sired child) instance that the endpoint will

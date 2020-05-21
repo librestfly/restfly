@@ -55,11 +55,12 @@ def api_error_func(r, **kwargs):
         :obj:`str`:
             The string message for the error.
     '''
-    return '[{}: {}] {} body={}'.format(
-        str(r.status_code),
-        str(r.request.method),
-        str(r.request.url),
-        str(r.content))
+    return '[{code}: {verb}] {uri} body={body}'.format(
+        code=str(r.status_code),
+        verb=str(r.request.method),
+        uri=str(r.request.url),
+        body=str(r.content)
+    )
 
 
 def base_msg_func(msg, **kwargs):

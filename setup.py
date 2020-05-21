@@ -31,7 +31,7 @@ Please refer to the full documentation at https://restfly.readthedocs.io.
 
 setup(
     name='restfly',
-    version='1.2.0',
+    version='1.3.0',
     description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,
@@ -56,5 +56,6 @@ setup(
     packages=find_packages(exclude=['docs', 'tests']),
     install_requires=[
         'requests>=2.19',
+        'python-box>=4.2.3',
     ],
 )
