@@ -1,5 +1,6 @@
 import pytest, sys
 from requests import Request, Response
+from box import Box
 from restfly import __version__ as version, APISession
 from restfly.errors import *
 
@@ -228,3 +229,15 @@ def test_session_notextendederror(api):
 def test_session_networkauthrequirederror(api):
     with pytest.raises(NetworkAuthenticationRequiredError):
         api.get('status/511')
+
+@pytest.mark.vcr()
+def test_session_box_non_json(api):
+    assert isinstance(api.get('html'), Response)
+
+@pytest.mark.vcr()
+def test_session_box_json(api):
+    assert isinstance(api.get('json', box=True), Box)
+
+@pytest.mark.vcr()
+def test_session_disable_box(api):
+    assert isinstance(api.get('json', box=False), Response)

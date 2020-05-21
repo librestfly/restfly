@@ -132,3 +132,7 @@ def test_check_pattern_int_pass():
 def test_check_regex_fail():
     with pytest.raises(UnexpectedValueError):
         check('test', 'abcdef', str, regex=r'^\d+$')
+
+def test_check_allow_none_fail():
+    with pytest.raises(UnexpectedValueError):
+        check('test', None, str, allow_none=False)
