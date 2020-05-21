@@ -4,7 +4,7 @@ RESTfly: Simplifying API Libraries
 Release v\ |version|.
 
 **RESTfly** (pronounced restfully) is a framework for building libraries to
-easily interact with RESTful APIs.
+easily interact with RESTful APIs on Python 3.6+
 
 .. image:: https://travis-ci.org/SteveMcGrath/restfly.svg?branch=master
    :target: https://travis-ci.org/SteveMcGrath/restfly
