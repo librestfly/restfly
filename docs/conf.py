@@ -13,10 +13,19 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 autodoc_mock_imports = [
-    'semver'
+    'semver',
+    'box',
 ]
 
 import os, sys, datetime
+from unittest import mock
+
+# For some reason even though box is in the autodoc_mock_imports, it's still
+# failing the doc builds.  This will get around that issue by forcibly mocking
+# the library.
+sys.modules['box'] = mock.Mock()
+
+
 sys.path.insert(0, os.path.abspath('..'))
 
 import restfly
@@ -100,13 +109,13 @@ html_theme_options = {
     'description': 'A Python library for building API libraries',
     'fixed_sidebar': False,
     'logo': 'logo.png',
-    #'touch_icon': 'logo.png',
+    'touch_icon': 'touch_icon.png',
     'logo_name': 'RESTfly',
     'github_user': 'stevemcgrath',
     'github_repo': 'restfly',
     'github_button': True,
     'travis_button': True,
-    #'analytics_id': '',
+    'analytics_id': 'UA-138663895-1',
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
