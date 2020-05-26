@@ -107,7 +107,6 @@ class UnexpectedValueError(RestflyException):
     passed a value of 0, then it is an unexpected value, and this Exception
     should be thrown by the package.
     '''
-    pass
 
 
 class ConnectionError(RestflyException):
@@ -117,7 +116,6 @@ class ConnectionError(RestflyException):
     we are unable to complete the initial connection or gather the basic
     information about the application that is necessary.
     '''
-    pass
 
 
 class PackageMissingError(RestflyException):
@@ -125,7 +123,6 @@ class PackageMissingError(RestflyException):
     In situations where an optional library is needed, this exception will be
     thrown if the optional library is needed, however is unavailable.
     '''
-    pass
 
 
 
@@ -169,7 +166,6 @@ class BadRequestError(APIError):  # 400 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class UnauthorizedError(APIError):  # 401 Response
@@ -201,7 +197,6 @@ class ForbiddenError(APIError):  # 403 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class NotFoundError(APIError):  # 404 Response
@@ -215,7 +210,6 @@ class NotFoundError(APIError):  # 404 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class InvalidMethodError(APIError):  # 405 Response
@@ -230,7 +224,6 @@ class InvalidMethodError(APIError):  # 405 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class NotAcceptableError(APIError):  # 406 Response
@@ -244,7 +237,6 @@ class NotAcceptableError(APIError):  # 406 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class ProxyAuthenticationError(APIError):  # 407 Response
@@ -257,7 +249,6 @@ class ProxyAuthenticationError(APIError):  # 407 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class RequestTimeoutError(APIError):  # 408 Response
@@ -272,7 +263,6 @@ class RequestTimeoutError(APIError):  # 408 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class RequestConflictError(APIError):  # 409 Response
@@ -287,7 +277,6 @@ class RequestConflictError(APIError):  # 409 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class NoLongerExistsError(APIError):  # 410 Response
@@ -306,7 +295,6 @@ class NoLongerExistsError(APIError):  # 410 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class LengthRequiredError(APIError):  # 411 Response
@@ -320,7 +308,6 @@ class LengthRequiredError(APIError):  # 411 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class PreconditionFailedError(APIError):  # 412 Response
@@ -334,7 +321,6 @@ class PreconditionFailedError(APIError):  # 412 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class PayloadTooLargeError(APIError):  # 413 Response
@@ -347,7 +333,6 @@ class PayloadTooLargeError(APIError):  # 413 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class URITooLongError(APIError):  # 414 Response
@@ -362,7 +347,6 @@ class URITooLongError(APIError):  # 414 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class UnsupportedMediaTypeError(APIError): # 415 Response
@@ -377,7 +361,6 @@ class UnsupportedMediaTypeError(APIError): # 415 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class RangeNotSatisfiableError(APIError):  # 416 Response
@@ -392,7 +375,6 @@ class RangeNotSatisfiableError(APIError):  # 416 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class ExpectationFailedError(APIError):  # 417 Response
@@ -405,7 +387,6 @@ class ExpectationFailedError(APIError):  # 417 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class TeapotResponseError(APIError):  # 418 Response
@@ -421,7 +402,6 @@ class TeapotResponseError(APIError):  # 418 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class MisdirectRequestError(APIError):  # 421 Response
@@ -434,7 +414,6 @@ class MisdirectRequestError(APIError):  # 421 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
     '''
@@ -447,7 +426,6 @@ class MisdirectRequestError(APIError):  # 421 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class TooEarlyError(APIError):  # 425 Response
@@ -461,7 +439,6 @@ class TooEarlyError(APIError):  # 425 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class UpgradeRequiredError(APIError):  # 426 Response
@@ -475,7 +452,6 @@ class UpgradeRequiredError(APIError):  # 426 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class PreconditionRequiredError(APIError):  # 428 Response
@@ -491,7 +467,6 @@ class PreconditionRequiredError(APIError):  # 428 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class TooManyRequestsError(APIError):  # 420 & 429 Response
@@ -519,7 +494,6 @@ class RequestHeaderFieldsTooLargeError(APIError):  # 431 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class UnavailableForLegalReasonsError(APIError):  # 451 Response
@@ -533,7 +507,6 @@ class UnavailableForLegalReasonsError(APIError):  # 451 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class ServerError(APIError):  # 500 Response
@@ -547,7 +520,6 @@ class ServerError(APIError):  # 500 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class MethodNotImplementedError(APIError):  # 501 Response
@@ -616,7 +588,6 @@ class NotExtendedError(APIError):  # 510 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
 
 
 class NetworkAuthenticationRequiredError(APIError):  # 511 Response
@@ -630,4 +601,3 @@ class NetworkAuthenticationRequiredError(APIError):  # 511 Response
         response (request.Response):
             This is the Response object that had caused the Exception to fire.
     '''
-    pass
