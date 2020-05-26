@@ -79,12 +79,12 @@ class APIIterator(object):
         '''
         pass
 
-    def get(self, index, default=None):
+    def get(self, key, default=None):
         '''
         Retrieves an item from the the current page based off the index provided.
 
         Args:
-            index (int): The index of the item to retrieve.
+            key (int): The index of the item to retrieve.
             default (obj): The returned object if the item does not exist.
 
         Examples:
@@ -93,7 +93,7 @@ class APIIterator(object):
             None
         '''
         try:
-            return self.page[int(index)]
+            return self.__getitem__(key)
         except IndexError:
             return default
 
@@ -142,5 +142,4 @@ class APIIterator(object):
         # record.
         self.count += 1
         self.page_count += 1
-        item = self[self.page_count - 1]
-        return item
+        return self[self.page_count - 1]
