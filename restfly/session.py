@@ -494,7 +494,7 @@ class APISession(object):
                                     'unknown attributes will return as {}'.format(
                                         box_attrs.get('default_box_attr', Box)
                                 ))
-                            return box.from_json(resp.content, **box_attrs)
+                            return box.from_json(resp.text, **box_attrs)
                         else:
                             return None
                     else:
