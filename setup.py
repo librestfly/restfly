@@ -31,7 +31,7 @@ Please refer to the full documentation at https://restfly.readthedocs.io.
 
 setup(
     name='restfly',
-    version='1.3.0',
+    version='1.3.1',
     description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,
@@ -45,14 +45,18 @@ setup(
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5'
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8'
+        'Programming Language :: Python :: 3.8',
     ],
     keywords='tenable tenable_io securitycenter containersecurity',
     packages=find_packages(exclude=['docs', 'tests']),
     install_requires=[
         'requests>=2.19',
-        'python-box>=4.2.3',
+        'python-box>=3.4.6',
     ],
 )
