@@ -11,7 +11,12 @@ Utils
 
 '''
 from .errors import UnexpectedValueError
-import re, collections
+import re
+
+try:
+    from collections.abc import MutableMapping
+except:
+    from collections import MutableMapping
 
 
 
@@ -36,7 +41,7 @@ def dict_flatten(d, parent_key='', sep='.'):
     items = []
     for k, v in d.items():
         new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
+        if isinstance(v, MutableMapping):
             items.extend(flatten(v, new_key, sep=sep).items())
         else:
             items.append((new_key, v))
