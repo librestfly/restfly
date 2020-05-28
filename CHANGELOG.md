@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.2]
 ### Changed
+- Changed the use of the collections library to be forwards compat with py39
 - Modified the Box processing check to use the length of resp.text instead of the Content-Length header.
 
 ## [1.3.1]
