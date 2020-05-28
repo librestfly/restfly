@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2]
+### Changed
+- Modified the Box processing check to use the length of resp.text instead of the Content-Length header.
+
 ## [1.3.1]
 ### Changed
 - Reduced min version of "python-box" to a Python 2.7 supported version.
@@ -52,12 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0]
 - Initial Version
 
-[1.3.1]: https://github.com/tenable/pyTenable/compare/1.3.0...1.3.1
-[1.3.0]: https://github.com/tenable/pyTenable/compare/1.2.0...1.3.0
-[1.2.0]: https://github.com/tenable/pyTenable/compare/1.1.1...1.2.0
-[1.1.1]: https://github.com/tenable/pyTenable/compare/1.1.0...1.1.1
-[1.1.0]: https://github.com/tenable/pyTenable/compare/1.0.3...1.1.0
-[1.0.3]: https://github.com/tenable/pyTenable/compare/1.0.2...1.0.3
-[1.0.2]: https://github.com/tenable/pyTenable/compare/1.0.1...1.0.2
-[1.0.1]: https://github.com/tenable/pyTenable/compare/1.0.0...1.0.1
+[1.3.2]: https://github.com/SteveMcGrath/restfly/compare/1.3.1...1.3.2
+[1.3.1]: https://github.com/SteveMcGrath/restfly/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/SteveMcGrath/restfly/compare/1.2.0...1.3.0
+[1.2.0]: https://github.com/SteveMcGrath/restfly/compare/1.1.1...1.2.0
+[1.1.1]: https://github.com/SteveMcGrath/restfly/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/SteveMcGrath/restfly/compare/1.0.3...1.1.0
+[1.0.3]: https://github.com/SteveMcGrath/restfly/compare/1.0.2...1.0.3
+[1.0.2]: https://github.com/SteveMcGrath/restfly/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/SteveMcGrath/restfly/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/SteveMcGrath/restfly/commit/96c389866da658374736942a0771bf47ff0ccb4c

@@ -97,7 +97,7 @@ class APISession(object):
     _restricted_paths = list()
     _vendor = 'unknown'
     _product = 'unknown'
-    _build = __version__
+    _build = 'unknown'
     _adaptor = None
     _timeout = None
     _box = False
@@ -292,13 +292,15 @@ class APISession(object):
             ])
         })
 
-    def _authenticate(self, **kwargs):
+    def _authenticate(self, **kwargs): #stub
         '''
+        Authentication stub
         '''
         pass
 
-    def _deauthenticate(self, **kwargs):
+    def _deauthenticate(self, **kwargs): #stub
         '''
+        Deautnethication stub
         '''
         pass
 
@@ -488,7 +490,7 @@ class APISession(object):
                         # we want to make a quick check to ensure that there is
                         # actually some data to pass to Box.  If there isn't,
                         # then we should just return back a None response.
-                        if int(resp.headers.get('content-length', 0)) > 0:
+                        if len(resp.text) > 0:
                             if box_attrs.get('default_box'):
                                 self._log.debug(
                                     'unknown attributes will return as {}'.format(
