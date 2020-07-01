@@ -1,5 +1,4 @@
-__version__ = '1.3.2'
-
+from .version import version as __version__
 from .session import APISession
 from .endpoint import APIEndpoint
 from .iterator import APIIterator

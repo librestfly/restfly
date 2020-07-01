@@ -14,7 +14,7 @@ from requests.exceptions import (
 from box import Box, BoxList
 from .utils import dict_merge
 from .errors import *
-from . import __version__
+from .version import version
 
 try:
     from urlparse import urlparse
@@ -126,7 +126,7 @@ class APISession(object):
     _proxies = None
     _ssl_verify = True
     _lib_name = 'Restfly'
-    _lib_version = __version__
+    _lib_version = version
     _restricted_paths = list()
     _vendor = 'unknown'
     _product = 'unknown'
@@ -275,7 +275,7 @@ class APISession(object):
                     self._lib_version,
 
                     # The version of Restfly
-                    __version__,
+                    version,
 
                     # The python version string
                     '.'.join([str(i) for i in sys.version_info][0:3]),

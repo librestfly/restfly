@@ -1,5 +1,7 @@
 from setuptools import setup, find_packages
 
+with open('restfly/version.py', 'r') as vfile:
+    exec(vfile.read())
 
 long_description = '''
 RESTfly: Simplifying API Libraries
@@ -31,7 +33,7 @@ Please refer to the full documentation at https://restfly.readthedocs.io.
 
 setup(
     name='restfly',
-    version='1.3.2',
+    version=version,
     description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,
@@ -48,7 +50,7 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5'
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
