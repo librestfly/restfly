@@ -8,7 +8,7 @@ Utils
 .. autofunction:: dict_merge
 .. autofunction:: force_case
 .. autofunction:: trunc
-
+.. autofunction:: url_validator
 '''
 from .errors import UnexpectedValueError
 import re
@@ -18,6 +18,34 @@ try:
 except:
     from collections import MutableMapping
 
+try:
+    from urllib.parse import urlparse
+except:
+    from urlparse import urlparse
+
+
+def url_validator(url, validate=['scheme', 'netloc']):
+    '''
+    Validates that the required URL Parts exist within the URL string.
+
+    Args:
+        url (string):
+            The URL to process.
+        validate (list[str], optional):
+            The URL parts to validate are non-empty.
+
+    Examples:
+        >>> url_validator('https://google.com') # Returns True
+        >>> url_validator('google.com') #Returns False
+        >>> url_validator(
+        ...     'https://httpbin.com/404', validate=['scheme', 'netloc', 'path'])
+            # Returns True
+    '''
+    r = urlparse(url)._asdict()
+    for v in validate:
+        if v not in r or r[v] == '':
+            return False
+    return True
 
 
 def dict_flatten(d, parent_key='', sep='.'):

@@ -6,7 +6,8 @@ from restfly.utils import (
     dict_flatten,
     dict_merge,
     force_case,
-    trunc
+    trunc,
+    url_validator,
 )
 
 def test_force_case_single():
@@ -136,3 +137,11 @@ def test_check_regex_fail():
 def test_check_allow_none_fail():
     with pytest.raises(UnexpectedValueError):
         check('test', None, str, allow_none=False)
+
+def test_url_validator():
+    assert True == url_validator('https://google.com')
+    assert True == url_validator('https://httpbin.org/404',
+                                 validate=['scheme', 'netloc', 'path'])
+    assert False == url_validator('https://httpbin.org',
+                                  validate=['scheme', 'netloc', 'path'])
+    assert False == url_validator('httpbin.org')
