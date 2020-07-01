@@ -379,7 +379,7 @@ class APISession(object):
         # Ensure that the box variable is set to either Box or BoxList.  Then we
         # want to ensure that "box" is removed from the keyword list.
         box = kwargs.pop('box', self._box)
-        if box != False and not isinstance(box, (Box, BoxList)):
+        if box != False and box not in [Box, BoxList]:
             box = Box
 
         # Similarly to the box var, we will want to do the same thing with the
