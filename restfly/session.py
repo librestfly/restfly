@@ -406,29 +406,27 @@ class APISession(object):
             else:
                 uri = '{}/{}'.format(self._url, path)
 
-            if (('params' in kwargs and kwargs['params'])
-              or ('json' in kwargs and kwargs['json'])):
-                if path not in self._restricted_paths:
-                    # If the path is not one of the paths that would contain
-                    # sensitive data (such as login information) then pass the
-                    # log on unredacted.
-                    self._log.debug(json.dumps({
-                            'method': method,
-                            'url': uri,
-                            'params': kwargs.get('params', {}),
-                            'body': kwargs.get('json', {})
-                        })
-                    )
-                else:
-                    # The path was a restricted path, generate the log, however
-                    # redact the information.
-                    self._log.debug(json.dumps({
-                            'method': method,
-                            'url': uri,
-                            'params': 'REDACTED',
-                            'body': 'REDACTED'
-                        })
-                    )
+            if path not in self._restricted_paths:
+                # If the path is not one of the paths that would contain
+                # sensitive data (such as login information) then pass the
+                # log on unredacted.
+                self._log.debug('Request:{}'.format(json.dumps({
+                        'method': method,
+                        'url': uri,
+                        'params': kwargs.get('params', {}),
+                        'body': kwargs.get('json', {})
+                    })
+                ))
+            else:
+                # The path was a restricted path, generate the log, however
+                # redact the information.
+                self._log.debug('Request:{}'.format(json.dumps({
+                        'method': method,
+                        'url': uri,
+                        'params': 'REDACTED',
+                        'body': 'REDACTED'
+                    })
+                ))
 
             # Make the call to the API and pull the status code.
             try:
