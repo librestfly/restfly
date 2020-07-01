@@ -125,6 +125,13 @@ class PackageMissingError(RestflyException):
     '''
 
 
+class NotImplementedError(RestflyException):
+    '''
+    In situations where something is stubbed out or otherwise not yet
+    implemented, this error can be thrown back to inform the user that the
+    requestion method, class, etc. is not yet developed.
+    '''
+
 
 # The following Exception codes have been written using the following link as
 # a baseline:  https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
