@@ -86,6 +86,39 @@ class APISession(object):
             joined with a backslash ``/``.
         _vendor (str):
             The vendor name for the integration.
+
+    Args:
+        adaptor (Object, optional):
+            A Requests Session adaptor to bind to the session object.
+        backoff (float, optional):
+            If a 429 response is returned, how much do we want to backoff
+            if the response didn't send a Retry-After header.
+        build (str, optional):
+            The build number to put into the User-Agent string.
+        product (str, optional):
+            The product name to put into the User-Agent string.
+        proxies (dict, optional):
+            A dictionary detailing what proxy should be used for what
+            transport protocol.  This value will be passed to the session
+            object after it has been either attached or created.  For
+            details on the structure of this dictionary, consult the
+            :requests:`proxies <user/advanced/#proxies>` section of the
+            Requests documentation.
+        retries (int, optional):
+            The number of retries to make before failing a request.  The
+            default is 3.
+        session (requests.Session, optional):
+            Provide a pre-built session instead of creating a requests
+            session at instantiation.
+        ssl_verify (bool, optional):
+            If SSL Verification needs to be disabled (for example when using
+            a self-signed certificate), then this parameter should be set to
+            ``False`` to disable verification and mask the Certificate
+            warnings.
+        url (str, optional):
+            The base URL that the paths will be appended onto.
+        vendor (str, optional):
+            The vendor name to put into the User-Agent string.
     '''
     _url = None
     _retries = 3
@@ -152,42 +185,6 @@ class APISession(object):
         return self._deauthenticate()
 
     def __init__(self, **kwargs):
-        '''
-        APISession initialization
-
-        Args:
-            adaptor (Object, optional):
-                A Requests Session adaptor to bind to the session object.
-            backoff (float, optional):
-                If a 429 response is returned, how much do we want to backoff
-                if the response didn't send a Retry-After header.
-            build (str, optional):
-                The build number to put into the User-Agent string.
-            product (str, optional):
-                The product name to put into the User-Agent string.
-            proxies (dict, optional):
-                A dictionary detailing what proxy should be used for what
-                transport protocol.  This value will be passed to the session
-                object after it has been either attached or created.  For
-                details on the structure of this dictionary, consult the
-                :requests:`proxies <user/advanced/#proxies>` section of the
-                Requests documentation.
-            retries (int, optional):
-                The number of retries to make before failing a request.  The
-                default is 3.
-            session (requests.Session, optional):
-                Provide a pre-built session instead of creating a requests
-                session at instantiation.
-            ssl_verify (bool, optional):
-                If SSL Verification needs to be disabled (for example when using
-                a self-signed certificate), then this parameter should be set to
-                ``False`` to disable verification and mask the Certificate
-                warnings.
-            url (str, optional):
-                The base URL that the paths will be appended onto.
-            vendor (str, optional):
-                The vendor name to put into the User-Agent string.
-        '''
         # Construct the error map from the base mapping, then overload the map
         # with anything specified in the error map parameter and then store the
         # final result in the error map parameter.  This allows for overloading
