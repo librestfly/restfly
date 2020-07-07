@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.4]
+### Added
+- Can now override the base_path by passing use_base=False in a request.
+
+### Added
+- Ability tp separately specify the base path.
+
+## [1.3.3]
+### Changes
+- Switched to separated version.py file to reduce touchpoints.
+- Will now always log the request, regardless of the query params or body.
+- Moved docstring from APISession.__init__ to the class to conform to google docstring format.
+
+### Added
+- url_validator utility.
+
+### Fixed
+- box checking should check that class types equal one another, not that it is an instance of box.
+
 ## [1.3.2]
 ### Changed
 - Changed the use of the collections library to be forwards compat with py39
@@ -57,6 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0]
 - Initial Version
 
+[1.3.4]: https://github.com/SteveMcGrath/restfly/compare/1.3.3...1.3.4
+[1.3.3]: https://github.com/SteveMcGrath/restfly/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/SteveMcGrath/restfly/compare/1.3.1...1.3.2
 [1.3.1]: https://github.com/SteveMcGrath/restfly/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/SteveMcGrath/restfly/compare/1.2.0...1.3.0
