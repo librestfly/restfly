@@ -71,6 +71,17 @@ def test_session_full_uri(api):
     assert resp1 == resp2
 
 @pytest.mark.vcr()
+def test_session_base_path(api):
+    resp1 = api.post('post', json={'test': 'value'}).json()
+    api._base_path = 'get'
+    resp2 = api.post('post', json={'test': 'value'}, use_base=False).json()
+    resp1['headers'] = {}
+    resp2['headers'] = {}
+    assert resp1 == resp2
+    api._base_path = 'status'
+    resp3 = api.get('200')
+
+@pytest.mark.vcr()
 def test_session_badrequesterror(api):
     with pytest.raises(BadRequestError):
         api.get('status/400')

@@ -121,6 +121,7 @@ class APISession(object):
             The vendor name to put into the User-Agent string.
     '''
     _url = None
+    _base_path = None
     _retries = 3
     _backoff = 1
     _proxies = None
@@ -194,6 +195,7 @@ class APISession(object):
 
         # Assign the kw arguments to the private attributes.
         self._url = kwargs.get('url', self._url)
+        self._base_path = kwargs.get('base_path', self._base_path)
         self._retries = int(kwargs.get('retries', self._retries))
         self._backoff = float(kwargs.get('backoff', self._backoff))
         self._proxies = kwargs.get('proxies', self._proxies)
@@ -361,6 +363,8 @@ class APISession(object):
             box_attrs (dict, optional):
                 A request-specific override with a list of key-values to
                 pass to the box constructor.
+            use_base (bool, optional):
+
 
         Returns:
             :obj:`requests.Response`:
@@ -403,6 +407,8 @@ class APISession(object):
             # the actual calls.
             if len(urlparse(path).netloc) > 0:
                 uri = path
+            elif kwargs.pop('use_base', True) and self._base_path:
+                uri = '{}/{}/{}'.format(self._url, self._base_path, path)
             else:
                 uri = '{}/{}'.format(self._url, path)
 

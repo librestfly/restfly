@@ -1,0 +1,129 @@
+interactions:
+- request:
+    body: '{"test": "value"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '17'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Integration/1.0 (pytest; auto-test; Build/1.3.4) Restfly/1.3.4 (Restfly/1.3.4;
+        Python/3.6.7; Darwin/x86_64)
+    method: POST
+    uri: https://httpbin.org/post
+  response:
+    body:
+      string: "{\n  \"args\": {}, \n  \"data\": \"{\\\"test\\\": \\\"value\\\"}\",
+        \n  \"files\": {}, \n  \"form\": {}, \n  \"headers\": {\n    \"Accept\": \"*/*\",
+        \n    \"Accept-Encoding\": \"gzip, deflate\", \n    \"Content-Length\": \"17\",
+        \n    \"Content-Type\": \"application/json\", \n    \"Host\": \"httpbin.org\",
+        \n    \"User-Agent\": \"Integration/1.0 (pytest; auto-test; Build/1.3.4) Restfly/1.3.4
+        (Restfly/1.3.4; Python/3.6.7; Darwin/x86_64)\", \n    \"X-Amzn-Trace-Id\":
+        \"Root=1-5f03491e-890c85b282072c7e654e2457\"\n  }, \n  \"json\": {\n    \"test\":
+        \"value\"\n  }, \n  \"origin\": \"73.75.169.111\", \n  \"url\": \"https://httpbin.org/post\"\n}\n"
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '568'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 06 Jul 2020 15:54:06 GMT
+      Server:
+      - gunicorn/19.9.0
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"test": "value"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '17'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Integration/1.0 (pytest; auto-test; Build/1.3.4) Restfly/1.3.4 (Restfly/1.3.4;
+        Python/3.6.7; Darwin/x86_64)
+    method: POST
+    uri: https://httpbin.org/post
+  response:
+    body:
+      string: "{\n  \"args\": {}, \n  \"data\": \"{\\\"test\\\": \\\"value\\\"}\",
+        \n  \"files\": {}, \n  \"form\": {}, \n  \"headers\": {\n    \"Accept\": \"*/*\",
+        \n    \"Accept-Encoding\": \"gzip, deflate\", \n    \"Content-Length\": \"17\",
+        \n    \"Content-Type\": \"application/json\", \n    \"Host\": \"httpbin.org\",
+        \n    \"User-Agent\": \"Integration/1.0 (pytest; auto-test; Build/1.3.4) Restfly/1.3.4
+        (Restfly/1.3.4; Python/3.6.7; Darwin/x86_64)\", \n    \"X-Amzn-Trace-Id\":
+        \"Root=1-5f03491e-085ade5a3d3db7705b303f3e\"\n  }, \n  \"json\": {\n    \"test\":
+        \"value\"\n  }, \n  \"origin\": \"73.75.169.111\", \n  \"url\": \"https://httpbin.org/post\"\n}\n"
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '568'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 06 Jul 2020 15:54:06 GMT
+      Server:
+      - gunicorn/19.9.0
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Integration/1.0 (pytest; auto-test; Build/1.3.4) Restfly/1.3.4 (Restfly/1.3.4;
+        Python/3.6.7; Darwin/x86_64)
+    method: GET
+    uri: https://httpbin.org/status/200
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 06 Jul 2020 15:54:06 GMT
+      Server:
+      - gunicorn/19.9.0
+    status:
+      code: 200
+      message: OK
+version: 1
