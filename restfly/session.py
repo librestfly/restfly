@@ -364,11 +364,14 @@ class APISession(object):
                 A request-specific override with a list of key-values to
                 pass to the box constructor.
             use_base (bool, optional):
-
+                Should the base path be appended to the URL?  if left
+                unspecified the default is `True`.
 
         Returns:
-            :obj:`requests.Response`:
-                The response object from the requests lib.
+            :obj:`requests.Response` or :obj:`box.Box`
+                If the request was informed to attempt to "boxify" the response
+                and the response was JSON data, then a Box will be returned.
+                In all other scenarios, a Response object will be returned.
 
         Examples:
             >>> api = APISession()
@@ -519,10 +522,14 @@ class APISession(object):
             path (str):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
-                Keyword arguments to be passed to the Requests library.
+                Keyword arguments to be passed to
+                :py:meth:`restfly.session.APISession._request`.
 
         Returns:
-            :obj:`requests.Response`
+            :obj:`requests.Response` or :obj:`box.Box`
+                If the request was informed to attempt to "boxify" the response
+                and the response was JSON data, then a Box will be returned.
+                In all other scenarios, a Response object will be returned.
 
         Examples:
             >>> api = APISession()
@@ -540,10 +547,14 @@ class APISession(object):
             path (str):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
-                Keyword arguments to be passed to the Requests library.
+                Keyword arguments to be passed to
+                :py:meth:`restfly.session.APISession._request`.
 
         Returns:
-            :obj:`requests.Response`
+            :obj:`requests.Response` or :obj:`box.Box`
+                If the request was informed to attempt to "boxify" the response
+                and the response was JSON data, then a Box will be returned.
+                In all other scenarios, a Response object will be returned.
 
         Examples:
             >>> api = APISession()
@@ -561,10 +572,14 @@ class APISession(object):
             path (str):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
-                Keyword arguments to be passed to the Requests library.
+                Keyword arguments to be passed to
+                :py:meth:`restfly.session.APISession._request`.
 
         Returns:
-            :obj:`requests.Response`
+            :obj:`requests.Response` or :obj:`box.Box`
+                If the request was informed to attempt to "boxify" the response
+                and the response was JSON data, then a Box will be returned.
+                In all other scenarios, a Response object will be returned.
 
         Examples:
             >>> api = APISession()
@@ -582,10 +597,14 @@ class APISession(object):
             path (str):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
-                Keyword arguments to be passed to the Requests library.
+                Keyword arguments to be passed to
+                :py:meth:`restfly.session.APISession._request`.
 
         Returns:
-            :obj:`requests.Response`
+            :obj:`requests.Response` or :obj:`box.Box`
+                If the request was informed to attempt to "boxify" the response
+                and the response was JSON data, then a Box will be returned.
+                In all other scenarios, a Response object will be returned.
 
         Examples:
             >>> api = APISession()
@@ -603,10 +622,14 @@ class APISession(object):
             path (str):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
-                Keyword arguments to be passed to the Requests library.
+                Keyword arguments to be passed to
+                :py:meth:`restfly.session.APISession._request`.
 
         Returns:
-            :obj:`requests.Response`
+            :obj:`requests.Response` or :obj:`box.Box`
+                If the request was informed to attempt to "boxify" the response
+                and the response was JSON data, then a Box will be returned.
+                In all other scenarios, a Response object will be returned.
 
         Examples:
             >>> api = APISession()
@@ -624,10 +647,14 @@ class APISession(object):
             path (str):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
-                Keyword arguments to be passed to the Requests library.
+                Keyword arguments to be passed to
+                :py:meth:`restfly.session.APISession._request`.
 
         Returns:
-            :obj:`requests.Response`
+            :obj:`requests.Response` or :obj:`box.Box`
+                If the request was informed to attempt to "boxify" the response
+                and the response was JSON data, then a Box will be returned.
+                In all other scenarios, a Response object will be returned.
 
         Examples:
             >>> api = APISession()

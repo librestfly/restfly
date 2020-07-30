@@ -175,9 +175,10 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'RESTfly', u'RESTfly Documentation',
-     author, 'RESTfly', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc, 'RESTfly', u'RESTfly Documentation',
+        author, 'RESTfly', 'A library to wrap RESTful APIs.', 'Miscellaneous'
+    ),
 ]
 
 
@@ -188,9 +189,10 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'https://docs.python.org/': None,
-    'requests': ('http://docs.python-requests.org/en/master/', None)
+    'requests': ('https://requests.readthedocs.io/en/master/', None),
+    'box': ('https://box.readthedocs.io/en/latest', None),
 }
 
 extlinks = {
-    'requests': ('http://docs.python-requests.org/en/master/%s', 'requests')
+    'requests': ('https://requests.readthedocs.io/en/master/%s', 'requests'),
 }
