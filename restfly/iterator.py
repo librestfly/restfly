@@ -129,9 +129,9 @@ class APIIterator(object):
                 raise StopIteration()
 
             # Perform the _get_page call.
+            self._get_page()
             self.page_count = 0
             self.num_pages += 1
-            self._get_page()
 
             # If the length of the page is 0, then we don't have anything
             # further to do and should stop iteration.
