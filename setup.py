@@ -60,5 +60,6 @@ setup(
     install_requires=[
         'requests>=2.19',
         'python-box>=3.4.6',
+        'arrow>=1.0.2',
     ],
 )
