@@ -11,7 +11,7 @@ Utils
 .. autofunction:: url_validator
 '''
 from .errors import UnexpectedValueError
-import re
+import re, arrow
 
 try:
     from collections.abc import MutableMapping
@@ -317,6 +317,8 @@ def check(name, obj, expected_type, **kwargs):
         if isinstance(obj, expected):
             # if everything matches, then just return the object
             return obj
+        elif isistance(expected, arrow.Arrow):
+            return arrow.get(obj)
         elif ((softcheck and isinstance(obj, string_types)
           and expected not in [list, tuple])):
             # if the expected type is not a list or tuple and it is a
@@ -389,7 +391,7 @@ def check(name, obj, expected_type, **kwargs):
 
     # If the allow_none keyword was passed and set to False, we should raise an
     # unexpected value error if none was seen.
-    elif obj == None and not allow_none:
+    elif obj is None and not allow_none:
         raise UnexpectedValueError('{} has no value.'.format(name))
 
     # If we are checking for a string type, we will also want to check for
