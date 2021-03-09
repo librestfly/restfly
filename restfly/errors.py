@@ -4,6 +4,7 @@ Errors
 
 .. autoexception:: RestflyException
 .. autoexception:: UnexpectedValueError
+.. autoexception:: RequiredParameterError
 .. autoexception:: APIError
 .. autoexception:: BadRequestError
 .. autoexception:: UnauthorizedError
@@ -106,6 +107,13 @@ class UnexpectedValueError(RestflyException):
     parameter **a** is expected to have a value of 1, 2, or 3, and it is instead
     passed a value of 0, then it is an unexpected value, and this Exception
     should be thrown by the package.
+    '''
+
+
+class RequiredParameterError(RestflyException):
+    '''
+    A Required Parameter error is thrown whenever the value specified for a
+    parameter is required to have a value other than `None`.
     '''
 
 
