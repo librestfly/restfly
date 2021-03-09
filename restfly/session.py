@@ -379,6 +379,7 @@ class APISession(object):
         '''
         err = None
         retries = 0
+        kwargs['verify'] = kwargs.get('verify', self._ssl_verify)
 
         # Ensure that the box variable is set to either Box or BoxList.  Then we
         # want to ensure that "box" is removed from the keyword list.
