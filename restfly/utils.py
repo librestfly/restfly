@@ -11,20 +11,18 @@ Utils
 .. autofunction:: url_validator
 '''
 from .errors import UnexpectedValueError
-import re, arrow
-
-try:
-    from collections.abc import MutableMapping
-except:
-    from collections import MutableMapping
-
-try:
-    from urllib.parse import urlparse
-except:
-    from urlparse import urlparse
+from urllib.parse import urlparse
+from collections.abc import MutableMapping
+from typing import List, Optional, Any
+from copy import copy
+import re
+import arrow
 
 
-def url_validator(url, validate=['scheme', 'netloc']):
+def url_validator(
+    url: str,
+    validate: Optional[List[str]] = ['scheme', 'netloc']
+) -> bool:
     '''
     Validates that the required URL Parts exist within the URL string.
 
@@ -38,7 +36,8 @@ def url_validator(url, validate=['scheme', 'netloc']):
         >>> url_validator('https://google.com') # Returns True
         >>> url_validator('google.com') #Returns False
         >>> url_validator(
-        ...     'https://httpbin.com/404', validate=['scheme', 'netloc', 'path'])
+        ...     'https://httpbin.com/404',
+        ...     validate=['scheme', 'netloc', 'path'])
             # Returns True
     '''
     r = urlparse(url)._asdict()
@@ -48,7 +47,11 @@ def url_validator(url, validate=['scheme', 'netloc']):
     return True
 
 
-def dict_flatten(d, parent_key='', sep='.'):
+def dict_flatten(
+    d: dict,
+    parent_key: Optional[str] = '',
+    sep: Optional[str] = '.'
+) -> dict:
     '''
     Flattens a nested dict.
 
@@ -56,7 +59,7 @@ def dict_flatten(d, parent_key='', sep='.'):
         d (dict):
             The dictionary to flatten
         sep (str, optional):
-            The seperation character.  If left unspecified, the default is '.'.
+            The separation character.  If left unspecified, the default is '.'.
 
     Examples:
         >>> x = {'a': 1, 'b': {'c': 2}}
@@ -80,7 +83,7 @@ def dict_flatten(d, parent_key='', sep='.'):
 flatten = dict_flatten
 
 
-def dict_clean(d):
+def dict_clean(d: dict) -> dict:
     '''
     Recursively removes dictionary keys where the value is None
 
@@ -126,16 +129,19 @@ def dict_clean(d):
     return clean
 
 
-def dict_merge(master, updates):
+def dict_merge(
+    master: dict,
+    *updates: dict
+) -> dict:
     '''
-    Merge 2 dictionaries together  The updates dictionary will be merged into
-    the master, adding/updating any values as needed.
+    Merge many dictionaries together  The updates dictionaries will be merged
+    into sthe master, adding/updating any values as needed.
 
     Args:
         master (dict):
             The master dictionary to be used as the base.
-        updates (dict):
-            The dictionary that will overload the values in the master.
+        *updates (list[dict]):
+            The dictionaries that will overload the values in the master.
 
     Returns:
         :obj:`dict`:
@@ -147,16 +153,17 @@ def dict_merge(master, updates):
         >>> dict_merge(a, b)
         {'a': 'a', 'one': 1, 'two': 2, 'three': {'b': b, 'four': 4}}
     '''
-    for key in updates:
-        if (key in master and isinstance(master[key], dict)
-          and isinstance(updates[key], dict)):
-            master[key] = dict_merge(master[key], updates[key])
-        else:
-            master[key] = updates[key]
+    for u in updates:
+        for key in u:
+            if (key in master and isinstance(master[key], dict)
+                    and isinstance(u[key], dict)):
+                master[key] = dict_merge(master[key], u[key])
+            else:
+                master[key] = u[key]
     return master
 
 
-def force_case(obj, case):
+def force_case(obj: Any, case: str) -> Any:
     '''
     A simple case enforcement function.
 
@@ -199,7 +206,41 @@ def force_case(obj, case):
     return obj
 
 
-def trunc(text, limit, suffix='...'):
+def redact_values(
+    obj: dict,
+    keys: Optional[list] = [],
+    value: str = 'REDACTED'
+) -> dict:
+    '''
+    Redacts the values of the keys specified.  Useful in logging so that
+    sensitive fields are not presented to the logs.
+
+    Args:
+        obj (dict):
+            The object upon which redaction will happen.
+        keys (list[str], optional):
+            The list of key names that should be redacted.
+        value (str, optional):
+            The redacted value to use in place of the sensitive information.
+
+    Returns:
+        :obj:`obj`:
+            The modified object.
+    '''
+    new = copy(obj)
+    for key in new:
+        if isinstance(new[key], dict):
+            new[key] = redact_values(new[key], keys=keys)
+        elif key in keys:
+            new[key] = 'REDACTED'
+    return new
+
+
+def trunc(
+    text: str,
+    limit: int,
+    suffix: Optional[str] = '...'
+) -> str:
     '''
     Truncates a string to a given number of characters.  If a string extends
     beyond the limit, then truncate and add an ellipses after the truncation.
@@ -234,9 +275,9 @@ def trunc(text, limit, suffix='...'):
     '''
     if len(text) >= limit:
         if isinstance(suffix, str):
-            # If we have a suffix, then reduce the text string length further by
-            # the length of the suffix and then concatenate both the text and
-            # suffix together.
+            # If we have a suffix, then reduce the text string length further
+            # by the length of the suffix and then concatenate both the text
+            # and suffix together.
             return '{}{}'.format(text[: limit - len(suffix)], suffix)
         else:
             # If no suffix, then simply reduce the string size.
@@ -244,7 +285,12 @@ def trunc(text, limit, suffix='...'):
     return text
 
 
-def check(name, obj, expected_type, **kwargs):
+def check(
+    name: str,
+    obj: Any,
+    expected_type: Any,
+    **kwargs
+) -> Any:
     '''
     Check function for validating that inputs we are receiving are of the right
     type, have the expected values, and can handle defaults as necessary.
@@ -302,7 +348,7 @@ def check(name, obj, expected_type, **kwargs):
 
     def validate_regex_pattern(regex, obj):
         if (isinstance(obj, string_types)
-          and len(re.findall(regex, str(obj))) <= 0):
+                and len(re.findall(regex, str(obj))) <= 0):
             raise UnexpectedValueError(
                 '{} has value of {}.  Does not match pattern {}'.format(
                     name, obj, regex))
@@ -317,22 +363,22 @@ def check(name, obj, expected_type, **kwargs):
         if isinstance(obj, expected):
             # if everything matches, then just return the object
             return obj
-        elif isistance(expected, arrow.Arrow):
+        elif expected == arrow.Arrow:
             return arrow.get(obj)
         elif ((softcheck and isinstance(obj, string_types)
-          and expected not in [list, tuple])):
+                and expected not in [list, tuple])):
             # if the expected type is not a list or tuple and it is a
             # string type, then we will attempt to recast the object
             # to be the expected type.
             try:
                 new_obj = expected(obj)
-            except:
+            except Exception:
                 # if the recasting fails, then just pass through.
                 raise TypeError('{} is of type {}.  Expected {}.'.format(
                     name,
                     obj.__class__.__name__,
                     expected_type.__name__
-                        if hasattr(expected, '__name__') else expected)
+                    if hasattr(expected, '__name__') else expected)
                 )
             else:
                 if expected == bool:
@@ -353,7 +399,7 @@ def check(name, obj, expected_type, **kwargs):
             name,
             obj.__class__.__name__,
             expected_type.__name__
-                if hasattr(expected, '__name__') else expected)
+            if hasattr(expected, '__name__') else expected)
         )
 
     def validate_normalized(obj, func, arg):
@@ -374,7 +420,6 @@ def check(name, obj, expected_type, **kwargs):
         'ipv6': r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
     }, kwargs.get('pattern_map', dict()))
 
-
     # We have a simple function to convert the case of string values so that
     # we can ensure correct output.
 
@@ -386,7 +431,7 @@ def check(name, obj, expected_type, **kwargs):
     # If the object sent to us has a None value, then we will return None.
     # If a default was set, then we will return the default value.
     allow_none = kwargs.get('allow_none', True)
-    if obj == None and allow_none:
+    if obj is None and allow_none:
         return kwargs.get('default')
 
     # If the allow_none keyword was passed and set to False, we should raise an
@@ -424,12 +469,14 @@ def check(name, obj, expected_type, **kwargs):
     # If a pattern was specified, then we will want to pull the pattern from
     # the pattern map and validate that the
     if kwargs.get('pattern') and kwargs.get('pattern') in pmap.keys():
-        validate_normalized(obj, validate_regex_pattern, pmap[kwargs.get('pattern')])
+        validate_normalized(obj, validate_regex_pattern,
+                            pmap[kwargs.get('pattern')])
 
     # If there wasn't a pattern matching that identifier, then throw an
     # IndexError
     elif kwargs.get('pattern') and kwargs.get('pattern') not in pmap.keys():
-        raise IndexError('pattern name {} not found in map'.format(pattern))
+        raise IndexError('pattern name {} not found in map'.format(
+            kwargs.get('pattern')))
 
     # If a raw regex pattern was provided instead, then we will pass that over
     # and validate
