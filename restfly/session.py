@@ -6,20 +6,24 @@ Sessions
     :members:
     :private-members:
 '''
-import requests, sys, time, warnings, platform, json
+import sys
+import time
+import warnings
+import platform
+import json
+import logging
+from typing import Union
+from urllib.parse import urlparse
+from requests import Response, Session
 from requests.exceptions import (
     ConnectionError as RequestsConnectionError,
     RequestException as RequestsRequestException
 )
 from box import Box, BoxList
-from .utils import dict_merge
-from .errors import *
+from .utils import dict_merge, redact_values
+from . import errors
 from .version import version
 
-try:
-    from urlparse import urlparse
-except:
-    from urllib.parse import urlparse
 
 class APISession(object):
     '''
@@ -35,10 +39,10 @@ class APISession(object):
         _build (str):
             The build number/version of the integration.
         _backoff (float):
-            The default backoff timer to use when retrying.  The value is either
-            a float or integer denoting the number of seconds to delay before
-            the next retry attempt.  The number will be multiplied by the number
-            of retries attempted.
+            The default backoff timer to use when retrying.  The value is
+            either a float or integer denoting the number of seconds to delay
+            before the next retry attempt.  The number will be multiplied by
+            the number of retries attempted.
         _base_error_map (dict):
             The error mapping detailing what HTTP response code should throw
             what kind of error.  As this is the base mapping, overloading this
@@ -47,6 +51,9 @@ class APISession(object):
             The error mapping detailing what HTTP response code should throw
             what kind of error.  This error map will overload specific error
             mappings.
+        _error_on_unexpected_input (bool):
+            If unexpected keywords have been passed to the session constructor,
+            should we raise an error?  Default is ``False``.
         _lib_name (str):
             The name of the library.
         _lib_version (str):
@@ -58,12 +65,12 @@ class APISession(object):
             protocol.  This value will be passed to the session object after it
             has been either attached or created.  For details on the structure
             of this dictionary, consult the
-            :requests:`proxies section of the Requests documentation.<user/advanced/#proxies>`
-        _restricted_paths (list):
+            :requests:`Requests documentation.<user/advanced/#proxies>`
+        _restricted_paths (list[str]):
             A list of paths (not complete URIs) that if seen be the
-            :obj:`_request` method will not pass the query params or the request
-            body into the logging facility.  This should generally be used for
-            paths that are sensitive in nature (such as logins).
+            :obj:`_req` method will not pass the query params or the
+            request body into the logging facility.  This should generally be
+            used for paths that are sensitive in nature (such as logins).
         _retries (int):
             The number of retries to make before failing a request.  The
             default is 3.
@@ -75,13 +82,13 @@ class APISession(object):
             that we don't want to use SSL verification and suppress the SSL
             certificate warnings.
         _timeout (int):
-            The number of seconds to wait with no data returned before declaring
-            the request as stalled and timing-out the request.
+            The number of seconds to wait with no data returned before
+            declaring the request as stalled and timing-out the request.
         _url (str):
             The base URL path to use.  This should generally be a string value
             denoting the first half of the URI.  For example,
             ``https://httpbin.org`` or ``https://example.api.site/api/2``.  The
-            :obj:`_request` method will join this string with the incoming path
+            :obj:`_req` method will join this string with the incoming path
             to construct the complete URI.  Note that the two strings will be
             joined with a backslash ``/``.
         _vendor (str):
@@ -137,45 +144,47 @@ class APISession(object):
     _box = False
     _box_attrs = dict()
     _error_map = dict()
+    _error_on_unexpected_input = False
     _base_error_map = {
-        400: BadRequestError,
-        401: UnauthorizedError,
-        403: ForbiddenError,
-        404: NotFoundError,
-        405: InvalidMethodError,
-        406: NotAcceptableError,
-        407: ProxyAuthenticationError,
-        408: RequestTimeoutError,
-        409: RequestConflictError,
-        410: NoLongerExistsError,
-        411: LengthRequiredError,
-        412: PreconditionFailedError,
-        413: PayloadTooLargeError,
-        414: URITooLongError,
-        415: UnsupportedMediaTypeError,
-        416: RangeNotSatisfiableError,
-        417: ExpectationFailedError,
-        418: TeapotResponseError,
-        420: TooManyRequestsError,
-        421: MisdirectRequestError,
-        425: TooEarlyError,
-        426: UpgradeRequiredError,
-        428: PreconditionRequiredError,
-        429: TooManyRequestsError,
-        431: RequestHeaderFieldsTooLargeError,
-        451: UnavailableForLegalReasonsError,
-        500: ServerError,
-        501: MethodNotImplementedError,
-        502: BadGatewayError,
-        503: ServiceUnavailableError,
-        504: GatewayTimeoutError,
-        510: NotExtendedError,
-        511: NetworkAuthenticationRequiredError,
+        400: errors.BadRequestError,
+        401: errors.UnauthorizedError,
+        403: errors.ForbiddenError,
+        404: errors.NotFoundError,
+        405: errors.InvalidMethodError,
+        406: errors.NotAcceptableError,
+        407: errors.ProxyAuthenticationError,
+        408: errors.RequestTimeoutError,
+        409: errors.RequestConflictError,
+        410: errors.NoLongerExistsError,
+        411: errors.LengthRequiredError,
+        412: errors.PreconditionFailedError,
+        413: errors.PayloadTooLargeError,
+        414: errors.URITooLongError,
+        415: errors.UnsupportedMediaTypeError,
+        416: errors.RangeNotSatisfiableError,
+        417: errors.ExpectationFailedError,
+        418: errors.TeapotResponseError,
+        420: errors.TooManyRequestsError,
+        421: errors.MisdirectRequestError,
+        425: errors.TooEarlyError,
+        426: errors.UpgradeRequiredError,
+        428: errors.PreconditionRequiredError,
+        429: errors.TooManyRequestsError,
+        431: errors.RequestHeaderFieldsTooLargeError,
+        451: errors.UnavailableForLegalReasonsError,
+        500: errors.ServerError,
+        501: errors.MethodNotImplementedError,
+        502: errors.BadGatewayError,
+        503: errors.ServiceUnavailableError,
+        504: errors.GatewayTimeoutError,
+        510: errors.NotExtendedError,
+        511: errors.NetworkAuthenticationRequiredError,
     }
 
     def __enter__(self):
         '''
-        Context Manager __enter__ built-in method. See PEP-343 for more details.
+        Context Manager __enter__ built-in method. See PEP-343 for more
+        details.
         '''
         return self
 
@@ -194,20 +203,20 @@ class APISession(object):
         self._error_map = dict_merge(self._base_error_map, self._error_map)
 
         # Assign the kw arguments to the private attributes.
-        self._url = kwargs.get('url', self._url)
-        self._base_path = kwargs.get('base_path', self._base_path)
-        self._retries = int(kwargs.get('retries', self._retries))
-        self._backoff = float(kwargs.get('backoff', self._backoff))
-        self._proxies = kwargs.get('proxies', self._proxies)
-        self._ssl_verify = kwargs.get('ssl_verify', self._ssl_verify)
-        self._adaptor = kwargs.get('adaptor', self._adaptor)
-        self._vendor = kwargs.get('vendor', self._vendor)
-        self._product = kwargs.get('product', self._product)
-        self._build = kwargs.get('build', self._build)
-        self._error_func = kwargs.get('error_func', api_error_func)
-        self._timeout = kwargs.get('timeout', self._timeout)
-        self._box = kwargs.get('box', self._box)
-        self._box_attrs = kwargs.get('box_attrs', self._box_attrs)
+        self._url = kwargs.pop('url', self._url)
+        self._base_path = kwargs.pop('base_path', self._base_path)
+        self._retries = int(kwargs.pop('retries', self._retries))
+        self._backoff = float(kwargs.pop('backoff', self._backoff))
+        self._proxies = kwargs.pop('proxies', self._proxies)
+        self._ssl_verify = kwargs.pop('ssl_verify', self._ssl_verify)
+        self._adaptor = kwargs.pop('adaptor', self._adaptor)
+        self._vendor = kwargs.pop('vendor', self._vendor)
+        self._product = kwargs.pop('product', self._product)
+        self._build = kwargs.pop('build', self._build)
+        self._error_func = kwargs.pop('error_func', errors.api_error_func)
+        self._timeout = kwargs.pop('timeout', self._timeout)
+        self._box = kwargs.pop('box', self._box)
+        self._box_attrs = kwargs.pop('box_attrs', self._box_attrs)
 
         # Create the logging facility
         self._log = logging.getLogger('{}.{}'.format(
@@ -217,7 +226,15 @@ class APISession(object):
         self._build_session(**kwargs)
         self._authenticate(**kwargs)
 
-    def _build_session(self, **kwargs):
+        # if the _error_on_unexpected_input flag is set to True, then we will
+        # check to see if any values remain in the kwargs dict, and if so, then
+        # error to the caller with the remaining items.
+        if self._error_on_unexpected_input and len(kwargs.keys()) > 0:
+            raise errors.UnexpectedValueError(
+                'The following keywords are invalid {kwargs.keys()}'
+            )
+
+    def _build_session(self, **kwargs) -> None:
         '''
         The session builder.  User-agent strings, cookies, headers, etc that
         should persist for the session should be initiated here.  The session
@@ -241,7 +258,7 @@ class APISession(object):
         '''
         uname = platform.uname()
         # link up the session to either the one passed or create a new session.
-        self._session = kwargs.get('session', requests.Session())
+        self._session = kwargs.pop('session', Session())
 
         # If proxy support is needed, update the proxies in the session.
         if self._proxies:
@@ -250,7 +267,7 @@ class APISession(object):
         # If the SSL verification is disabled then we will need to disable
         # verification in the requests session and we also want to mask the
         # certificate warnings.
-        if not self._ssl_verify:
+        if self._ssl_verify is False:
             self._session.verify = self._ssl_verify
             warnings.filterwarnings('ignore', 'Unverified HTTPS request')
 
@@ -291,22 +308,37 @@ class APISession(object):
             ])
         })
 
-    def _authenticate(self, **kwargs): #stub
+    def _authenticate(self, **kwargs):  # stub
         '''
-        Authentication stub
+        Authentication stub.  Overload this method with your authentication
+        mechanism if you with to support authentication at creation and
+        authentication as part of context management.  Note that this is run
+        AFTER the session builder.
+
+        Example:
+            >>> class ExampleAPISession(APISession):
+            ...     def _authenticate(self, username, password):
+            ...         self._session.auth = (username, password)
         '''
         pass
 
-    def _deauthenticate(self, **kwargs): #stub
+    def _deauthenticate(self, **kwargs):  # stub
         '''
-        Deautnethication stub
+        De-authentication stub.  De-authentication is automatically run as part
+        of leaving context within the context manager.
+
+        Example:
+            >>> class ExampleAPISession(APISession):
+            ...     def _deauthenticate(self):
+            ...         self.delete('session/token')
         '''
         pass
 
-    def _resp_error_check(self, response, **kwargs): #stub
+    def _resp_error_check(self, response: Response, **kwargs) -> Response:
         '''
-        If there is a need for additional error checking (for example within the
-        JSON response) then overload this method with the necessary checking.
+        If there is a need for additional error checking (for example within
+        the JSON response) then overload this method with the necessary
+        checking.
 
         Args:
             response (request.Response):
@@ -320,7 +352,11 @@ class APISession(object):
         '''
         return response
 
-    def _retry_request(self, response, retries, **kwargs): #stub
+    def _retry_request(self,
+                       response: Response,
+                       retries: int,
+                       **kwargs
+                       ) -> dict:  # stub
         '''
         A method to be overloaded to return any modifications to the request
         upon retries.  By default just passes back what was send in the same
@@ -340,7 +376,11 @@ class APISession(object):
         '''
         return kwargs
 
-    def _request(self, method, path, **kwargs):
+    def _req(self,
+             method: str,
+             path: str,
+             **kwargs
+             ) -> Union[Box, BoxList, Response]:
         '''
         The requests session base request method.  This is considered internal
         as it's generally recommended to use the bespoke methods for each HTTP
@@ -353,16 +393,24 @@ class APISession(object):
                 The URI path to append to the base path.
             **kwargs (dict):
                 The keyword arguments to pass to the requests lib.
-            retry_on (list, optional):
-                A list of numeric response status codes to attempt retry on.
-                This behavior is additive to the retry parameter in the
-                exceptions.
             box (bool, optional):
                 A request-specific override as to if the response should
                 attempted to be converted into a Box object.
             box_attrs (dict, optional):
                 A request-specific override with a list of key-values to
                 pass to the box constructor.
+            redact_fields (list[str], optional):
+                A list of keys to redact in the response.  Redaction is used
+                for the requests to the API as all of the fields are sent to
+                the debug logs.  Note that redaction should be used with care
+                as it basically makes a copy fo the request in order to scrub
+                the values.
+            redact_value (str, optional):
+                The value to use to replace the redacted values with.
+            retry_on (list[int], optional):
+                A list of numeric response status codes to attempt retry on.
+                This behavior is additive to the retry parameter in the
+                exceptions.
             use_base (bool, optional):
                 Should the base path be appended to the URL?  if left
                 unspecified the default is `True`.
@@ -375,16 +423,16 @@ class APISession(object):
 
         Examples:
             >>> api = APISession()
-            >>> resp = api._request('GET', '/')
+            >>> resp = api._req('GET', '/')
         '''
-        err = None
+        error_resp = None
         retries = 0
         kwargs['verify'] = kwargs.get('verify', self._ssl_verify)
 
-        # Ensure that the box variable is set to either Box or BoxList.  Then we
-        # want to ensure that "box" is removed from the keyword list.
+        # Ensure that the box variable is set to either Box or BoxList.  Then
+        # we want to ensure that "box" is removed from the keyword list.
         box = kwargs.pop('box', self._box)
-        if box != False and box not in [Box, BoxList]:
+        if box is not False and box not in [Box, BoxList]:
             box = Box
 
         # Similarly to the box var, we will want to do the same thing with the
@@ -392,13 +440,13 @@ class APISession(object):
         box_attrs = kwargs.pop('box_attrs', self._box_attrs)
 
         # If retry_on is specified, then we will populate the retry_codes
-        # variable with a list of numeric status codes to additionally retry on.
-        # This is helpful if the API in question doesn't always behave in a
-        # consistent manner.
+        # variable with a list of numeric status codes to additionally retry
+        # on.  This is helpful if the API in question doesn't always behave in
+        # a consistent manner.
         retry_codes = kwargs.pop('retry_on', list())
 
-        # While the number of retries is less than the retry limit, loop.  As we
-        # will be returning from within the loop if we receive a successful
+        # While the number of retries is less than the retry limit, loop.  As
+        # we will be returning from within the loop if we receive a successful
         # response or a non-retryable error, the loop should only be handling
         # the retries themselves.
         while retries <= self._retries:
@@ -416,41 +464,58 @@ class APISession(object):
             else:
                 uri = '{}/{}'.format(self._url, path)
 
-            if path not in self._restricted_paths:
-                # If the path is not one of the paths that would contain
-                # sensitive data (such as login information) then pass the
-                # log on unredacted.
-                self._log.debug('Request:{}'.format(json.dumps({
-                        'method': method,
-                        'url': uri,
-                        'params': kwargs.get('params', {}),
-                        'body': kwargs.get('json', {})
-                    })
-                ))
+            # Here we will generate the debug log.  As some of the values that
+            # may be sent to us could be sensitive in nature, we have multiple
+            # ways for the developer to inform us that the data may be
+            # sensitive, and to screen out that data from the debug logs.  We
+            # will be working through that below.
+            rkeys = kwargs.pop('redact_fields', None)
+            rval = kwargs.pop('redact_value', 'REDACTED')
+
+            # if the path itself is in the _restricted_paths list, then we will
+            # simply replace the body and params
+            if path in self._restricted_paths:
+                body, params = rval, rval
+
+            # if the redact_fields keyword was passed, then we will make a
+            # shallow copy of the body and params and pass those to the
+            # redact_values utility function to replace the values for any
+            # matching keys to the redact_value.
+            elif rkeys:
+                body = redact_values(kwargs.get('json', {}), rkeys, rval)
+                params = redact_values(kwargs.get('params', {}), rkeys, rval)
+
+            # if no redaction happens, then we will simply store the
+            # reference of the body and params in the body and params vars.
             else:
-                # The path was a restricted path, generate the log, however
-                # redact the information.
-                self._log.debug('Request:{}'.format(json.dumps({
-                        'method': method,
-                        'url': uri,
-                        'params': 'REDACTED',
-                        'body': 'REDACTED'
-                    })
-                ))
+                body = kwargs.get('json', {})
+                params = kwargs.get('params', {})
+
+            # And now we generate the log based on body and params that we have
+            # sanitized (or not).
+            self._log.debug('Request:{}'.format(
+                json.dumps({
+                    'method': method,
+                    'url': uri,
+                    'params': params,
+                    'body': body
+                })
+            ))
 
             # Make the call to the API and pull the status code.
             try:
                 resp = self._session.request(method, uri,
-                    timeout=self._timeout, **kwargs)
+                                             timeout=self._timeout, **kwargs)
                 status = resp.status_code
 
             # Here we will catch any underlying exceptions thrown from the
             # requests library, log them, iterate the retry counter, then
             # release the attempt for the next iteration.
-            except (RequestsConnectionError, RequestsRequestException) as err:
-                self._log.error('Requests Library Error: {}'.format(str(err)))
+            except (RequestsConnectionError, RequestsRequestException) as ereq:
+                self._log.error('Requests Library Error: {}'.format(str(ereq)))
                 time.sleep(1)
                 retries += 1
+                error_resp = ereq
 
             # The following code will run when a request successfully returned.
             else:
@@ -458,6 +523,9 @@ class APISession(object):
                     # If a status code that we know about has returned, then we
                     # will want to raise the appropriate Error.
                     err = self._error_map[status]
+                    error_resp = err(resp,
+                                     retries=retries,
+                                     func=self._error_func)
                     if err.retryable or status in retry_codes:
                         # If the APIError fetched is retryable, we will want to
                         # attempt to retry our call.  If we see the
@@ -475,7 +543,7 @@ class APISession(object):
                         kwargs = self._retry_request(resp, retries, **kwargs)
                         continue
                     else:
-                        raise err(resp, retries=retries, func=self._error_func)
+                        raise error_resp
 
                 elif status >= 200 and status <= 299:
                     # As everything looks ok, lets pass the response on to the
@@ -489,7 +557,8 @@ class APISession(object):
                     # set, if no content-type header is returned to us, we will
                     # assume that the caller is expecting the response to be
                     # a JSON body.
-                    ctype = resp.headers.get('content-type', 'application/json')
+                    ctype = resp.headers.get('content-type',
+                                             'application/json')
                     if box and 'application/json' in ctype:
 
                         # we want to make a quick check to ensure that there is
@@ -497,10 +566,9 @@ class APISession(object):
                         # then we should just return back a None response.
                         if len(resp.text) > 0:
                             if box_attrs.get('default_box'):
-                                self._log.debug(
-                                    'unknown attributes will return as {}'.format(
-                                        box_attrs.get('default_box_attr', Box)
-                                ))
+                                entry = 'unknown attributes will return as {}'
+                                self._log.debug(entry.format(
+                                    box_attrs.get('default_box_attr', Box)))
                             return box.from_json(resp.text, **box_attrs)
                         else:
                             return None
@@ -510,10 +578,14 @@ class APISession(object):
                 else:
                     # If all else fails, raise an error stating that we don't
                     # even know whats happening.
-                    raise APIError(resp, retries=retries, func=self._error_func)
-        raise err(resp, retries=retries, func=self._error_func)
+                    raise errors.APIError(resp, retries=retries,
+                                          func=self._error_func)
+        raise error_resp
 
-    def get(self, path, **kwargs):
+    def get(self,
+            path: str,
+            **kwargs
+            ) -> Union[Box, BoxList, Response]:
         '''
         Initiates an HTTP GET request using the specified path.  Refer to
         :obj:`requests.request` for more detailed information on what
@@ -524,7 +596,7 @@ class APISession(object):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
                 Keyword arguments to be passed to
-                :py:meth:`restfly.session.APISession._request`.
+                :py:meth:`restfly.session.APISession._req`.
 
         Returns:
             :obj:`requests.Response` or :obj:`box.Box`
@@ -536,9 +608,12 @@ class APISession(object):
             >>> api = APISession()
             >>> resp = api.get('/')
         '''
-        return self._request('GET', path, **kwargs)
+        return self._req('GET', path, **kwargs)
 
-    def post(self, path, **kwargs):
+    def post(self,
+             path: str,
+             **kwargs
+         ) -> Union[Box, BoxList, Response]:
         '''
         Initiates an HTTP POST request using the specified path.  Refer to the
         :obj:`requests.request` for more detailed information on what
@@ -549,7 +624,7 @@ class APISession(object):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
                 Keyword arguments to be passed to
-                :py:meth:`restfly.session.APISession._request`.
+                :py:meth:`restfly.session.APISession._req`.
 
         Returns:
             :obj:`requests.Response` or :obj:`box.Box`
@@ -561,9 +636,12 @@ class APISession(object):
             >>> api = APISession()
             >>> resp = api.post('/')
         '''
-        return self._request('POST', path, **kwargs)
+        return self._req('POST', path, **kwargs)
 
-    def put(self, path, **kwargs):
+    def put(self,
+            path: str,
+            **kwargs
+            ) -> Union[Box, BoxList, Response]:
         '''
         Initiates an HTTP PUT request using the specified path.  Refer to the
         :obj:`requests.request` for more detailed information on what
@@ -574,7 +652,7 @@ class APISession(object):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
                 Keyword arguments to be passed to
-                :py:meth:`restfly.session.APISession._request`.
+                :py:meth:`restfly.session.APISession._req`.
 
         Returns:
             :obj:`requests.Response` or :obj:`box.Box`
@@ -586,9 +664,12 @@ class APISession(object):
             >>> api = APISession()
             >>> resp = api.put('/')
         '''
-        return self._request('PUT', path, **kwargs)
+        return self._req('PUT', path, **kwargs)
 
-    def patch(self, path, **kwargs):
+    def patch(self,
+              path: str,
+              **kwargs
+              ) -> Union[Box, BoxList, Response]:
         '''
         Initiates an HTTP PATCH request using the specified path.  Refer to the
         :obj:`requests.request` for more detailed information on what
@@ -599,7 +680,7 @@ class APISession(object):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
                 Keyword arguments to be passed to
-                :py:meth:`restfly.session.APISession._request`.
+                :py:meth:`restfly.session.APISession._req`.
 
         Returns:
             :obj:`requests.Response` or :obj:`box.Box`
@@ -611,12 +692,15 @@ class APISession(object):
             >>> api = APISession()
             >>> resp = api.patch('/')
         '''
-        return self._request('PATCH', path, **kwargs)
+        return self._req('PATCH', path, **kwargs)
 
-    def delete(self, path, **kwargs):
+    def delete(self,
+               path: str,
+               **kwargs
+               ) -> Union[Box, BoxList, Response]:
         '''
-        Initiates an HTTP DELETE request using the specified path.  Refer to the
-        :obj:`requests.request` for more detailed information on what
+        Initiates an HTTP DELETE request using the specified path.  Refer to
+        the :obj:`requests.request` for more detailed information on what
         keyword arguments can be passed:
 
         Args:
@@ -624,7 +708,7 @@ class APISession(object):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
                 Keyword arguments to be passed to
-                :py:meth:`restfly.session.APISession._request`.
+                :py:meth:`restfly.session.APISession._req`.
 
         Returns:
             :obj:`requests.Response` or :obj:`box.Box`
@@ -636,9 +720,12 @@ class APISession(object):
             >>> api = APISession()
             >>> resp = api.delete('/')
         '''
-        return self._request('DELETE', path, **kwargs)
+        return self._req('DELETE', path, **kwargs)
 
-    def head(self, path, **kwargs):
+    def head(self,
+             path: str,
+             **kwargs
+             ) -> Union[Box, BoxList, Response]:
         '''
         Initiates an HTTP HEAD request using the specified path.  Refer to the
         :obj:`requests.request` for more detailed information on what
@@ -649,7 +736,7 @@ class APISession(object):
                 The path to be appended onto the base URL for the request.
             **kwargs (dict):
                 Keyword arguments to be passed to
-                :py:meth:`restfly.session.APISession._request`.
+                :py:meth:`restfly.session.APISession._req`.
 
         Returns:
             :obj:`requests.Response` or :obj:`box.Box`
@@ -661,5 +748,4 @@ class APISession(object):
             >>> api = APISession()
             >>> resp = api.head('/')
         '''
-        return self._request('HEAD', path, **kwargs)
-
+        return self._req('HEAD', path, **kwargs)

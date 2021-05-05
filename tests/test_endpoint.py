@@ -16,6 +16,12 @@ def test_endpoint_delete(e):
     assert isinstance(resp, Response)
 
 @pytest.mark.vcr()
+@pytest.mark.skip('No HTTPBin HEAD Verb to test against')
+def test_endpoint_head(e):
+    resp = e._head('head', json={'test': 'value'})
+    assert isinstance(resp, Response)
+
+@pytest.mark.vcr()
 def test_endpoint_get(e):
     resp = e._get('get', json={'test': 'value'})
     assert isinstance(resp, Response)
@@ -37,7 +43,7 @@ def test_endpoint_put(e):
 
 @pytest.mark.vcr()
 def test_endpoint_base_request(e):
-    resp = e._request('PUT', 'put', json={'test': 'value'})
+    resp = e._req('PUT', 'put', json={'test': 'value'})
     assert isinstance(resp, Response)
 
 @pytest.mark.vcr()

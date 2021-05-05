@@ -83,9 +83,9 @@ def base_msg_func(msg, **kwargs):
 
 class RestflyException(Exception):
     '''
-    Base exception class that sets up logging and handles some basic scaffolding
-    for all other exception classes.  This exception should never be directly
-    seen.
+    Base exception class that sets up logging and handles some basic
+    scaffolding for all other exception classes.  This exception should never
+    be directly seen.
     '''
     def __init__(self, msg, **kwargs):
         self._log = logging.getLogger('{}.{}'.format(
@@ -104,9 +104,9 @@ class UnexpectedValueError(RestflyException):
     '''
     An unexpected value error is thrown whenever the value specified for a
     parameter is outside the bounds of what is expected.  For example, if the
-    parameter **a** is expected to have a value of 1, 2, or 3, and it is instead
-    passed a value of 0, then it is an unexpected value, and this Exception
-    should be thrown by the package.
+    parameter **a** is expected to have a value of 1, 2, or 3, and it is
+    instead passed a value of 0, then it is an unexpected value, and this
+    Exception should be thrown by the package.
     '''
 
 
@@ -188,9 +188,9 @@ class UnauthorizedError(APIError):  # 401 Response
     Similar to 403 Forbidden, but specifically for use when authentication is
     required and has failed or has not yet been provided. The response must
     include a WWW-Authenticate header field containing a challenge applicable
-    to the requested resource. See Basic access authentication and Digest access
-    authentication. 401 semantically means "unauthenticated", i.e. the user
-    does not have the necessary credentials.
+    to the requested resource. See Basic access authentication and Digest
+    access authentication. 401 semantically means "unauthenticated", i.e. the
+    user does not have the necessary credentials.
 
     Attributes:
         code (int):
@@ -364,7 +364,7 @@ class URITooLongError(APIError):  # 414 Response
     '''
 
 
-class UnsupportedMediaTypeError(APIError): # 415 Response
+class UnsupportedMediaTypeError(APIError):  # 415 Response
     '''
     The request entity has a media type which the server or resource does not
     support. For example, the client uploads an image as image/svg+xml, but the
@@ -422,18 +422,6 @@ class TeapotResponseError(APIError):  # 418 Response
 class MisdirectRequestError(APIError):  # 421 Response
     '''
     The request was directed at a server that is not able to produce a response
-
-    Attributes:
-        code (int):
-            The HTTP response code from the offending response.
-        response (request.Response):
-            This is the Response object that had caused the Exception to fire.
-    '''
-
-
-    '''
-    The request failed because it depended on another request and that request
-    failed.
 
     Attributes:
         code (int):

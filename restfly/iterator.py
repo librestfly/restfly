@@ -6,6 +6,7 @@ Iterators
     :members:
     :private-members:
 '''
+from typing import Any, Optional
 
 
 class APIIterator(object):
@@ -57,31 +58,32 @@ class APIIterator(object):
             api (restfly.session.APISession):
                 The APISession object to use for this iterator.
             **kw (dict):
-                The various attributes to add and or overload the iterator with.
+                The various attributes to add/overload in the iterator.
 
-        Examples:
+        Example:
             >>> i = APIIterator(api, max_pages=1, max_items=100)
         '''
         self._api = api
         self.__dict__.update(kw)
 
-    def _get_page(self):
+    def _get_page(self) -> None:
         '''
         A method to be overloaded in order to instruct the iterator how to
         retrieve the next page of data.
 
-        Examples:
+        Example:
             >>> class ExampleIterator(APIIterator):
             ...    def _get_page(self):
             ...        self.total = 100
-            ...        self.page = [{'id': i + self._offset} for i in range(10)]
+            ...        items = range(10)
+            ...        self.page = [{'id': i + self._offset} for i in items]
             ...        self._offset += self._limit
         '''
         pass
 
-    def get(self, key, default=None):
+    def get(self, key: str, default: Optional[Any] = None) -> Any:
         '''
-        Retrieves an item from the the current page based off the index provided.
+        Retrieves an item from the the current page based off of the key.
 
         Args:
             key (int): The index of the item to retrieve.
@@ -97,7 +99,7 @@ class APIIterator(object):
         except IndexError:
             return default
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         return self.page[key]
 
     def __iter__(self):
@@ -106,25 +108,24 @@ class APIIterator(object):
     def __next__(self):
         return self.next()
 
-    def next(self):
+    def next(self) -> Any:
         '''
         Ask for the next record
         '''
         # If there are no more records to return, then we should raise a
         # StopIteration exception to break the iterator out.
         if ((self.total and self.count + 1 > self.total)
-          or (self.max_items and self.count + 1 > self.max_items)
-          or (self.max_pages and self.num_pages > self.max_pages)):
+                or (self.max_items and self.count + 1 > self.max_items)
+                or (self.max_pages and self.num_pages > self.max_pages)):
             raise StopIteration()
 
         # If we have worked through the current page of records and we still
         # haven't hit to the total number of available records, then we should
         # query the next page of records.
         if (self.page_count >= len(self.page)
-          and (not self.total or self.count + 1 <= self.total)):
-
-            # If the number of pages requested reaches the total number of pages
-            # that should be requested, then stop iteration.
+                and (not self.total or self.count + 1 <= self.total)):
+            # If the number of pages requested reaches the total number of
+            # pages that should be requested, then stop iteration.
             if self.max_pages and self.num_pages + 1 > self.max_pages:
                 raise StopIteration()
 

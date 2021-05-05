@@ -6,6 +6,10 @@ Endpoints
     :members:
     :private-members:
 '''
+from box import Box, BoxList
+from requests import Response
+from typing import Optional, Union, Any
+from .session import APISession
 
 
 class APIEndpoint(object):
@@ -29,16 +33,20 @@ class APIEndpoint(object):
     '''
     _path = None
 
-    def __init__(self, api):
+    def __init__(self, api: APISession):
         self._api = api
         self._log = api._log
 
-    def _request(self, method, path=None, **kwargs):
+    def _req(self,
+             method: str,
+             path: Optional[str] = None,
+             **kwargs
+             ) -> Union[Box, BoxList, Response]:
         '''
-        An abstraction of the APISession._request method leveraging the local
+        An abstraction of the APISession._req method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
         directly, and instead is offered as a shortcut for methods within the
-        endpoint to use instead of ``self._api._request``.
+        endpoint to use instead of ``self._api._req``.
 
         Args:
             method (str):
@@ -47,25 +55,20 @@ class APIEndpoint(object):
                 The URI path to append to the base path and _path attribute.
             **kwargs (dict):
                 The keyword arguments to pass to the requests lib.
-            retry_on (list, optional):
-                A list of numeric response status codes to attempt retry on.
-                This behavior is additive to the retry parameter in the
-                exceptions.
-
-        Returns:
-            :obj:`requests.Response`:
-                The response object from the requests lib.
 
         Examples:
             >>> class Endpoint(APIEndpoint):
             ...     _path = 'test'
             ...     def list(**kwargs):
-            ...         return self._request('GET', **kwargs)
+            ...         return self._req('GET', **kwargs)
         '''
         p = '/'.join([p for p in [self._path, path] if p])
-        return self._api._request(method, p, **kwargs)
+        return self._api._req(method, p, **kwargs)
 
-    def _delete(self, path=None, **kwargs):
+    def _delete(self,
+                path: Optional[str] = None,
+                **kwargs
+                ) -> Union[Box, BoxList, Response]:
         '''
         An abstraction of the APISession.delete method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
@@ -77,14 +80,6 @@ class APIEndpoint(object):
                 The URI path to append to the base path and _path attribute.
             **kwargs (dict):
                 The keyword arguments to pass to the requests lib.
-            retry_on (list, optional):
-                A list of numeric response status codes to attempt retry on.
-                This behavior is additive to the retry parameter in the
-                exceptions.
-
-        Returns:
-            :obj:`requests.Response`:
-                The response object from the requests lib.
 
         Examples:
             >>> class Endpoint(APIEndpoint):
@@ -92,9 +87,12 @@ class APIEndpoint(object):
             ...     def list(**kwargs):
             ...         return self._delete(**kwargs)
         '''
-        return self._request('DELETE', path, **kwargs)
+        return self._req('DELETE', path, **kwargs)
 
-    def _get(self, path=None, **kwargs):
+    def _get(self,
+             path: Optional[str] = None,
+             **kwargs
+             ) -> Union[Box, BoxList, Response]:
         '''
         An abstraction of the APISession.get method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
@@ -106,14 +104,6 @@ class APIEndpoint(object):
                 The URI path to append to the base path and _path attribute.
             **kwargs (dict):
                 The keyword arguments to pass to the requests lib.
-            retry_on (list, optional):
-                A list of numeric response status codes to attempt retry on.
-                This behavior is additive to the retry parameter in the
-                exceptions.
-
-        Returns:
-            :obj:`requests.Response`:
-                The response object from the requests lib.
 
         Examples:
             >>> class Endpoint(APIEndpoint):
@@ -121,9 +111,12 @@ class APIEndpoint(object):
             ...     def list(**kwargs):
             ...         return self._get(**kwargs)
         '''
-        return self._request('GET', path, **kwargs)
+        return self._req('GET', path, **kwargs)
 
-    def _head(self, path=None, **kwargs):
+    def _head(self,
+              path: Optional[str] = None,
+              **kwargs
+              ) -> Union[Box, BoxList, Response]:
         '''
         An abstraction of the APISession.head method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
@@ -135,14 +128,6 @@ class APIEndpoint(object):
                 The URI path to append to the base path and _path attribute.
             **kwargs (dict):
                 The keyword arguments to pass to the requests lib.
-            retry_on (list, optional):
-                A list of numeric response status codes to attempt retry on.
-                This behavior is additive to the retry parameter in the
-                exceptions.
-
-        Returns:
-            :obj:`requests.Response`:
-                The response object from the requests lib.
 
         Examples:
             >>> class Endpoint(APIEndpoint):
@@ -150,9 +135,12 @@ class APIEndpoint(object):
             ...     def list(**kwargs):
             ...         return self._head(**kwargs)
         '''
-        return self._request('HEAD', path, **kwargs)
+        return self._req('HEAD', path, **kwargs)
 
-    def _patch(self, path=None, **kwargs):
+    def _patch(self,
+               path: Optional[str] = None,
+               **kwargs
+               ) -> Union[Box, BoxList, Response]:
         '''
         An abstraction of the APISession.patch method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
@@ -164,14 +152,6 @@ class APIEndpoint(object):
                 The URI path to append to the base path and _path attribute.
             **kwargs (dict):
                 The keyword arguments to pass to the requests lib.
-            retry_on (list, optional):
-                A list of numeric response status codes to attempt retry on.
-                This behavior is additive to the retry parameter in the
-                exceptions.
-
-        Returns:
-            :obj:`requests.Response`:
-                The response object from the requests lib.
 
         Examples:
             >>> class Endpoint(APIEndpoint):
@@ -179,9 +159,12 @@ class APIEndpoint(object):
             ...     def list(**kwargs):
             ...         return self._patch(**kwargs)
         '''
-        return self._request('PATCH', path, **kwargs)
+        return self._req('PATCH', path, **kwargs)
 
-    def _post(self, path=None, **kwargs):
+    def _post(self,
+              path: Optional[str] = None,
+              **kwargs
+              ) -> Union[Box, BoxList, Response]:
         '''
         An abstraction of the APISession.post method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
@@ -193,14 +176,6 @@ class APIEndpoint(object):
                 The URI path to append to the base path and _path attribute.
             **kwargs (dict):
                 The keyword arguments to pass to the requests lib.
-            retry_on (list, optional):
-                A list of numeric response status codes to attempt retry on.
-                This behavior is additive to the retry parameter in the
-                exceptions.
-
-        Returns:
-            :obj:`requests.Response`:
-                The response object from the requests lib.
 
         Examples:
             >>> class Endpoint(APIEndpoint):
@@ -208,9 +183,12 @@ class APIEndpoint(object):
             ...     def list(**kwargs):
             ...         return self._post(**kwargs)
         '''
-        return self._request('POST', path, **kwargs)
+        return self._req('POST', path, **kwargs)
 
-    def _put(self, path=None, **kwargs):
+    def _put(self,
+             path: Optional[str] = None,
+             **kwargs
+             ) -> Union[Box, BoxList, Response]:
         '''
         An abstraction of the APISession.put method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
@@ -222,14 +200,6 @@ class APIEndpoint(object):
                 The URI path to append to the base path and _path attribute.
             **kwargs (dict):
                 The keyword arguments to pass to the requests lib.
-            retry_on (list, optional):
-                A list of numeric response status codes to attempt retry on.
-                This behavior is additive to the retry parameter in the
-                exceptions.
-
-        Returns:
-            :obj:`requests.Response`:
-                The response object from the requests lib.
 
         Examples:
             >>> class Endpoint(APIEndpoint):
@@ -237,4 +207,4 @@ class APIEndpoint(object):
             ...     def list(**kwargs):
             ...         return self._put(**kwargs)
         '''
-        return self._request('PUT', path, **kwargs)
+        return self._req('PUT', path, **kwargs)

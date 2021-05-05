@@ -1,13 +1,36 @@
 import pytest
 from restfly.iterator import APIIterator
 
+
 class ExampleIterator(APIIterator):
     limit = 10
     offset = 0
+
     def _get_page(self):
         self.total = 100
         self.page = [{'id': i + self.offset} for i in range(self.limit)]
         self.offset += self.limit
+
+
+def test_iterator_stubs():
+    assert APIIterator(None)._get_page() is None
+
+
+def test_iterator_get_key():
+    items = ExampleIterator(None)
+    items.next()
+    assert items.get(0) == {'id': 0}
+    assert items[0] == {'id': 0}
+    assert items.get(101, None) is None
+
+
+def test_blank_page():
+    class ExIterator(APIIterator):
+        page = list()
+
+    with pytest.raises(StopIteration):
+        ExIterator(None).next()
+
 
 def test_iterator():
     items = ExampleIterator(None)
@@ -32,6 +55,7 @@ def test_iterator():
         {'id': 99}
     ]
 
+
 def test_iterator_max_items():
     items = ExampleIterator(None, max_items=15)
     last_item = None
@@ -54,6 +78,7 @@ def test_iterator_max_items():
         {'id': 18},
         {'id': 19}
     ]
+
 
 def test_iterator_max_pages():
     items = ExampleIterator(None, max_pages=2)
