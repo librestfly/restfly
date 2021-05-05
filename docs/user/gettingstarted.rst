@@ -1,7 +1,7 @@
-.. _quickstart:
+.. _gettingstarted:
 
-Quickstart
-==========
+Getting Started
+===============
 
 .. image:: https://live.staticflickr.com/3452/3214601797_112f2ea202_b.jpg
 
@@ -55,7 +55,7 @@ some of the paths into class as well::
     >>> class HTTPBin(APISession):
     ...     _url = 'https://httpbin.org'
     ...
-    ...     def get_status(self, code):
+    ...     def get_status(self, code: int) -> dict:
     ...         return self.get('status/{}'.format(code)).json()
     >>>
     >>> httpbin = HTTPBin()
@@ -77,7 +77,7 @@ common CRUD operations for a given model.  Lets start with this example::
     >>> class UserAPI(APIEndpoint):
     ...     _path = 'users'
     ...
-    ...     def create(self, username, password, name):
+    ...     def create(self, username: str, password: str, name: str) -> None:
     ...         '''POST https://exmaple.com/api/users'''
     ...         return self._post(json={
     ...             'username': username,
@@ -85,16 +85,16 @@ common CRUD operations for a given model.  Lets start with this example::
     ...             'name': name
     ...         }).json() # Returns user id
     ...
-    ...     def update(self, id, **kwargs):
+    ...     def update(self, id: int, **kwargs) -> dict:
     ...         '''PATCH https://exmaple.com/api/users/{id}'''
     ...         return self._patch(str(id), json=kwargs).json()
     ...         # Returns user id
     ...
-    ...     def delete(self, id):
+    ...     def delete(self, id: int) -> dict:
     ...         '''DELETE https://exmaple.com/api/users/{id}'''
     ...         return self._delete(str(id)).json()
     ...
-    ...     def list(self):
+    ...     def list(self) -> dict:
     ...         '''GET https://exmaple.com/api/users'''
     ...         return self._get().json()
 
@@ -108,7 +108,7 @@ is fairly simple::
     ...     _url = 'https://example.com/api'
     ...
     ...     @property
-    ...     def users(self):
+    ...     def users(self) -> UserAPI:
     ...         return UserAPI(self)
 
 If you note, we just define the property of *users* and then have it return the
@@ -145,11 +145,11 @@ The resulting code will look like this:
     >>> class ExampleAPI(APISession):
     ...     _url = 'https://example.com/api'
     ...
-    ...     def __init__(self, api_key, **kwargs):
+    ...     def __init__(self, api_key: str, **kwargs):
     ...         self._api_key = api_key
     ...         super(ExampleAPI, self).__init__(**kwargs)
     ...
-    ...     def _build_session(self, **kwargs):
+    ...     def _build_session(self, **kwargs) -> None:
     ...         super(ExampleAPI, self)._build_session(**kwargs)
     ...         self._session.headers.update({
     ...             'X-API-Key': self._api_key,
@@ -163,10 +163,10 @@ Below is a simple example using Basic Auth:
     >>> class ExampleAPI(APISession):
     ...     _url = 'https://exmaple.com/api'
     ...
-    ...     def login(self, username, password):
+    ...     def login(self, username: str, password: str) -> None:
     ...         self._session.auth = (username, password)
     ...
-    ...     def logout(self):
+    ...     def logout(self) -> None:
     ...         self._session.auth = None
 
 For something more involved using an API call, like needing to grab a session
@@ -175,14 +175,17 @@ token, you could perform the following:
     >>> class ExampleAPI(APISession):
     ...     _url = 'https://example.com/api'
     ...
-    ...     def login(self, username, password):
+    ...     def login(self, username: str, password: str) -> None:
     ...         token = self._api.post('auth',
-    ...             json={'user': username, 'passwd': password}).json()['token']
+    ...             json={
+    ...                'user': username,
+    ...                'password': password
+    ...             }).json()['token']
     ...         self._session.headers.update({
     ...             'X-Session-Token': token,
     ...         })
     ...
-    ...     def logout(self):
+    ...     def logout(self) -> None:
     ...         self._api.delete('auth')
     ...         self._session.headers.update({
     ...             'X-Session-Token': None
@@ -191,3 +194,98 @@ token, you could perform the following:
 Please note that for cookies, generally letting the Requests Session object's
 cookiejar handle the work is all you need.  While you can overload the Cookie
 header, it's generally discouraged.
+
+
+Context handling and authentication
+----------------------------------
+
+Now that we have a basic understanding of how to handle authentication within
+the library, lets take this a step further.  It seems that routinely when folks
+use the method of authentication handling mentioned above, that the developers
+using the library will invariably forget to logout of the session that they
+had created.  For session-based authentication systems, this can create a lot
+of potential issues when you just let those sessions linger instead of properly
+closing them.  Thankfully RESTfly has some built-in stubs that we can hook into
+to facilitate authentication and de-authentication through context management.
+
+In sort, we can take something like this:
+
+    >>> api = ExampleAPI()
+    >>> api.login(username, password)
+    >>> ## DO STUFF
+    >>> api.logout()
+
+and make it work like this instead:
+
+    >>> with ExampleAPI(username=username, password=password) as api:
+    ...     ### DO STUFF
+
+And the context management within the library will handle authentication and
+de-authentication for you.  To convert (and merge together) the previous
+examples into a single coherent example with context management, the code
+would look similar to below:
+
+    >>> class ExampleAPI(APISession):
+    ...    _url = 'https://example.com/api'
+    ...
+    ...    def _authenticate(self, **kwargs) -> None:
+    ...        # Get the username, password, and api_key from the keyword
+    ...        # arguments passed to the constructor.
+    ...        username = kwargs.pop('username', None)
+    ...        password = kwargs.pop('password', None)
+    ...        api_key = kwargs.pop('api_key', None)
+    ...
+    ...        # Check for the api_key parameter, and if set, use the API Key
+    ...        # for stateless authentication.
+    ...        if api_key:
+    ...            self._session.headers.update({
+    ...                'X-API-Key': api_key
+    ...            })
+    ...
+    ...        # If a username and a password were passed instead of an API Key
+    ...        # we will then use stateful authentication and get the token.
+    ...        elif username and password:
+    ...            token = self.post('auth', json={
+    ...                'username': username,
+    ...                'password': password
+    ...            })
+    ...            self._session.headers.update({
+    ...                'X-Session-Token': token
+    ...            })
+    ...
+    ...        # If no stateless or stateful authentication mechanisms were
+    ...        # passed, then we will send a warning log message
+    ...        else:
+    ...            self._log.warn('Starting an unauthenticated session')
+    ...
+    ...    def _deauthenticate(self, **kwargs) -> None:
+    ...        if self._session.headers.get('X-Session-Token'):
+    ...            self.delete('auth')
+    ...            self._session.headers.update({'X-Session-Token': None})
+
+Alrighty, so now we have authentication handled using the out-of-the-box stubs
+to support it.  This means that we can now support authentication like so:
+
+    >>> ## Session authentication
+    >>> api = ExampleAPI(username=username, password=password)
+
+    >>> ## API Key authentication
+    >>> api = ExampleAPI(api_key=api_key)
+
+    >>> ## Session auth with context management
+    >>> with ExampleAPI(username=username, password=password) as api:
+    ...     ### DO STUFF HERE
+
+Now, what about the existing code that we have lying around already using this
+library the old way above?  Well to support this code, we would add those old
+methods back into the model like so:
+
+    >>> class ExampleAPI(APISession):
+    ...    def login(self, username: str, password: str) -> None:
+    ...        self._authenticate({'username': username, 'password': password})
+    ...
+    ...    def logout(self) -> None:
+    ...        self._deauthenticate()
+
+It seems like a bit more than before, however this new example handles session
+auth, api keys, and supports backwards compatibility to the previous examples.

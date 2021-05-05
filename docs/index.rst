@@ -36,8 +36,9 @@ in a step-by-step manner.
 
     user/intro
     user/install
-    user/quickstart
-    user/advanced
+    user/gettingstarted
+    user/pagination
+
 
 The API Documentation / Guide
 -----------------------------
