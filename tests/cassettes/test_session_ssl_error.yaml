@@ -1,0 +1,47 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Integration/1.0 (pytest; auto-test; Build/1.3.6) Restfly/1.3.6 (Restfly/1.3.6;
+        Python/3.8.6; Darwin/x86_64)
+    method: GET
+    uri: https://self-signed.badssl.com/
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA21RsVLEIBDt8xUrtTkmVs4JadRaCxtLApuDOQIZILk5Hf9dQqKxsIJl375978Fu
+        nl4e395fn0GnwbYV+zlQqLYCYAMmAVKLEDFxMqW+vid7w4kBOZkNXkYfEgHpXUKXgRejkuYKZyOx
+        LsUtGGeSEbaOUljkzUpjjTtDQMtJ1JlCTglMZiGgA/ac0KWItBeZyLs6oDrkC6FFwj4rxtFinfwk
+        df3P+O/s6E7bbDLJYhvR9nU0J5d5O6FitAfpB0bX7uJ/3xHT1WLUiNnnJq48HWSMq5dStp1XV/iE
+        TsjzKfjJqWP2px7gi9EVUDGqS7xsgebMlZnBKE629FYy3UCBc9LnULPIDzxCczdfHkof4K921oV2
+        17/oprrJzDRTt1U+t010/d5v4ZMelfYBAAA=
+    headers:
+      Cache-Control:
+      - no-store
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - text/html
+      Date:
+      - Tue, 09 Mar 2021 17:22:00 GMT
+      ETag:
+      - W/"60357389-1f6"
+      Last-Modified:
+      - Tue, 23 Feb 2021 21:28:41 GMT
+      Server:
+      - nginx/1.10.3 (Ubuntu)
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+version: 1

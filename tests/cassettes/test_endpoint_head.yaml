@@ -1,0 +1,41 @@
+interactions:
+- request:
+    body: '{"test": "value"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '17'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Integration/1.0 (pytest; auto-test; Build/1.3.6) Restfly/1.3.6 (Restfly/1.3.6;
+        Python/3.8.6; Darwin/x86_64)
+    method: HEAD
+    uri: https://httpbin.org/head
+  response:
+    body:
+      string: ''
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '233'
+      Content-Type:
+      - text/html
+      Date:
+      - Tue, 09 Mar 2021 17:30:26 GMT
+      Server:
+      - gunicorn/19.9.0
+    status:
+      code: 404
+      message: NOT FOUND
+version: 1
