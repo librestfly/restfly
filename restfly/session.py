@@ -534,8 +534,12 @@ class APISession(object):
                         # _backoff attribute to build a back-off timer based on
                         # the number of retries we have already performed.
                         retries += 1
-                        time.sleep(resp.headers.get(
-                            'retry-after', retries * self._backoff))
+                        time.sleep(
+                            int(resp.headers.get('retry-after',
+                                                 retries * self._backoff
+                                                 )
+                                )
+                        )
 
                         # The need to potentially modify the request for
                         # subsequent calls is the whole reason that we aren't

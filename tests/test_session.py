@@ -178,6 +178,13 @@ def test_session_base_path(api):
     api.get('200')
 
 
+@pytest.mark.vcr()
+def test_session_retry_after(api):
+    api.get('response-headers', params={
+        'Retry-After': 1
+    })
+
+
 def test_session_ssl_error(api):
     with pytest.raises(SSLError):
         api.get('https://self-signed.badssl.com/')

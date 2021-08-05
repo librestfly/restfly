@@ -33,7 +33,7 @@ Please refer to the full documentation at https://restfly.readthedocs.io.
 
 setup(
     name='restfly',
-    version=version, # noqa: F821
+    version=version,  # noqa: F821
     description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,
