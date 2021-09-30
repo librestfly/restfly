@@ -240,3 +240,4 @@ def test_redact_values():
             'g': 6
         }
     }
+    assert redact_values(test) == test

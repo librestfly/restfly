@@ -10,18 +10,19 @@ Utils
 .. autofunction:: trunc
 .. autofunction:: url_validator
 '''
-from .errors import UnexpectedValueError
-from urllib.parse import urlparse
 from collections.abc import MutableMapping
 from typing import List, Optional, Any
+from urllib.parse import urlparse
 from copy import copy
 import re
 import arrow
 
+from .errors import UnexpectedValueError
+
 
 def url_validator(
     url: str,
-    validate: Optional[List[str]] = ['scheme', 'netloc']
+    validate: Optional[List[str]] = None
 ) -> bool:
     '''
     Validates that the required URL Parts exist within the URL string.
@@ -40,15 +41,17 @@ def url_validator(
         ...     validate=['scheme', 'netloc', 'path'])
             # Returns True
     '''
-    r = urlparse(url)._asdict()
-    for v in validate:
-        if v not in r or r[v] == '':
+    if not validate:
+        validate = ['scheme', 'netloc']
+    resp = urlparse(url)._asdict()
+    for val in validate:
+        if val not in resp or resp[val] == '':
             return False
     return True
 
 
 def dict_flatten(
-    d: dict,
+    dct: dict,
     parent_key: Optional[str] = '',
     sep: Optional[str] = '.'
 ) -> dict:
@@ -70,12 +73,12 @@ def dict_flatten(
     Stackoverflow answer.
     '''
     items = []
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, MutableMapping):
-            items.extend(flatten(v, new_key, sep=sep).items())
+    for key, val in dct.items():
+        new_key = parent_key + sep + key if parent_key else key
+        if isinstance(val, MutableMapping):
+            items.extend(flatten(val, new_key, sep=sep).items())
         else:
-            items.append((new_key, v))
+            items.append((new_key, val))
     return dict(items)
 
 
@@ -83,7 +86,7 @@ def dict_flatten(
 flatten = dict_flatten
 
 
-def dict_clean(d: dict) -> dict:
+def dict_clean(dct: dict) -> dict:
     '''
     Recursively removes dictionary keys where the value is None
 
@@ -100,8 +103,8 @@ def dict_clean(d: dict) -> dict:
         >>> clean_dict(x)
             {'a': 1, 'b': {'c': 2}}
     '''
-    clean = dict()
-    for key, value in d.items():
+    clean = {}
+    for key, value in dct.items():
 
         # if the value is a dictionary, then we will recursively clean.
         if isinstance(value, dict):
@@ -112,7 +115,7 @@ def dict_clean(d: dict) -> dict:
         # if the value is a list, we will check for any dictionaries within
         # the list and recursively clean.
         elif isinstance(value, list):
-            new_value = list()
+            new_value = []
             for item in value:
                 if isinstance(item, dict):
                     new_item = dict_clean(item)
@@ -153,13 +156,13 @@ def dict_merge(
         >>> dict_merge(a, b)
         {'a': 'a', 'one': 1, 'two': 2, 'three': {'b': b, 'four': 4}}
     '''
-    for u in updates:
-        for key in u:
+    for update in updates:
+        for key in update:
             if (key in master and isinstance(master[key], dict)
-                    and isinstance(u[key], dict)):
-                master[key] = dict_merge(master[key], u[key])
+                    and isinstance(update[key], dict)):
+                master[key] = dict_merge(master[key], update[key])
             else:
-                master[key] = u[key]
+                master[key] = update[key]
     return master
 
 
@@ -192,13 +195,13 @@ def force_case(obj: Any, case: str) -> Any:
         1
     '''
     if case == 'lower':
-        if isinstance(obj, list):
+        if isinstance(obj, list):  # noqa: PLR1705
             return [i.lower() for i in obj if isinstance(i, str)]
         elif isinstance(obj, str):
             return obj.lower()
 
     elif case == 'upper':
-        if isinstance(obj, list):
+        if isinstance(obj, list):  # noqa: PLR1705
             return [i.upper() for i in obj if isinstance(i, str)]
         elif isinstance(obj, str):
             return obj.upper()
@@ -208,7 +211,7 @@ def force_case(obj: Any, case: str) -> Any:
 
 def redact_values(
     obj: dict,
-    keys: Optional[list] = [],
+    keys: Optional[list] = None,
     value: str = 'REDACTED'
 ) -> dict:
     '''
@@ -227,12 +230,14 @@ def redact_values(
         :obj:`obj`:
             The modified object.
     '''
+    if not keys:
+        keys = []
     new = copy(obj)
     for key in new:
         if isinstance(new[key], dict):
             new[key] = redact_values(new[key], keys=keys)
         elif key in keys:
-            new[key] = 'REDACTED'
+            new[key] = value
     return new
 
 
@@ -274,18 +279,18 @@ def trunc(
         'this->'
     '''
     if len(text) >= limit:
-        if isinstance(suffix, str):
+        if isinstance(suffix, str):  # noqa: PLR1705
             # If we have a suffix, then reduce the text string length further
             # by the length of the suffix and then concatenate both the text
             # and suffix together.
-            return '{}{}'.format(text[: limit - len(suffix)], suffix)
+            return f'{text[:limit - len(suffix)]}{suffix}'
         else:
             # If no suffix, then simply reduce the string size.
             return text[:limit]
     return text
 
 
-def check(
+def check(  # noqa: C901
     name: str,
     obj: Any,
     expected_type: Any,
@@ -340,32 +345,34 @@ def check(
 
         >>> check('example', val, int, choices=list(range(100)))
     '''
-    # Set the string types.
-    try:
-        string_types = (str, unicode)
-    except NameError:
-        string_types = (str)
-
     def validate_regex_pattern(regex, obj):
-        if (isinstance(obj, string_types)
+        if (isinstance(obj, str)
                 and len(re.findall(regex, str(obj))) <= 0):
             raise UnexpectedValueError(
-                '{} has value of {}.  Does not match pattern {}'.format(
-                    name, obj, regex))
+                f'{name} has value of {obj}.  Does not match pattern {regex}'
+            )
 
     def validate_choice_list(choices, obj):
         if obj not in choices:
-            raise UnexpectedValueError(
-                '{} has value of {}.  Expected one of {}'.format(
-                    name, obj, ','.join([str(i) for i in choices])))
+            raise UnexpectedValueError((
+                f'{name} has value of {obj}.  Expected one of '
+                ','.join([str(i) for i in choices])
+            ))
 
     def validate_expected_type(expected, obj, softcheck=True):
-        if isinstance(obj, expected):
+        # We need to conditionally set the expected nametype local var based
+        # on if the expected type has a __name__ attribute.
+        if hasattr(expected, '__name__'):
+            exp = expected_type.__name__
+        else:
+            exp = expected
+
+        if isinstance(obj, expected):  # noqa: PLR1705
             # if everything matches, then just return the object
             return obj
         elif expected == arrow.Arrow:
             return arrow.get(obj)
-        elif ((softcheck and isinstance(obj, string_types)
+        elif ((softcheck and isinstance(obj, str)
                 and expected not in [list, tuple])):
             # if the expected type is not a list or tuple and it is a
             # string type, then we will attempt to recast the object
@@ -374,12 +381,10 @@ def check(
                 new_obj = expected(obj)
             except Exception:
                 # if the recasting fails, then just pass through.
-                raise TypeError('{} is of type {}.  Expected {}.'.format(
-                    name,
-                    obj.__class__.__name__,
-                    expected_type.__name__
-                    if hasattr(expected, '__name__') else expected)
-                )
+                raise TypeError((  # noqa: PLW0707
+                    f'{name} is of type {obj.__class__.__name__}.  '
+                    f'Expected {exp}'
+                ))
             else:
                 if expected == bool:
                     # if the expected type was boolean, then we will
@@ -395,12 +400,9 @@ def check(
                     # In every other case, just set the object to be the
                     # recasted object and set the type_pass flag.
                     return new_obj
-        raise TypeError('{} is of type {}.  Expected {}.'.format(
-            name,
-            obj.__class__.__name__,
-            expected_type.__name__
-            if hasattr(expected, '__name__') else expected)
-        )
+        raise TypeError((
+            f'{name} is of type {obj.__class__.__name__}.  Expected {exp}'
+        ))
 
     def validate_normalized(obj, func, arg):
         if isinstance(obj, (list, tuple)):
@@ -412,13 +414,13 @@ def check(
             func(arg, obj)
 
     pmap = dict_merge({
-        'uuid': r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+        'uuid': r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',  # noqa: E501
         'email': r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
         'hex': r'^[a-fA-f0-9]+$',
-        'url': r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$',
+        'url': r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$',  # noqa: E501
         'ipv4': r'^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$',
-        'ipv6': r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',
-    }, kwargs.get('pattern_map', dict()))
+        'ipv6': r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))',  # noqa: E501,PLC0301
+    }, kwargs.get('pattern_map', {}))
 
     # We have a simple function to convert the case of string values so that
     # we can ensure correct output.
@@ -431,20 +433,13 @@ def check(
     # If the object sent to us has a None value, then we will return None.
     # If a default was set, then we will return the default value.
     allow_none = kwargs.get('allow_none', True)
-    if obj is None and allow_none:
+    if obj is None and allow_none:  # noqa: PLR1705
         return kwargs.get('default')
 
     # If the allow_none keyword was passed and set to False, we should raise an
     # unexpected value error if none was seen.
     elif obj is None and not allow_none:
-        raise UnexpectedValueError('{} has no value.'.format(name))
-
-    # If we are checking for a string type, we will also want to check for
-    # unicode type transparently, so add the unicode type to the expected
-    # types list.  NOTE this is for Python2 only, as Python3 treats all
-    # strings as type string.
-    if expected_type == str:
-        expected_type = string_types
+        raise UnexpectedValueError(f'{name} has no value.')
 
     # If the object is none of the right types then we want to raise a
     # TypeError as it was something we weren't expecting.
@@ -454,7 +449,7 @@ def check(
     if kwargs.get('items_type'):
         # If the items within the list should also be of a specific type,
         # we can check those as well
-        lobj = list()
+        lobj = []
         for item in obj:
             lobj.append(validate_expected_type(
                 kwargs.get('items_type'), item, kwargs.get('softcheck', True)))
@@ -468,15 +463,16 @@ def check(
 
     # If a pattern was specified, then we will want to pull the pattern from
     # the pattern map and validate that the
-    if kwargs.get('pattern') and kwargs.get('pattern') in pmap.keys():
+    if kwargs.get('pattern') and kwargs.get('pattern') in pmap:
         validate_normalized(obj, validate_regex_pattern,
                             pmap[kwargs.get('pattern')])
 
     # If there wasn't a pattern matching that identifier, then throw an
     # IndexError
     elif kwargs.get('pattern') and kwargs.get('pattern') not in pmap.keys():
-        raise IndexError('pattern name {} not found in map'.format(
-            kwargs.get('pattern')))
+        raise IndexError(
+            f'pattern name {kwargs.get("pattern")} not found in map'
+        )
 
     # If a raw regex pattern was provided instead, then we will pass that over
     # and validate
