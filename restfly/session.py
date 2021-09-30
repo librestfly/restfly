@@ -12,7 +12,7 @@ import warnings
 import platform
 import json
 import logging
-from typing import Union
+from typing import Union, Dict, List
 from urllib.parse import urlparse
 from requests import Response, Session
 from requests.exceptions import (
@@ -22,10 +22,10 @@ from requests.exceptions import (
 from box import Box, BoxList
 from .utils import dict_merge, redact_values
 from . import errors
-from .version import version
+from .version import VERSION
 
 
-class APISession(object):
+class APISession:  # noqa: PLR0902
     '''
     The APISession class is the base model for APISessions for different
     products and applications.  This is the model that the APIEndpoints
@@ -134,16 +134,17 @@ class APISession(object):
     _proxies = None
     _ssl_verify = True
     _lib_name = 'Restfly'
-    _lib_version = version
-    _restricted_paths = list()
+    _lib_version = VERSION
+    _restricted_paths = []
     _vendor = 'unknown'
     _product = 'unknown'
     _build = 'unknown'
     _adaptor = None
     _timeout = None
+    _conv_json = False
     _box = False
-    _box_attrs = dict()
-    _error_map = dict()
+    _box_attrs = {}
+    _error_map = {}
     _error_on_unexpected_input = False
     _base_error_map = {
         400: errors.BadRequestError,
@@ -217,10 +218,12 @@ class APISession(object):
         self._timeout = kwargs.pop('timeout', self._timeout)
         self._box = kwargs.pop('box', self._box)
         self._box_attrs = kwargs.pop('box_attrs', self._box_attrs)
+        self._conv_json = kwargs.pop('conv_json', self._conv_json)
 
         # Create the logging facility
-        self._log = logging.getLogger('{}.{}'.format(
-            self.__module__, self.__class__.__name__))
+        self._log = logging.getLogger(
+            f'{self.__module__}.{self.__class__.__name__}'
+        )
 
         # Initiate the session builder.
         self._build_session(**kwargs)
@@ -272,40 +275,18 @@ class APISession(object):
             warnings.filterwarnings('ignore', 'Unverified HTTPS request')
 
         # Update the User-Agent string with the information necessary.
+        py_version = '.'.join([str(i) for i in sys.version_info][0:3])
+        opsys = uname[0]
+        arch = uname[-2]
         self._session.headers.update({
-            'User-Agent': ' '.join([
-                'Integration/1.0 ({}; {}; Build/{})'.format(
-
-                    # The vendor name for the integration
-                    self._vendor,
-
-                    # The product name of the integration
-                    self._product,
-
-                    # The build of the integration
-                    self._build
-                ),
-                '{}/{} (Restfly/{}; Python/{}; {}/{})'.format(
-
-                    # The name of the library being used
-                    self._lib_name,
-
-                    # The version of the library being used
-                    self._lib_version,
-
-                    # The version of Restfly
-                    version,
-
-                    # The python version string
-                    '.'.join([str(i) for i in sys.version_info][0:3]),
-
-                    # The source OS
-                    uname[0],
-
-                    # The source Arch
-                    uname[-2]
-                ),
-            ])
+            'User-Agent': (
+                # Integration/1.0 (VENDOR; PRODUCT; Build/BUILD)
+                'Integration/1.0 '
+                f'({self._vendor}; {self._product}; Build/{self._build}) '
+                # LIB_NAME/LIB_VER (Restfly/VERSION; Python/VERSION; OS/ARCH)
+                f'{self._lib_name}/{self._lib_version} '
+                f'(Restfly/{VERSION}; Python/{py_version}; {opsys}/{arch})'
+            )
         })
 
     def _authenticate(self, **kwargs):  # stub
@@ -320,7 +301,6 @@ class APISession(object):
             ...     def _authenticate(self, username, password):
             ...         self._session.auth = (username, password)
         '''
-        pass
 
     def _deauthenticate(self, **kwargs):  # stub
         '''
@@ -332,9 +312,8 @@ class APISession(object):
             ...     def _deauthenticate(self):
             ...         self.delete('session/token')
         '''
-        pass
 
-    def _resp_error_check(self, response: Response, **kwargs) -> Response:
+    def _resp_error_check(self, response: Response, **kwargs) -> Response:  # noqa: PLR0201,PLW0613,E501,PLC0301
         '''
         If there is a need for additional error checking (for example within
         the JSON response) then overload this method with the necessary
@@ -352,9 +331,9 @@ class APISession(object):
         '''
         return response
 
-    def _retry_request(self,
-                       response: Response,
-                       retries: int,
+    def _retry_request(self,                # noqa: PLR0201
+                       response: Response,  # noqa: PLW0613
+                       retries: int,        # noqa: PLW0613
                        **kwargs
                        ) -> dict:  # stub
         '''
@@ -376,11 +355,13 @@ class APISession(object):
         '''
         return kwargs
 
+    # NOTE: This method is quite complex and should be refactored into smaller,
+    #       more digestible methods.
     def _req(self,
              method: str,
              path: str,
              **kwargs
-             ) -> Union[Box, BoxList, Response]:
+             ) -> Union[Box, BoxList, Response, Dict, List, None]:
         '''
         The requests session base request method.  This is considered internal
         as it's generally recommended to use the bespoke methods for each HTTP
@@ -399,6 +380,9 @@ class APISession(object):
             box_attrs (dict, optional):
                 A request-specific override with a list of key-values to
                 pass to the box constructor.
+            conv_json (bool, optional):
+                A request-specific override to automatically convert the
+                response fromJSON to native datatypes.
             redact_fields (list[str], optional):
                 A list of keys to redact in the response.  Redaction is used
                 for the requests to the API as all of the fields are sent to
@@ -416,10 +400,20 @@ class APISession(object):
                 unspecified the default is `True`.
 
         Returns:
-            :obj:`requests.Response` or :obj:`box.Box`
-                If the request was informed to attempt to "boxify" the response
-                and the response was JSON data, then a Box will be returned.
-                In all other scenarios, a Response object will be returned.
+            :obj:`requests.Response`:
+                The default behavior is to return the requests Response object.
+            :obj:`box.Box` or :obj:`box.BoxList`:
+                If the `box` parameter is set, then the response object will
+                be converted to a Box object if the response contains a the
+                content type header of "application/json"
+            :obj:`dict` or :obj:`list`:
+                If the `conv_json` paramerter is set, then the response object
+                will be converted using the Response objects baked-in `json()`
+                method.
+            :obj:`None`:
+                If either `conv_json` or `box` has been set, however the
+                response object has an empty response body, then `None` will
+                be returned instead.
 
         Examples:
             >>> api = APISession()
@@ -428,6 +422,7 @@ class APISession(object):
         error_resp = None
         retries = 0
         kwargs['verify'] = kwargs.get('verify', self._ssl_verify)
+        conv_json = kwargs.pop('conv_json', self._conv_json)
 
         # Ensure that the box variable is set to either Box or BoxList.  Then
         # we want to ensure that "box" is removed from the keyword list.
@@ -443,7 +438,7 @@ class APISession(object):
         # variable with a list of numeric status codes to additionally retry
         # on.  This is helpful if the API in question doesn't always behave in
         # a consistent manner.
-        retry_codes = kwargs.pop('retry_on', list())
+        retry_codes = kwargs.pop('retry_on', [])
 
         # While the number of retries is less than the retry limit, loop.  As
         # we will be returning from within the loop if we receive a successful
@@ -460,9 +455,9 @@ class APISession(object):
             if len(urlparse(path).netloc) > 0:
                 uri = path
             elif kwargs.pop('use_base', True) and self._base_path:
-                uri = '{}/{}/{}'.format(self._url, self._base_path, path)
+                uri = f'{self._url}/{self._base_path}/{path}'
             else:
-                uri = '{}/{}'.format(self._url, path)
+                uri = f'{self._url}/{path}'
 
             # Here we will generate the debug log.  As some of the values that
             # may be sent to us could be sensitive in nature, we have multiple
@@ -493,14 +488,11 @@ class APISession(object):
 
             # And now we generate the log based on body and params that we have
             # sanitized (or not).
-            self._log.debug('Request:{}'.format(
-                json.dumps({
-                    'method': method,
-                    'url': uri,
-                    'params': params,
-                    'body': body
-                })
-            ))
+            self._log.debug('Request: %s' % json.dumps({'method': method,
+                                                        'url': uri,
+                                                        'params': params,
+                                                        'body': body
+                                                        }))
 
             # Make the call to the API and pull the status code.
             try:
@@ -512,21 +504,22 @@ class APISession(object):
             # requests library, log them, iterate the retry counter, then
             # release the attempt for the next iteration.
             except (RequestsConnectionError, RequestsRequestException) as ereq:
-                self._log.error('Requests Library Error: {}'.format(str(ereq)))
+                self._log.error('Requests Library Error: %s',
+                                str(ereq))
                 time.sleep(1)
                 retries += 1
                 error_resp = ereq
 
             # The following code will run when a request successfully returned.
             else:
-                if status in self._error_map.keys():
+                if status in self._error_map:
                     # If a status code that we know about has returned, then we
                     # will want to raise the appropriate Error.
                     err = self._error_map[status]
                     error_resp = err(resp,
                                      retries=retries,
                                      func=self._error_func)
-                    if err.retryable or status in retry_codes:
+                    if err.retryable or status in retry_codes:  # noqa: PLR1724
                         # If the APIError fetched is retryable, we will want to
                         # attempt to retry our call.  If we see the
                         # "Retry-After" header, then we will respect that.  If
@@ -549,7 +542,7 @@ class APISession(object):
                     else:
                         raise error_resp
 
-                elif status >= 200 and status <= 299:
+                elif status in range(200, 299):
                     # As everything looks ok, lets pass the response on to the
                     # error checker and then return the response.
                     resp = self._resp_error_check(resp, **kwargs)
@@ -564,18 +557,19 @@ class APISession(object):
                     ctype = resp.headers.get('content-type',
                                              'application/json')
                     if box and 'application/json' in ctype:
-
                         # we want to make a quick check to ensure that there is
                         # actually some data to pass to Box.  If there isn't,
                         # then we should just return back a None response.
                         if len(resp.text) > 0:
                             if box_attrs.get('default_box'):
-                                entry = 'unknown attributes will return as {}'
-                                self._log.debug(entry.format(
-                                    box_attrs.get('default_box_attr', Box)))
+                                self._log.debug(
+                                    'unknown attrs will return as %s' %
+                                    box_attrs.get('default_box_attr', Box)
+                                )
                             return box.from_json(resp.text, **box_attrs)
-                        else:
-                            return None
+                    elif conv_json and 'application/json' in ctype:
+                        if len(resp.text) > 0:
+                            return resp.json()
                     else:
                         return resp
 
@@ -617,7 +611,7 @@ class APISession(object):
     def post(self,
              path: str,
              **kwargs
-         ) -> Union[Box, BoxList, Response]:
+             ) -> Union[Box, BoxList, Response]:
         '''
         Initiates an HTTP POST request using the specified path.  Refer to the
         :obj:`requests.request` for more detailed information on what

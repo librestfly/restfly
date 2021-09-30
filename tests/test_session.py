@@ -128,6 +128,12 @@ def test_session_put(api):
 
 
 @pytest.mark.vcr()
+def test_session_head(api):
+    resp = api.head('')
+    assert isinstance(resp, Response)
+
+
+@pytest.mark.vcr()
 def test_session_redirect(api):
     resp = api.get('redirect-to', params={'url': '/get'})
     assert isinstance(resp, Response)
@@ -157,6 +163,15 @@ def test_debug_logging(api, caplog):
         resp = api.post('post', json=data, box=False)
         assert 'REDACTED' not in caplog.text
         assert resp.json()['json'] == data
+
+    caplog.clear()
+    with caplog.at_level(logging.DEBUG, logger='restfly.session.APISession'):
+        resp = api.post('post',
+                        json=data,
+                        box=True,
+                        box_attrs={'default_box': True}
+                        )
+        assert 'unknown attrs will return as' in caplog.text
 
 
 @pytest.mark.vcr()
@@ -385,8 +400,14 @@ def test_session_networkauthrequirederror(api):
 
 
 @pytest.mark.vcr()
+def test_session_catchall_error(api):
+    with pytest.raises(errors.APIError):
+        api.get('status/555')
+
+
+@pytest.mark.vcr()
 def test_session_box_non_json(api):
-    assert isinstance(api.get('html'), Response)
+    assert isinstance(api.get('html', box=True), Response)
 
 
 @pytest.mark.vcr()
@@ -397,3 +418,18 @@ def test_session_box_json(api):
 @pytest.mark.vcr()
 def test_session_disable_box(api):
     assert isinstance(api.get('json', box=False), Response)
+
+
+@pytest.mark.vcr()
+def test_session_conv_json_non_json(api):
+    assert isinstance(api.get('html', conv_json=True), Response)
+
+
+@pytest.mark.vcr()
+def test_session_conv_json_json(api):
+    assert isinstance(api.get('json', conv_json=True), dict)
+
+
+@pytest.mark.vcr()
+def test_session_disable_conv_json(api):
+    assert isinstance(api.get('json', conv_json=False), Response)
