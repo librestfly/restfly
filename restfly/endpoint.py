@@ -6,13 +6,13 @@ Endpoints
     :members:
     :private-members:
 '''
+from typing import Optional, Union
 from box import Box, BoxList
 from requests import Response
-from typing import Optional, Union, Any
 from .session import APISession
 
 
-class APIEndpoint(object):
+class APIEndpoint:  # noqa: PLR0903
     '''
     APIEndpoint is the base model for which all API endpoint classes are
     sired from.  The main benefit is the addition of the ``_check()``
@@ -62,8 +62,8 @@ class APIEndpoint(object):
             ...     def list(**kwargs):
             ...         return self._req('GET', **kwargs)
         '''
-        p = '/'.join([p for p in [self._path, path] if p])
-        return self._api._req(method, p, **kwargs)
+        new_path = '/'.join([p for p in [self._path, path] if p])
+        return self._api._req(method, new_path, **kwargs)  # noqa: PLW0212
 
     def _delete(self,
                 path: Optional[str] = None,
