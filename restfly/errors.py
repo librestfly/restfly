@@ -42,12 +42,12 @@ Errors
 import logging
 
 
-def api_error_func(r, **kwargs):
+def api_error_func(resp, **kwargs):  # noqa: PLW0613
     '''
     Default message function for APIErrors
 
     Args:
-        r (request.Response):
+        resp (request.Response):
             The HTTP response that caused the error to be thrown.
         **kwargs (dict):
             The keyword argument dictionary from the APIError
@@ -56,15 +56,11 @@ def api_error_func(r, **kwargs):
         :obj:`str`:
             The string message for the error.
     '''
-    return '[{code}: {verb}] {uri} body={body}'.format(
-        code=str(r.status_code),
-        verb=str(r.request.method),
-        uri=str(r.request.url),
-        body=str(r.content)
-    )
+    return (f'[{str(resp.status_code)}: {str(resp.request.method)}] '
+            f'{str(resp.request.url)} body={str(resp.content)}')
 
 
-def base_msg_func(msg, **kwargs):
+def base_msg_func(msg, **kwargs):  # noqa: PLW0613
     '''
     Default function used for RestflyException
 
@@ -87,11 +83,13 @@ class RestflyException(Exception):
     scaffolding for all other exception classes.  This exception should never
     be directly seen.
     '''
+
     def __init__(self, msg, **kwargs):
-        self._log = logging.getLogger('{}.{}'.format(
-                self.__module__, self.__class__.__name__))
+        self._log = logging.getLogger(
+            f'{self.__module__}.{self.__class__.__name__}')
         self.msg = kwargs.get('func', base_msg_func)(msg, **kwargs)
         self._log.error(self.__str__())
+        super().__init__()
 
     def __str__(self):
         return str(self.msg)
@@ -117,7 +115,7 @@ class RequiredParameterError(RestflyException):
     '''
 
 
-class ConnectionError(RestflyException):
+class ConnectionError(RestflyException):  # noqa: PLW0622
     '''
     A connection-error is thrown only for products like Tenable.sc or Nessus,
     where the application may be installed anywhere.  This error is thrown if
@@ -133,7 +131,7 @@ class PackageMissingError(RestflyException):
     '''
 
 
-class NotImplementedError(RestflyException):
+class NotImplementedError(RestflyException):  # noqa: PLW0622
     '''
     In situations where something is stubbed out or otherwise not yet
     implemented, this error can be thrown back to inform the user that the
@@ -166,7 +164,7 @@ class APIError(RestflyException):
         self.response = r
         self.code = r.status_code
         self.retries = kwargs.get('retries')
-        super(APIError, self).__init__(r, **kwargs)
+        super().__init__(r, **kwargs)
 
 
 class BadRequestError(APIError):  # 400 Response

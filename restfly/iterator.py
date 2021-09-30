@@ -9,7 +9,7 @@ Iterators
 from typing import Any, Optional
 
 
-class APIIterator(object):
+class APIIterator:
     '''
     The API iterator provides a scalable way to work through result sets of any
     size.  The iterator will walk through each page of data, returning one
@@ -79,7 +79,6 @@ class APIIterator(object):
             ...        self.page = [{'id': i + self._offset} for i in items]
             ...        self._offset += self._limit
         '''
-        pass
 
     def get(self, key: str, default: Optional[Any] = None) -> Any:
         '''
@@ -106,7 +105,7 @@ class APIIterator(object):
         return self
 
     def __next__(self):
-        return self.next()
+        return self.next()  # noqa: PLE1102
 
     def next(self) -> Any:
         '''
@@ -114,9 +113,11 @@ class APIIterator(object):
         '''
         # If there are no more records to return, then we should raise a
         # StopIteration exception to break the iterator out.
-        if ((self.total and self.count + 1 > self.total)
-                or (self.max_items and self.count + 1 > self.max_items)
-                or (self.max_pages and self.num_pages > self.max_pages)):
+        if (
+            (self.total and self.count + 1 > self.total)  # noqa: PLR0916
+            or (self.max_items and self.count + 1 > self.max_items)
+            or (self.max_pages and self.num_pages > self.max_pages)
+        ):
             raise StopIteration()
 
         # If we have worked through the current page of records and we still
