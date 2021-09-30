@@ -33,7 +33,7 @@ Please refer to the full documentation at https://restfly.readthedocs.io.
 
 setup(
     name='restfly',
-    version=version,  # noqa: F821
+    version=VERSION,  # noqa: F821
     description='A library to make API wrappers creation easier',
     author='Steve McGrath',
     long_description=long_description,
@@ -55,8 +55,8 @@ setup(
     keywords='tenable tenable_io securitycenter containersecurity',
     packages=find_packages(exclude=['docs', 'tests']),
     install_requires=[
-        'requests>=2.25.1',
+        'requests>=2.26.0',
         'python-box>=5.3.0',
-        'arrow>=1.0.2',
+        'arrow>=1.0.3',
     ],
 )

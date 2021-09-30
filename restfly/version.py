@@ -1,2 +1,7 @@
-version = '1.4.1'
-version_info = tuple([int(d) for d in version.split("-")[0].split(".")])
+'''
+version info
+'''
+VERSION = '1.4.1'
+version_info = tuple(
+    int(d) for d in VERSION.split("-", maxsplit=1)[0].split(".")
+)
