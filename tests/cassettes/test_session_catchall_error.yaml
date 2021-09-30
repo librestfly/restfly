@@ -11,8 +11,8 @@ interactions:
       User-Agent:
       - Integration/1.0 (pytest; auto-test; Build/1.4.1) Restfly/1.4.1 (Restfly/1.4.1;
         Python/3.8.6; Darwin/x86_64)
-    method: HEAD
-    uri: https://httpbin.org/
+    method: GET
+    uri: https://httpbin.org/status/555
   response:
     body:
       string: ''
@@ -24,14 +24,14 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '9593'
+      - '0'
       Content-Type:
       - text/html; charset=utf-8
       Date:
-      - Thu, 30 Sep 2021 17:28:21 GMT
+      - Thu, 30 Sep 2021 17:13:25 GMT
       Server:
       - gunicorn/19.9.0
     status:
-      code: 200
-      message: OK
+      code: 555
+      message: UNKNOWN
 version: 1
