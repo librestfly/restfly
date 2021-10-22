@@ -1,5 +1,6 @@
 import pytest
 from requests import Response
+from box import Box
 from restfly.endpoint import APIEndpoint
 
 
@@ -53,6 +54,16 @@ def test_endpoint_put(e):
 def test_endpoint_base_request(e):
     resp = e._req('PUT', 'put', json={'test': 'value'})
     assert isinstance(resp, Response)
+    
+    # Test endpoint params:
+    e._box = True
+    e._box_attrs = {'default_box': True}
+    assert isinstance(e._req('PUT', 'put', json={'test': 'value'}), Box)
+    
+    e._box = None
+    e._conv_json = True
+    assert isinstance(e._req('PUT', 'put', json={'test': 'value'}), dict)
+    
 
 
 @pytest.mark.vcr()

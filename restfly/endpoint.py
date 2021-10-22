@@ -6,7 +6,7 @@ Endpoints
     :members:
     :private-members:
 '''
-from typing import Optional, Union
+from typing import Optional, Union, Dict
 from box import Box, BoxList
 from requests import Response
 from .session import APISession
@@ -25,13 +25,22 @@ class APIEndpoint:  # noqa: PLR0903
             APISession object.  This can become quite useful if most of the
             CRUD follows the same pathing.  It is only used when using the
             APIEndpoint verbs (_get, _post, _put, etc.).
+        _box (Union[bool, Box, BoxList]):
+            An endpoint-specific version of `APISession._box`.
+        _box_attrs (bool):
+            An endpoint-specific version of `APISession._box_attrs`.
+        _conv_json (bool):
+            An endpoint-specific version of `APISession._conv_json`.
 
     Args:
         api (APISession):
             The APISession (or sired child) instance that the endpoint will
             be using to perform calls to the API.
     '''
-    _path = None
+    _path: str = None
+    _box: Union[bool, Box, BoxList] = None
+    _conv_json: bool = None
+    _box_attrs: Dict = None
 
     def __init__(self, api: APISession):
         self._api = api
@@ -62,6 +71,12 @@ class APIEndpoint:  # noqa: PLR0903
             ...     def list(**kwargs):
             ...         return self._req('GET', **kwargs)
         '''
+        if self._box:
+            kwargs['box'] = kwargs.get('box', self._box)
+        if self._box_attrs:
+            kwargs['box_attrs'] = kwargs.get('box_attrs', self._box_attrs)
+        if self._conv_json:
+            kwargs['conv_json'] = kwargs.get('conv_json', self._conv_json)
         new_path = '/'.join([p for p in [self._path, path] if p])
         return self._api._req(method, new_path, **kwargs)  # noqa: PLW0212
 
