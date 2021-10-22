@@ -124,6 +124,13 @@ class ConnectionError(RestflyException):  # noqa: PLW0622
     '''
 
 
+class AuthenticationWarning(Warning):  # noqa: PLW0622
+    '''
+    An authentication warning is thrown when an unauthenticated API session is
+    initiated.
+    '''
+
+
 class PackageMissingError(RestflyException):
     '''
     In situations where an optional library is needed, this exception will be
@@ -159,13 +166,19 @@ class APIError(RestflyException):
     retryable = False
     retries = None
 
-    def __init__(self, r, **kwargs):
+    def __init__(self, resp, **kwargs):
         kwargs['func'] = kwargs.get('func', api_error_func)
-        self.response = r
-        self.code = r.status_code
+        self.response = resp
+        self.code = resp.status_code
         self.retries = kwargs.get('retries')
-        super().__init__(r, **kwargs)
+        super().__init__(resp, **kwargs)
 
+    @classmethod
+    def set_retryable(cls, value: bool) -> None:
+        '''
+        Sets the retry flag for the given response code.
+        '''
+        cls.retryable = value
 
 class BadRequestError(APIError):  # 400 Response
     '''

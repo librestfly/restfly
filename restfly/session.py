@@ -12,7 +12,7 @@ import warnings
 import platform
 import json
 import logging
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Tuple, Any
 from urllib.parse import urlparse
 from requests import Response, Session
 from requests.exceptions import (
@@ -127,26 +127,28 @@ class APISession:  # noqa: PLR0902
         vendor (str, optional):
             The vendor name to put into the User-Agent string.
     '''
-    _url = None
-    _base_path = None
-    _retries = 3
-    _backoff = 1
-    _proxies = None
-    _ssl_verify = True
-    _lib_name = 'Restfly'
-    _lib_version = VERSION
-    _restricted_paths = []
-    _vendor = 'unknown'
-    _product = 'unknown'
-    _build = 'unknown'
-    _adaptor = None
-    _timeout = None
-    _conv_json = False
-    _box = False
-    _box_attrs = {}
-    _error_map = {}
-    _error_on_unexpected_input = False
-    _base_error_map = {
+    _url: str = None
+    _base_path: str = None
+    _retries: int = 3
+    _backoff: float = 1
+    _proxies: Union[Dict, Tuple] = None
+    _cert: Tuple[str, str] = None
+    _ssl_verify: bool = True
+    _lib_name: str = 'Restfly'
+    _lib_version: str = VERSION
+    _restricted_paths: List = []
+    _vendor: str = 'unknown'
+    _product: str = 'unknown'
+    _build: str = 'unknown'
+    _adaptor: Any = None
+    _adaptor_path: str = None
+    _timeout: int = None
+    _conv_json: bool = False
+    _box: bool = False
+    _box_attrs: Dict = {}
+    _error_map: Dict = {}
+    _error_on_unexpected_input: bool = False
+    _base_error_map: Dict = {
         400: errors.BadRequestError,
         401: errors.UnauthorizedError,
         403: errors.ForbiddenError,
@@ -210,7 +212,9 @@ class APISession:  # noqa: PLR0902
         self._backoff = float(kwargs.pop('backoff', self._backoff))
         self._proxies = kwargs.pop('proxies', self._proxies)
         self._ssl_verify = kwargs.pop('ssl_verify', self._ssl_verify)
+        self._adaptor_path = kwargs.pop('adaptor_path', self._adaptor_path)
         self._adaptor = kwargs.pop('adaptor', self._adaptor)
+        self._cert = kwargs.pop('cert', self._cert)
         self._vendor = kwargs.pop('vendor', self._vendor)
         self._product = kwargs.pop('product', self._product)
         self._build = kwargs.pop('build', self._build)
@@ -273,6 +277,18 @@ class APISession:  # noqa: PLR0902
         if self._ssl_verify is False:
             self._session.verify = self._ssl_verify
             warnings.filterwarnings('ignore', 'Unverified HTTPS request')
+
+        # If client certificate authentication is needed, then we should inject
+        # the certificate tuple into the session.
+        if self._cert:
+            self._session.cert = self._cert
+
+        # if an adaptor was specified for the Requests Session, then we should
+        # mount that adaptor on to the Session object.
+        if self._adaptor:
+            if not self._adaptor_path:
+                self._adaptor_path = f'{self._url}/{self._base_path}'
+            self._session.mount(self._adaptor_path, self._adaptor)
 
         # Update the User-Agent string with the information necessary.
         py_version = '.'.join([str(i) for i in sys.version_info][0:3])

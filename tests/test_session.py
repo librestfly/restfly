@@ -2,6 +2,7 @@ import pytest
 import logging
 from requests import Response
 from requests.exceptions import SSLError
+from urllib3.exceptions import InsecureRequestWarning
 from box import Box
 from restfly import __version__ as version, APISession
 from restfly import errors
@@ -204,7 +205,8 @@ def test_session_ssl_error(api):
     with pytest.raises(SSLError):
         api.get('https://self-signed.badssl.com/')
     api._ssl_verify = False
-    api.get('https://self-signed.badssl.com/')
+    with pytest.warns(InsecureRequestWarning):
+        api.get('https://self-signed.badssl.com/')
 
 
 @pytest.mark.vcr()
