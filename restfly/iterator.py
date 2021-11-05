@@ -7,6 +7,7 @@ Iterators
     :private-members:
 '''
 from typing import Any, Optional
+import logging
 
 
 class APIIterator:
@@ -65,6 +66,11 @@ class APIIterator:
         '''
         self._api = api
         self.__dict__.update(kw)
+
+        # Create the logging facility
+        self._log = logging.getLogger(
+            f'{self.__module__}.{self.__class__.__name__}'
+        )
 
     def _get_page(self) -> None:
         '''

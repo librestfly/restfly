@@ -20,7 +20,7 @@ from requests.exceptions import (
     RequestException as RequestsRequestException
 )
 from box import Box, BoxList
-from .utils import dict_merge, redact_values
+from .utils import dict_merge, redact_values, format_json_response
 from . import errors
 from .version import VERSION
 
@@ -95,8 +95,10 @@ class APISession:  # noqa: PLR0902
             The vendor name for the integration.
 
     Args:
-        adaptor (Object, optional):
+        adapter (Object, optional):
             A Requests Session adaptor to bind to the session object.
+        adapter_path (str, optional):
+            The URL that the adapter will bind to.
         backoff (float, optional):
             If a 429 response is returned, how much do we want to backoff
             if the response didn't send a Retry-After header.
@@ -140,8 +142,8 @@ class APISession:  # noqa: PLR0902
     _vendor: str = 'unknown'
     _product: str = 'unknown'
     _build: str = 'unknown'
-    _adaptor: Any = None
-    _adaptor_path: str = None
+    _adapter: Any = None
+    _adapter_path: str = None
     _timeout: int = None
     _conv_json: bool = False
     _box: bool = False
@@ -212,8 +214,8 @@ class APISession:  # noqa: PLR0902
         self._backoff = float(kwargs.pop('backoff', self._backoff))
         self._proxies = kwargs.pop('proxies', self._proxies)
         self._ssl_verify = kwargs.pop('ssl_verify', self._ssl_verify)
-        self._adaptor_path = kwargs.pop('adaptor_path', self._adaptor_path)
-        self._adaptor = kwargs.pop('adaptor', self._adaptor)
+        self._adapter_path = kwargs.pop('adapter_path', self._adapter_path)
+        self._adapter = kwargs.pop('adapter', self._adapter)
         self._cert = kwargs.pop('cert', self._cert)
         self._vendor = kwargs.pop('vendor', self._vendor)
         self._product = kwargs.pop('product', self._product)
@@ -285,10 +287,10 @@ class APISession:  # noqa: PLR0902
 
         # if an adaptor was specified for the Requests Session, then we should
         # mount that adaptor on to the Session object.
-        if self._adaptor:
-            if not self._adaptor_path:
-                self._adaptor_path = f'{self._url}/{self._base_path}'
-            self._session.mount(self._adaptor_path, self._adaptor)
+        if self._adapter:
+            if not self._adapter_path:
+                self._adapter_path = f'{self._url}/{self._base_path}'
+            self._session.mount(self._adapter_path, self._adapter)
 
         # Update the User-Agent string with the information necessary.
         py_version = '.'.join([str(i) for i in sys.version_info][0:3])
@@ -442,9 +444,7 @@ class APISession:  # noqa: PLR0902
 
         # Ensure that the box variable is set to either Box or BoxList.  Then
         # we want to ensure that "box" is removed from the keyword list.
-        box = kwargs.pop('box', self._box)
-        if box is not False and box not in [Box, BoxList]:
-            box = Box
+        conv_box = kwargs.pop('box', self._box)
 
         # Similarly to the box var, we will want to do the same thing with the
         # box_attrs keyword.
@@ -562,33 +562,11 @@ class APISession:  # noqa: PLR0902
                     # As everything looks ok, lets pass the response on to the
                     # error checker and then return the response.
                     resp = self._resp_error_check(resp, **kwargs)
-
-                    # If boxification is enabled, then we will want to return
-                    # JSON responses with Box objects.  If the content type
-                    # isn't JSON, then return a regular Response object.  As we
-                    # can't always trust that the content-type header has been
-                    # set, if no content-type header is returned to us, we will
-                    # assume that the caller is expecting the response to be
-                    # a JSON body.
-                    ctype = resp.headers.get('content-type',
-                                             'application/json')
-                    if box and 'application/json' in ctype:
-                        # we want to make a quick check to ensure that there is
-                        # actually some data to pass to Box.  If there isn't,
-                        # then we should just return back a None response.
-                        if len(resp.text) > 0:
-                            if box_attrs.get('default_box'):
-                                self._log.debug(
-                                    'unknown attrs will return as %s' %
-                                    box_attrs.get('default_box_attr', Box)
-                                )
-                            return box.from_json(resp.text, **box_attrs)
-                    elif conv_json and 'application/json' in ctype:
-                        if len(resp.text) > 0:
-                            return resp.json()
-                    else:
-                        return resp
-
+                    return format_json_response(response=resp,
+                                                box_attrs=box_attrs,
+                                                conv_json=conv_json,
+                                                conv_box=conv_box
+                                                )
                 else:
                     # If all else fails, raise an error stating that we don't
                     # even know whats happening.

@@ -11,13 +11,73 @@ Utils
 .. autofunction:: url_validator
 '''
 from collections.abc import MutableMapping
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 from urllib.parse import urlparse
 from copy import copy
 import re
 import arrow
 
+from requests import Response
+from box import Box, BoxList
+
 from .errors import UnexpectedValueError
+
+
+def format_json_response(response: Response,
+                         box_attrs: Optional[Dict] = None,
+                         conv_json: bool = True,
+                         conv_box: bool = True,
+                         ):
+    '''
+    A simple utility to handle formatting the response object into either a
+    Box object or a Python native object from the JSON response.  The function
+    will prefer box over python native if both flags are set to true.  If none
+    of the flags are true, or if the content-type header reports as something
+    other than "applicagion/json", then the response object is instead
+    returned.
+
+    Args:
+        response:
+            The response object that will be checked against.
+        box_attrs:
+            The optional box attributed to pass as part of instantiation.
+        conv_json:
+            A flag handling if we should run the JSON conversion to python
+            native datatypes.
+        conv_box:
+            A flaghandling if we should convert the data to a Box object.
+
+    Returns:
+        box.Box:
+            If the conv_box flag is True, and the response is a single object,
+            then the response is a Box obj.
+        box.BoxList:
+            If the conv_box flag is True, and the response is a list of
+            objects, then the response is a BoxList obj.
+        dics:
+            If the conv_json flag is True and the  conv_box is False, and the
+            response is a single object, then the response is a dict obj.
+        list:
+            If the conv_json flag is True and conv_box is False, and the
+            response is a list of objects, then the response is a list obj.
+        requests.Response:
+            If neither flag is True, or if the response isn't JSON data, then
+            a response object is returned (pass-through).
+    '''
+    content_type = response.headers.get('content-type', 'application/json')
+    if ((conv_json or conv_box)
+        and 'application/json' in content_type
+        and len(response.text) > 0
+    ):  # noqa: E124
+        if conv_box:
+            data = response.json()
+            if isinstance(data, list):
+                return BoxList(data, **box_attrs)
+            elif isinstance(data, dict):
+                return Box(data, **box_attrs)
+        elif conv_json:
+            return response.json()
+    return response
 
 
 def url_validator(
