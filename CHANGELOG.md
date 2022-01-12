@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.4.5]
+### Fixed
+- Content-Type header value is not handled in a case-insensitive manner
+
+
+## [1.4.4]
+### Changed
+- Refactored json conversion into the format_json_response utility
+
+
 ## [1.4.3]
 ### Added
 - `_conv_json`, `_box`, and `_box_attrs` can now be specified at the endpoint level as well.
@@ -122,6 +132,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial Version
 
 
+[1.4.5]: https://github.com/SteveMcGrath/restfly/compare/1.4.4...1.4.5
+[1.4.4]: https://github.com/SteveMcGrath/restfly/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/SteveMcGrath/restfly/compare/1.4.2...1.4.3
 [1.4.2]: https://github.com/SteveMcGrath/restfly/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/SteveMcGrath/restfly/compare/1.4.0...1.4.1

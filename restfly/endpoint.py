@@ -25,7 +25,7 @@ class APIEndpoint:  # noqa: PLR0903
             APISession object.  This can become quite useful if most of the
             CRUD follows the same pathing.  It is only used when using the
             APIEndpoint verbs (_get, _post, _put, etc.).
-        _box (Union[bool, Box, BoxList]):
+        _box (bool):
             An endpoint-specific version of `APISession._box`.
         _box_attrs (bool):
             An endpoint-specific version of `APISession._box_attrs`.
@@ -38,7 +38,7 @@ class APIEndpoint:  # noqa: PLR0903
             be using to perform calls to the API.
     '''
     _path: str = None
-    _box: Union[bool, Box, BoxList] = None
+    _box: bool = None
     _conv_json: bool = None
     _box_attrs: Dict = None
 

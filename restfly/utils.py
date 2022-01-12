@@ -54,7 +54,7 @@ def format_json_response(response: Response,
         box.BoxList:
             If the conv_box flag is True, and the response is a list of
             objects, then the response is a BoxList obj.
-        dics:
+        dict:
             If the conv_json flag is True and the  conv_box is False, and the
             response is a single object, then the response is a dict obj.
         list:
@@ -66,7 +66,7 @@ def format_json_response(response: Response,
     '''
     content_type = response.headers.get('content-type', 'application/json')
     if ((conv_json or conv_box)
-        and 'application/json' in content_type
+        and 'application/json' in content_type.lower()
         and len(response.text) > 0
     ):  # noqa: E124
         if conv_box:
