@@ -66,7 +66,7 @@ def format_json_response(response: Response,
     '''
     content_type = response.headers.get('content-type', 'application/json')
     if ((conv_json or conv_box)
-        and 'application/json' in content_type
+        and 'application/json' in content_type.lower()
         and len(response.text) > 0
     ):  # noqa: E124
         if conv_box:
