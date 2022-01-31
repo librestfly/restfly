@@ -1,7 +1,8 @@
 *.egg-info
 __pycache__
 .python-version
-dist
+/build
+/dist
 .vscode
 .DS_Store
 _build
