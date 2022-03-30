@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.4.6]
+### Fixed
+- default base_path was set to None instead of ''
+- retry_backoff should be set to a float instead on integer
+
+### Updated
+- Testing suite converted to responses from VCR.
+- Updated CI pipeline
+
+### Added
+- Python 3.10 now supported #7
+- Added wheel support to pypi distribution #5
+
 ## [1.4.5]
 ### Fixed
 - Content-Type header value is not handled in a case-insensitive manner
@@ -132,6 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial Version
 
 
+[1.4.6]: https://github.com/SteveMcGrath/restfly/compare/1.4.5...1.4.6
 [1.4.5]: https://github.com/SteveMcGrath/restfly/compare/1.4.4...1.4.5
 [1.4.4]: https://github.com/SteveMcGrath/restfly/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/SteveMcGrath/restfly/compare/1.4.2...1.4.3
