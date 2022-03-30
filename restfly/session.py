@@ -130,7 +130,7 @@ class APISession:  # noqa: PLR0902
             The vendor name to put into the User-Agent string.
     '''
     _url: str = None
-    _base_path: str = None
+    _base_path: str = ''
     _retries: int = 3
     _backoff: float = 1
     _proxies: Union[Dict, Tuple] = None
@@ -544,10 +544,10 @@ class APISession:  # noqa: PLR0902
                         # the number of retries we have already performed.
                         retries += 1
                         time.sleep(
-                            int(resp.headers.get('retry-after',
-                                                 retries * self._backoff
-                                                 )
-                                )
+                            float(resp.headers.get('retry-after',
+                                                   retries * self._backoff
+                                                   )
+                                  )
                         )
 
                         # The need to potentially modify the request for
