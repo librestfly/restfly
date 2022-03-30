@@ -1,0 +1,7 @@
+flake8
+flake8-plugin-utils
+flake8-pylint
+pytest
+pytest-cov
+responses
+wheel
