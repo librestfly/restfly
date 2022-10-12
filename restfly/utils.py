@@ -415,8 +415,8 @@ def check(  # noqa: C901
     def validate_choice_list(choices, obj):
         if obj not in choices:
             raise UnexpectedValueError((
-                f'{name} has value of {obj}.  Expected one of ' + 
-                ','.join([str(i) for i in choices])
+                f'{name} has value of {obj}.  Expected one of '
+                f'{",".join([str(i) for i in choices])}'
             ))
 
     def validate_expected_type(expected, obj, softcheck=True):
