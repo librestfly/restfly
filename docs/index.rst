@@ -6,16 +6,17 @@ Release v\ |version|.
 **RESTfly** (pronounced restfully) is a framework for building libraries to
 easily interact with RESTful APIs.
 
-.. image:: https://travis-ci.org/SteveMcGrath/restfly.svg?branch=master
-   :target: https://travis-ci.org/SteveMcGrath/restfly
+.. image:: https://travis-ci.org/librestfly/restfly.svg?branch=master
+   :target: https://travis-ci.org/librestfly/restfly
 .. image:: https://img.shields.io/pypi/v/restfly.svg
    :target: https://pypi.org/project/restfly/
 .. image:: https://img.shields.io/pypi/pyversions/restfly.svg
-   :target: https://pypi.org/project/restfly/
 .. image:: https://img.shields.io/pypi/dm/restfly.svg
-   :target: https://github.com/stevemcgrath/restfly
-.. image:: https://img.shields.io/github/license/stevemcgrath/restfly.svg
-   :target: https://github.com/stevemcgrath/restfly
+   :target: https://pypistats.org/packages/restfly
+.. image:: https://img.shields.io/github/license/librestfly/restfly.svg
+   :target: https://github.com/librestfly/restfly/blob/master/LICENSE
+.. image:: https://sonarcloud.io/api/project_badges/measure?project=librestfly_restfly&metric=alert_status
+   :target: https://sonarcloud.io/summary/overall?id=librestfly_restfly
 
 
 .. image:: https://live.staticflickr.com/2815/10007461563_a02f26528f_c.jpg
@@ -54,17 +55,20 @@ this part of the documentation is what you're looking for.
 Libraries Using RESTfly
 -----------------------
 
-RESTfly is a fairly new library based on the work of `Steve McGrath`_ within the
-pyTenable_ project.  There are several other projects also leveraging RESTfly
-listed below:
+RESTfly is a fairly new library based on the work of `Steve McGrath`_ within
+the pyTenable project.  There are several other projects also leveraging
+RESTfly listed below:
 
-- `Tenable -> Google Security Command Center Integration <https://github.com/tenable/integration-cscc>`_
-- `Tenable -> BigFix Integration <https://github.com/tenable/integration-bigfix>`_
-- `Tenable -> IBM CloudPak for Security Integration <https://github.com/tenable/integrations-ibm-cloudpak-for-security>`_
-- `Tenable -> BitDiscovery Integration <???>`_
-- `Tenable -> Azure Security Center Integration <https://github.com/tenable/integration-asc>`_
-- `Tenable -> JIRA Cloud Integration <https://github.com/tenable/integration-jira-cloud>`_
-
+- `pyCheckpoint-API <https://github.com/LetMeR00t/pyCheckpoint-API>`_
+- `python-Cybereason <https://github.com/psmiraglia/python-cybereason>`_
+- `pyTenable <https://github.com/tenable/pyTenable>`_
+- `pyZScaler <https://github.com/mitchos/pyZscaler>`_
+- `python-SecurityTrails <https://github.com/SteveMcGrath/python-sectrails-lib>`_
+- Various Tenable integrations:
+  - `Azure Security Center Integration <https://github.com/tenable/integration-asc>`_
+  - `Google CSCC Integration <https://github.com/tenable/integration-cscc>`_
+  - `Jira Cloud Integration <https://github.com/tenable/integration-jira-cloud>`_
+  - `Tenable.asm Asset Importer <https://github.com/tenable/asm-asset-importer>`_
 
 .. _Steve McGrath: https://github.com/stevemcgrath
 .. _pyTenable: https://pytenable.readthedocs.io
