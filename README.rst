@@ -4,8 +4,10 @@ RESTfly: Simplifying API Libraries
 **RESTfly** (pronounced restfully) is a framework for building libraries to
 easily interact with RESTful APIs.
 
-.. image:: https://travis-ci.org/librestfly/restfly.svg?branch=master
-   :target: https://travis-ci.org/librestfly/restfly
+.. image:: https://github.com/librestfly/restfly/actions/workflows/testing.yml/badge.svg
+   :target: https://github.com/librestfly/restfly/actions/workflows/testing.yml
+.. image:: https://github.com/librestfly/restfly/actions/workflows/deploy.yml/badge.svg
+   :target: https://github.com/librestfly/restfly/actions/workflows/deploy.yml
 .. image:: https://img.shields.io/pypi/v/restfly.svg
    :target: https://pypi.org/project/restfly/
 .. image:: https://img.shields.io/pypi/pyversions/restfly.svg
