@@ -80,10 +80,9 @@ def format_json_response(response: Response,
     return response
 
 
-def url_validator(
-    url: str,
-    validate: Optional[List[str]] = None
-) -> bool:
+def url_validator(url: str,
+                  validate: Optional[List[str]] = None
+                  ) -> bool:
     '''
     Validates that the required URL Parts exist within the URL string.
 
@@ -110,11 +109,10 @@ def url_validator(
     return True
 
 
-def dict_flatten(
-    dct: dict,
-    parent_key: Optional[str] = '',
-    sep: Optional[str] = '.'
-) -> dict:
+def dict_flatten(dct: dict,
+                 parent_key: Optional[str] = '',
+                 sep: Optional[str] = '.'
+                 ) -> dict:
     '''
     Flattens a nested dict.
 
@@ -192,10 +190,9 @@ def dict_clean(dct: dict) -> dict:
     return clean
 
 
-def dict_merge(
-    master: dict,
-    *updates: dict
-) -> dict:
+def dict_merge(master: dict,
+               *updates: dict
+               ) -> dict:
     '''
     Merge many dictionaries together  The updates dictionaries will be merged
     into sthe master, adding/updating any values as needed.
@@ -269,11 +266,10 @@ def force_case(obj: Any, case: str) -> Any:
     return obj
 
 
-def redact_values(
-    obj: dict,
-    keys: Optional[list] = None,
-    value: str = 'REDACTED'
-) -> dict:
+def redact_values(obj: dict,
+                  keys: Optional[list] = None,
+                  value: str = 'REDACTED'
+                  ) -> dict:
     '''
     Redacts the values of the keys specified.  Useful in logging so that
     sensitive fields are not presented to the logs.
@@ -301,11 +297,10 @@ def redact_values(
     return new
 
 
-def trunc(
-    text: str,
-    limit: int,
-    suffix: Optional[str] = '...'
-) -> str:
+def trunc(text: str,
+          limit: int,
+          suffix: Optional[str] = '...'
+          ) -> str:
     '''
     Truncates a string to a given number of characters.  If a string extends
     beyond the limit, then truncate and add an ellipses after the truncation.
@@ -350,12 +345,11 @@ def trunc(
     return text
 
 
-def check(  # noqa: C901
-    name: str,
-    obj: Any,
-    expected_type: Any,
-    **kwargs
-) -> Any:
+def check(name: str,
+          obj: Any,
+          expected_type: Any,
+          **kwargs
+          ) -> Any:
     '''
     Check function for validating that inputs we are receiving are of the right
     type, have the expected values, and can handle defaults as necessary.
