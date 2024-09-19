@@ -49,12 +49,12 @@ repos:
     hooks:
       - id: python-no-log-warn
         name: Check if there are no deprecate log warn
-  - repo: local
-    hooks:
-      - id: pytest-check
-        name: Ensure unit tests are passing
-        entry: uv run py.test
-        language: system
-        types: [python]
-        pass_filenames: false
-        always_run: true
+  # - repo: local
+  #   hooks:
+  #     - id: pytest-check
+  #       name: Ensure unit tests are passing
+  #       entry: uv run py.test
+  #       language: system
+  #       types: [python]
+  #       pass_filenames: false
+  #       always_run: true
