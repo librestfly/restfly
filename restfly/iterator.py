@@ -7,7 +7,8 @@ Iterators
     :private-members:
 """
 
-from typing import Any, Optional, Self
+from typing import Any, Optional
+from typing_extensions import Self
 import logging
 
 
