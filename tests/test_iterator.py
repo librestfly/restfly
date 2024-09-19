@@ -26,7 +26,7 @@ def test_iterator_get_key():
 
 def test_blank_page():
     class ExIterator(APIIterator):
-        page = list()
+        page = []
 
     with pytest.raises(StopIteration):
         ExIterator(None).next()
@@ -52,7 +52,7 @@ def test_iterator():
         {'id': 96},
         {'id': 97},
         {'id': 98},
-        {'id': 99}
+        {'id': 99},
     ]
 
 
@@ -76,7 +76,7 @@ def test_iterator_max_items():
         {'id': 16},
         {'id': 17},
         {'id': 18},
-        {'id': 19}
+        {'id': 19},
     ]
 
 
@@ -100,5 +100,5 @@ def test_iterator_max_pages():
         {'id': 16},
         {'id': 17},
         {'id': 18},
-        {'id': 19}
+        {'id': 19},
     ]

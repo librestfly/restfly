@@ -197,7 +197,7 @@ header, it's generally discouraged.
 
 
 Context handling and authentication
-----------------------------------
+-----------------------------------
 
 Now that we have a basic understanding of how to handle authentication within
 the library, lets take this a step further.  It seems that routinely when folks

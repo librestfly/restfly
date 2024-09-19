@@ -10,15 +10,6 @@ Quick Install
 
 Installing RESTfly is as simple as a pip install:
 
+.. code-block:: bash
+
     pip install restfly
-
-Manual Install
---------------
-
-RESTfly depends on the following packages to be installed:
-
-* `Python Requests <https://pypi.org/project/requests/>`_
-
-Once installed, simply install the package with the following command:
-
-    python setup.py install

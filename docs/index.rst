@@ -17,8 +17,6 @@ easily interact with RESTful APIs.
    :target: https://pypistats.org/packages/restfly
 .. image:: https://img.shields.io/github/license/librestfly/restfly.svg
    :target: https://github.com/librestfly/restfly/blob/master/LICENSE
-.. image:: https://sonarcloud.io/api/project_badges/measure?project=librestfly_restfly&metric=alert_status
-   :target: https://sonarcloud.io/summary/overall?id=librestfly_restfly
 
 
 .. image:: https://live.staticflickr.com/2815/10007461563_a02f26528f_c.jpg
@@ -35,6 +33,7 @@ in a step-by-step manner.
     constructed, and should not be considered a complete walkthrough.
 
 .. toctree::
+    :caption: User Guide
     :maxdepth: 4
 
     user/intro
@@ -42,6 +41,25 @@ in a step-by-step manner.
     user/gettingstarted
     user/pagination
 
+Libraries and Tools Using RESTfly
+---------------------------------
+
+RESTfly is based on the foundational work in the pyTenable project.  We took the lessons
+learned building that library and made the underlying structure generic for re-use
+building other API libraries.  There are several other projects also leveraging RESTfly
+listed below:
+
+- `pyCheckpoint-API <https://github.com/LetMeR00t/pyCheckpoint-API>`_
+- `python-Cybereason <https://github.com/psmiraglia/python-cybereason>`_
+- `pyTenable <https://github.com/tenable/pyTenable>`_
+- `pyZScaler <https://github.com/mitchos/pyZscaler>`_
+- `python-SecurityTrails <https://github.com/SteveMcGrath/python-sectrails-lib>`_
+- Various Tenable integrations:
+
+  - `Azure Security Center Integration <https://github.com/tenable/integration-asc>`_
+  - `Google CSCC Integration <https://github.com/tenable/integration-cscc>`_
+  - `Jira Cloud Integration <https://github.com/tenable/integration-jira-cloud>`_
+  - `Tenable.asm Asset Importer <https://github.com/tenable/asm-asset-importer>`_
 
 The API Documentation / Guide
 -----------------------------
@@ -50,27 +68,8 @@ If you are looking for information on a specific function, class, or method,
 this part of the documentation is what you're looking for.
 
 .. toctree::
+    :caption: Reference Guide
+    :maxdepth: 2
     :glob:
 
     api/*
-
-Libraries Using RESTfly
------------------------
-
-RESTfly is a fairly new library based on the work of `Steve McGrath`_ within
-the pyTenable project.  There are several other projects also leveraging
-RESTfly listed below:
-
-- `pyCheckpoint-API <https://github.com/LetMeR00t/pyCheckpoint-API>`_
-- `python-Cybereason <https://github.com/psmiraglia/python-cybereason>`_
-- `pyTenable <https://github.com/tenable/pyTenable>`_
-- `pyZScaler <https://github.com/mitchos/pyZscaler>`_
-- `python-SecurityTrails <https://github.com/SteveMcGrath/python-sectrails-lib>`_
-- Various Tenable integrations:
-  - `Azure Security Center Integration <https://github.com/tenable/integration-asc>`_
-  - `Google CSCC Integration <https://github.com/tenable/integration-cscc>`_
-  - `Jira Cloud Integration <https://github.com/tenable/integration-jira-cloud>`_
-  - `Tenable.asm Asset Importer <https://github.com/tenable/asm-asset-importer>`_
-
-.. _Steve McGrath: https://github.com/stevemcgrath
-.. _pyTenable: https://pytenable.readthedocs.io

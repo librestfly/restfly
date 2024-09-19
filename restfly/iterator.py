@@ -1,17 +1,18 @@
-'''
+"""
 Iterators
 =========
 
 .. autoclass:: APIIterator
     :members:
     :private-members:
-'''
-from typing import Any, Optional
+"""
+
+from typing import Any, Optional, Self
 import logging
 
 
 class APIIterator:
-    '''
+    """
     The API iterator provides a scalable way to work through result sets of any
     size.  The iterator will walk through each page of data, returning one
     record at a time.  If it reaches the end of a page of records, then it will
@@ -43,7 +44,8 @@ class APIIterator:
         page_count (int): The number of record returned from the current page.
         total (int):
             The total number of records that exist for the current request.
-    '''
+    """
+
     count = 0
     page_count = 0
     num_pages = 0
@@ -54,7 +56,7 @@ class APIIterator:
     _api = None
 
     def __init__(self, api, **kw):
-        '''
+        """
         Args:
             api (restfly.session.APISession):
                 The APISession object to use for this iterator.
@@ -63,17 +65,29 @@ class APIIterator:
 
         Example:
             >>> i = APIIterator(api, max_pages=1, max_items=100)
-        '''
+        """
         self._api = api
         self.__dict__.update(kw)
 
         # Create the logging facility
-        self._log = logging.getLogger(
-            f'{self.__module__}.{self.__class__.__name__}'
-        )
+        self._log = logging.getLogger(f'{self.__module__}.{self.__class__.__name__}')
+
+    def _increment_counters(self) -> None:
+        """
+        Handles incrementing all of the counters that are controlling the next item
+        to be retreived.
+        """
+        self.count += 1
+        self.page_count += 1
+
+    def _get_next_item(self) -> Any:
+        """
+        Returns the next item in the page
+        """
+        return self[self.page_count]
 
     def _get_page(self) -> None:
-        '''
+        """
         A method to be overloaded in order to instruct the iterator how to
         retrieve the next page of data.
 
@@ -84,10 +98,19 @@ class APIIterator:
             ...        items = range(10)
             ...        self.page = [{'id': i + self._offset} for i in items]
             ...        self._offset += self._limit
-        '''
+        """
 
-    def get(self, key: str, default: Optional[Any] = None) -> Any:
-        '''
+    def __getitem__(self, key: int) -> Any:
+        return self.page[key]
+
+    def __iter__(self) -> Self:
+        return self
+
+    def __next__(self) -> Any:
+        return self.next()  # noqa: PLE1102
+
+    def get(self, key: int, default: Optional[Any] = None) -> Any:
+        """
         Retrieves an item from the the current page based off of the key.
 
         Args:
@@ -98,39 +121,30 @@ class APIIterator:
             >>> a = APIIterator()
             >>> a.get(2)
             None
-        '''
+        """
         try:
-            return self.__getitem__(key)
+            return self[key]
         except IndexError:
             return default
 
-    def __getitem__(self, key: str):
-        return self.page[key]
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return self.next()  # noqa: PLE1102
-
     def next(self) -> Any:
-        '''
+        """
         Ask for the next record
-        '''
+        """
         # If there are no more records to return, then we should raise a
         # StopIteration exception to break the iterator out.
         if (
             (self.total and self.count + 1 > self.total)  # noqa: PLR0916
-            or (self.max_items and self.count + 1 > self.max_items)
-            or (self.max_pages and self.num_pages > self.max_pages)
+            or (self.max_items and self.count >= self.max_items)
         ):
             raise StopIteration()
 
         # If we have worked through the current page of records and we still
         # haven't hit to the total number of available records, then we should
         # query the next page of records.
-        if (self.page_count >= len(self.page)
-                and (not self.total or self.count + 1 <= self.total)):
+        if self.page_count >= len(self.page) and (
+            not self.total or self.count + 1 <= self.total
+        ):
             # If the number of pages requested reaches the total number of
             # pages that should be requested, then stop iteration.
             if self.max_pages and self.num_pages + 1 > self.max_pages:
@@ -148,6 +162,6 @@ class APIIterator:
 
         # Get the relevant record, increment the counters, and return the
         # record.
-        self.count += 1
-        self.page_count += 1
-        return self[self.page_count - 1]
+        item = self._get_next_item()
+        self._increment_counters()
+        return item

@@ -2,6 +2,7 @@ import pytest
 from restfly.session import APISession
 from restfly import __version__ as version
 
+
 @pytest.fixture
 def api():
     return APISession(

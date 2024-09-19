@@ -12,19 +12,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-autodoc_mock_imports = [
-    'semver',
-    'box',
-]
-
-import os, sys, datetime
-from unittest import mock
-
-# For some reason even though box is in the autodoc_mock_imports, it's still
-# failing the doc builds.  This will get around that issue by forcibly mocking
-# the library.
-sys.modules['box'] = mock.Mock()
-
+import os
+import sys
+import datetime
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -33,10 +23,10 @@ import restfly
 
 # -- Project information -----------------------------------------------------
 
-project = u'RESTfly'
+project = 'RESTfly'
 year = datetime.datetime.now().year
-copyright = u'{}, Steve McGrath'.format(year)
-author = u'Steve McGrath'
+copyright = '{}, Steve McGrath'.format(year)
+author = 'Steve McGrath'
 
 # The short X.Y version
 version = restfly.__version__
@@ -64,7 +54,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-#templates_path = ['_templates']
+# templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -80,7 +70,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -88,9 +78,10 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'default'
+pygments_dark_style = 'monokai'
 
-add_module_names = True
+add_module_names = False
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 
@@ -99,46 +90,33 @@ napoleon_numpy_docstring = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'furo'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
+html_logo = '_static/logo.png'
 html_theme_options = {
-    'description': 'A Python library for building API libraries',
-    'fixed_sidebar': False,
-    'logo': 'logo.png',
-    'touch_icon': 'touch_icon.png',
-    'logo_name': 'RESTfly',
-    'github_user': 'stevemcgrath',
-    'github_repo': 'restfly',
-    'github_button': True,
-    'travis_button': True,
-    'analytics_id': 'UA-138663895-1',
+    'sidebar_hide_name': True,
 }
+# html_theme_options = {
+#    'description': 'A Python library for building API libraries',
+#    'fixed_sidebar': False,
+#    'logo': 'logo.png',
+#    'touch_icon': 'touch_icon.png',
+#    'logo_name': 'RESTfly',
+#    'github_user': 'stevemcgrath',
+#    'github_repo': 'restfly',
+#    'github_button': True,
+#    'travis_button': True,
+#    'analytics_id': 'UA-138663895-1',
+# }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-
-# Custom sidebar templates, must be a dictionary that maps document names
-# to template names.
-#
-# The default sidebars (for documents that don't match any pattern) are
-# defined by theme itself.  Builtin themes are using these templates by
-# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
-# 'searchbox.html']``.
-#
-# html_sidebars = {}
-html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'searchbox.html',
-    ]
-}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -154,8 +132,7 @@ latex_elements = {}
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'RESTfly.tex', u'RESTfly Documentation',
-     u'Steve McGrath', 'manual'),
+    (master_doc, 'RESTfly.tex', 'RESTfly Documentation', 'Steve McGrath', 'manual'),
 ]
 
 
@@ -163,10 +140,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'restfly', u'RESTfly Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, 'restfly', 'RESTfly Documentation', [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -176,8 +150,13 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (
-        master_doc, 'RESTfly', u'RESTfly Documentation',
-        author, 'RESTfly', 'A library to wrap RESTful APIs.', 'Miscellaneous'
+        master_doc,
+        'RESTfly',
+        'RESTfly Documentation',
+        author,
+        'RESTfly',
+        'A library to wrap RESTful APIs.',
+        'Miscellaneous',
     ),
 ]
 
@@ -188,9 +167,9 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'https://docs.python.org/': None,
+    'python': ('https://docs.python.org/3', None),
     'requests': ('https://requests.readthedocs.io/en/master/', None),
-    'box': ('https://box.readthedocs.io/en/latest', None),
+    #    'box': ('https://box.readthedocs.io/en/latest', None),
 }
 
 extlinks = {
