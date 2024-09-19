@@ -26,9 +26,7 @@ def test_retriable_error():
 
 
 def test_user_agent_string(api):
-    ua = 'Integration/1.0 (pytest; auto-test; Build/{version})'.format(
-        version=version
-    )
+    ua = 'Integration/1.0 (pytest; auto-test; Build/{version})'.format(version=version)
     assert ua in api._session.headers['User-Agent']
 
 
@@ -50,13 +48,13 @@ def test_unexpected_keys_error():
 
 
 def test_example_context_manager():
-    '''
+    """
     This test creates a simple "authentication" to validate that the
     context management is actually working as expected.  As the _authenticate
     method is automatically run when entering the context, and _deauthenticate
     is run upon exit, we will simply be modifying the authed variable in the
     outer scope and asserting that its being properly set.
-    '''
+    """
     global authed
 
     class Example(APISession):
@@ -81,7 +79,7 @@ def test_session_proxies():
         vendor='pytest',
         product='auto-test',
         build=version,
-        proxies={'http': 'localhost:8080'}
+        proxies={'http': 'localhost:8080'},
     )
     assert api._session.proxies == {'http': 'localhost:8080'}
 
@@ -92,7 +90,7 @@ def test_session_ssl_validation():
         vendor='pytest',
         product='auto-test',
         build=version,
-        ssl_verify=False
+        ssl_verify=False,
     )
     assert api._session.verify is False
 
@@ -104,7 +102,7 @@ def test_client_ssl_cert():
         vendor='pytest',
         product='auto-test',
         build=version,
-        cert=cert_tuple
+        cert=cert_tuple,
     )
     assert api._session.cert == cert_tuple
 
@@ -122,7 +120,7 @@ def test_session_adapter():
         vendor='pytest',
         product='auto-test',
         build=version,
-        adapter=adapter
+        adapter=adapter,
     )
     assert api._session.get_adapter('https://httpbin.org/') == adapter
 
@@ -176,11 +174,12 @@ def test_session_head(api):
 
 @responses.activate
 def test_session_redirect(api):
-    responses.add(responses.GET,
-                  'https://httpbin.org/redirect-to',
-                  status=302,
-                  headers={'Location': '/get'}
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/redirect-to',
+        status=302,
+        headers={'Location': '/get'},
+    )
     responses.add(responses.GET, 'https://httpbin.org/get')
     resp = api.get('redirect-to', params={'url': '/get'})
     assert isinstance(resp, Response)
@@ -190,10 +189,7 @@ def test_session_redirect(api):
 @responses.activate
 def test_debug_logging(api, caplog):
     data = {'a': 1, 'b': 2, 'c': {'d': 3, 'e': 4}}
-    responses.add(responses.POST,
-                  'https://httpbin.org/post',
-                  json={'json': data}
-                  )
+    responses.add(responses.POST, 'https://httpbin.org/post', json={'json': data})
     caplog.clear()
     with caplog.at_level(logging.DEBUG, logger='restfly.session.APISession'):
         resp = api.post('post', json=data, redact_fields=['a', 'd'], box=False)
@@ -219,10 +215,7 @@ def test_debug_logging(api, caplog):
 
 @responses.activate
 def test_session_full_uri(api):
-    responses.add(responses.GET,
-                  'https://httpbin.org/get',
-                  json={'test': 'value'}
-                  )
+    responses.add(responses.GET, 'https://httpbin.org/get', json={'test': 'value'})
     resp1 = api.get('get').json()
     resp2 = api.get('https://httpbin.org/get').json()
     assert resp1 == resp2
@@ -230,10 +223,9 @@ def test_session_full_uri(api):
 
 @responses.activate
 def test_session_base_path(api):
-    responses.add(responses.POST,
-                  'https://httpbin.org/post',
-                  json={'data': {'test': 'value'}}
-                  )
+    responses.add(
+        responses.POST, 'https://httpbin.org/post', json={'data': {'test': 'value'}}
+    )
     resp1 = api.post('post', json={'test': 'value'}).json()
     api._base_path = 'get'
     resp2 = api.post('post', json={'test': 'value'}, use_base=False).json()
@@ -248,13 +240,12 @@ def test_session_base_path(api):
 
 @responses.activate
 def test_session_retry_after(api):
-    responses.add(responses.GET,
-                  'https://httpbin.org/response-headers',
-                  headers={'Retry-After': '.1'}
-                  )
-    api.get('response-headers', params={
-        'Retry-After': 1
-    })
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/response-headers',
+        headers={'Retry-After': '.1'},
+    )
+    api.get('response-headers', params={'Retry-After': 1})
 
 
 def test_session_ssl_error(api):
@@ -421,11 +412,12 @@ def test_session_preconditionrequirederror(api):
 
 @responses.activate
 def test_session_toomanyrequests(api):
-    responses.add(responses.GET, 
-                  'https://httpbin.org/status/429',
-                  status=429,
-                  headers={'Retry-After': '.1'}
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/status/429',
+        status=429,
+        headers={'Retry-After': '.1'},
+    )
     with pytest.raises(errors.TooManyRequestsError):
         api.get('status/429')
 
@@ -453,44 +445,48 @@ def test_session_servererror(api):
 
 @responses.activate
 def test_session_methodnotimplimentederror(api):
-    responses.add(responses.GET,
-                  'https://httpbin.org/status/501',
-                  status=501,
-                  headers={'Retry-After': '.1'}
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/status/501',
+        status=501,
+        headers={'Retry-After': '.1'},
+    )
     with pytest.raises(errors.MethodNotImplementedError):
         api.get('status/501')
 
 
 @responses.activate
 def test_session_badgatewayerror(api):
-    responses.add(responses.GET, 
-                  'https://httpbin.org/status/502',
-                  status=502,
-                  headers={'Retry-After': '.1'}
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/status/502',
+        status=502,
+        headers={'Retry-After': '.1'},
+    )
     with pytest.raises(errors.BadGatewayError):
         api.get('status/502')
 
 
 @responses.activate
 def test_session_serviceunavailableerror(api):
-    responses.add(responses.GET, 
-                  'https://httpbin.org/status/503',
-                  status=503,
-                  headers={'Retry-After': '.1'}
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/status/503',
+        status=503,
+        headers={'Retry-After': '.1'},
+    )
     with pytest.raises(errors.ServiceUnavailableError):
         api.get('status/503')
 
 
 @responses.activate
 def test_session_gatewaytimeouterror(api):
-    responses.add(responses.GET, 
-                  'https://httpbin.org/status/504',
-                  status=504,
-                  headers={'Retry-After': '.1'}
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/status/504',
+        status=504,
+        headers={'Retry-After': '.1'},
+    )
     with pytest.raises(errors.GatewayTimeoutError):
         api.get('status/504')
 
@@ -519,61 +515,52 @@ def test_session_catchall_error(api):
 @responses.activate
 def test_session_box_non_json(api):
     html_body = '<html><head></head><body><h1>Hello World</h1></body></html>'
-    responses.add(responses.GET,
-                  'https://httpbin.org/html',
-                  headers={'Content-Type': 'text/html; charset=utf-8'},
-                  body=html_body
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/html',
+        headers={'Content-Type': 'text/html; charset=utf-8'},
+        body=html_body,
+    )
     assert isinstance(api.get('html', box=True), Response)
 
 
 @responses.activate
 def test_session_box_json(api):
-    responses.add(responses.GET,
-                  'https://httpbin.org/json',
-                  json={'test': 'value'}
-                  )
+    responses.add(responses.GET, 'https://httpbin.org/json', json={'test': 'value'})
     assert isinstance(api.get('json', box=True), Box)
-    responses.add(responses.GET,
-                  'https://httpbin.org/json',
-                  json=[{'test': 'value'} for _ in range(20)]
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/json',
+        json=[{'test': 'value'} for _ in range(20)],
+    )
     assert isinstance(api.get('json', box=True), BoxList)
 
 
 @responses.activate
 def test_session_disable_box(api):
-    responses.add(responses.GET,
-                  'https://httpbin.org/json',
-                  json={'test': 'value'}
-                  )
+    responses.add(responses.GET, 'https://httpbin.org/json', json={'test': 'value'})
     assert isinstance(api.get('json', box=False), Response)
 
 
 @responses.activate
 def test_session_conv_json_non_json(api):
     html_body = '<html><head></head><body><h1>Hello World</h1></body></html>'
-    responses.add(responses.GET,
-                  'https://httpbin.org/html',
-                  headers={'Content-Type': 'text/html; charset=utf-8'},
-                  body=html_body
-                  )
+    responses.add(
+        responses.GET,
+        'https://httpbin.org/html',
+        headers={'Content-Type': 'text/html; charset=utf-8'},
+        body=html_body,
+    )
     assert isinstance(api.get('html', conv_json=True), Response)
 
 
 @responses.activate
 def test_session_conv_json_json(api):
-    responses.add(responses.GET,
-                  'https://httpbin.org/json',
-                  json={'test': 'value'}
-                  )
+    responses.add(responses.GET, 'https://httpbin.org/json', json={'test': 'value'})
     assert isinstance(api.get('json', conv_json=True), dict)
 
 
 @responses.activate
 def test_session_disable_conv_json(api):
-    responses.add(responses.GET,
-                  'https://httpbin.org/json',
-                  json={'test': 'value'}
-                  )
+    responses.add(responses.GET, 'https://httpbin.org/json', json={'test': 'value'})
     assert isinstance(api.get('json', conv_json=False), Response)

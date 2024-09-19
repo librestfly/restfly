@@ -1,4 +1,4 @@
-'''
+"""
 Utils
 =====
 
@@ -9,9 +9,11 @@ Utils
 .. autofunction:: force_case
 .. autofunction:: trunc
 .. autofunction:: url_validator
-'''
+"""
+
+import warnings
 from collections.abc import MutableMapping
-from typing import List, Optional, Any, Dict
+from typing import List, Optional, Any, Dict, Union
 from urllib.parse import urlparse
 from copy import copy
 import re
@@ -23,12 +25,13 @@ from box import Box, BoxList
 from .errors import UnexpectedValueError
 
 
-def format_json_response(response: Response,
-                         box_attrs: Optional[Dict] = None,
-                         conv_json: bool = True,
-                         conv_box: bool = True,
-                         ):
-    '''
+def format_json_response(
+    response: Response,
+    box_attrs: Optional[Dict] = None,
+    conv_json: bool = True,
+    conv_box: bool = True,
+) -> Union[Response, Dict, List, Box, BoxList, None]:
+    """
     A simple utility to handle formatting the response object into either a
     Box object or a Python native object from the JSON response.  The function
     will prefer box over python native if both flags are set to true.  If none
@@ -63,9 +66,10 @@ def format_json_response(response: Response,
         requests.Response:
             If neither flag is True, or if the response isn't JSON data, then
             a response object is returned (pass-through).
-    '''
+    """
     content_type = response.headers.get('content-type', 'application/json')
-    if ((conv_json or conv_box)
+    if (
+        (conv_json or conv_box)
         and 'application/json' in content_type.lower()
         and len(response.text) > 0
     ):  # noqa: E124
@@ -80,11 +84,8 @@ def format_json_response(response: Response,
     return response
 
 
-def url_validator(
-    url: str,
-    validate: Optional[List[str]] = None
-) -> bool:
-    '''
+def url_validator(url: str, validate: Optional[List[str]] = None) -> bool:
+    """
     Validates that the required URL Parts exist within the URL string.
 
     Args:
@@ -100,7 +101,7 @@ def url_validator(
         ...     'https://httpbin.com/404',
         ...     validate=['scheme', 'netloc', 'path'])
             # Returns True
-    '''
+    """
     if not validate:
         validate = ['scheme', 'netloc']
     resp = urlparse(url)._asdict()
@@ -112,31 +113,53 @@ def url_validator(
 
 def dict_flatten(
     dct: dict,
-    parent_key: Optional[str] = '',
-    sep: Optional[str] = '.'
+    sep: str = '.',
+    parent_key: Optional[str] = None,
+    lower_key: bool = False,
 ) -> dict:
-    '''
+    """
     Flattens a nested dict.
 
     Args:
-        d (dict):
+        dct (dict):
             The dictionary to flatten
+        parent_key: (str, optional):
+            An optional prefix key to add to all entries within the base dictionary.
         sep (str, optional):
             The separation character.  If left unspecified, the default is '.'.
+        lower_key (bool, optional):
+            If ``True``, will lowercase the keys.
 
     Examples:
         >>> x = {'a': 1, 'b': {'c': 2}}
         >>> dict_flatten(x)
             {'a': 1, 'b.c': 2}
 
-    Shamelessly ripped from `this <https://stackoverflow.com/a/6027615>`_
-    Stackoverflow answer.
-    '''
+    inspired by `this <https://stackoverflow.com/a/6027615>`_ Stackoverflow answer.
+    """
     items = []
     for key, val in dct.items():
-        new_key = parent_key + sep + key if parent_key else key
+        new_key = f'{parent_key}{sep}{key}' if parent_key else key
+        if lower_key:
+            new_key = new_key.lower()
         if isinstance(val, MutableMapping):
-            items.extend(flatten(val, new_key, sep=sep).items())
+            items.extend(
+                dict_flatten(
+                    val, parent_key=new_key, sep=sep, lower_key=lower_key
+                ).items()
+            )
+        elif isinstance(val, list):
+            items.append(
+                (
+                    new_key,
+                    [
+                        dict_flatten(i, sep=sep, lower_key=lower_key)
+                        if isinstance(i, dict)
+                        else i
+                        for i in val
+                    ],
+                )
+            )
         else:
             items.append((new_key, val))
     return dict(items)
@@ -147,7 +170,7 @@ flatten = dict_flatten
 
 
 def dict_clean(dct: dict) -> dict:
-    '''
+    """
     Recursively removes dictionary keys where the value is None
 
     Args:
@@ -162,10 +185,9 @@ def dict_clean(dct: dict) -> dict:
         >>> x = {'a': 1, 'b': {'c': 2, 'd': None}, 'e': None}
         >>> clean_dict(x)
             {'a': 1, 'b': {'c': 2}}
-    '''
+    """
     clean = {}
     for key, value in dct.items():
-
         # if the value is a dictionary, then we will recursively clean.
         if isinstance(value, dict):
             new_value = dict_clean(value)
@@ -192,13 +214,16 @@ def dict_clean(dct: dict) -> dict:
     return clean
 
 
-def dict_merge(
-    master: dict,
-    *updates: dict
-) -> dict:
-    '''
+def dict_merge(master: dict, *updates: dict) -> dict:
+    """
     Merge many dictionaries together  The updates dictionaries will be merged
     into sthe master, adding/updating any values as needed.
+
+    .. warning::
+        This function is no longer necessary and will be removed in a later version
+        of RESTfly.  For a more pythonic approach to handle this, please refer to
+        `PEP-584 <https://peps.python.org/pep-0584/>`_ for modern approaches on merging
+        dictionaries.
 
     Args:
         master (dict):
@@ -215,11 +240,21 @@ def dict_merge(
         >>> b = {'a': 'a', 'three': {'b': 'b'}}
         >>> dict_merge(a, b)
         {'a': 'a', 'one': 1, 'two': 2, 'three': {'b': b, 'four': 4}}
-    '''
+    """
+    warnings.warn(
+        'This function is no longer necessary and will be removed in a later version '
+        'of RESTfly.  For a more pythonic approach to handle this, please refer to '
+        'PEP-584.',
+        DeprecationWarning,
+        stacklevel=2,
+    )
     for update in updates:
         for key in update:
-            if (key in master and isinstance(master[key], dict)
-                    and isinstance(update[key], dict)):
+            if (
+                key in master
+                and isinstance(master[key], dict)
+                and isinstance(update[key], dict)
+            ):
                 master[key] = dict_merge(master[key], update[key])
             else:
                 master[key] = update[key]
@@ -227,7 +262,7 @@ def dict_merge(
 
 
 def force_case(obj: Any, case: str) -> Any:
-    '''
+    """
     A simple case enforcement function.
 
     Args:
@@ -253,7 +288,7 @@ def force_case(obj: Any, case: str) -> Any:
 
         >>> force_case(1, 'upper')
         1
-    '''
+    """
     if case == 'lower':
         if isinstance(obj, list):  # noqa: PLR1705
             return [i.lower() for i in obj if isinstance(i, str)]
@@ -270,11 +305,9 @@ def force_case(obj: Any, case: str) -> Any:
 
 
 def redact_values(
-    obj: dict,
-    keys: Optional[list] = None,
-    value: str = 'REDACTED'
+    obj: dict, keys: Optional[list] = None, value: str = 'REDACTED'
 ) -> dict:
-    '''
+    """
     Redacts the values of the keys specified.  Useful in logging so that
     sensitive fields are not presented to the logs.
 
@@ -289,7 +322,7 @@ def redact_values(
     Returns:
         :obj:`obj`:
             The modified object.
-    '''
+    """
     if not keys:
         keys = []
     new = copy(obj)
@@ -301,12 +334,8 @@ def redact_values(
     return new
 
 
-def trunc(
-    text: str,
-    limit: int,
-    suffix: Optional[str] = '...'
-) -> str:
-    '''
+def trunc(text: str, limit: int, suffix: Optional[str] = '...') -> str:
+    """
     Truncates a string to a given number of characters.  If a string extends
     beyond the limit, then truncate and add an ellipses after the truncation.
 
@@ -337,7 +366,7 @@ def trunc(
 
         >>> trunc('this is a test', 6, suffix='->')
         'this->'
-    '''
+    """
     if len(text) >= limit:
         if isinstance(suffix, str):  # noqa: PLR1705
             # If we have a suffix, then reduce the text string length further
@@ -350,13 +379,8 @@ def trunc(
     return text
 
 
-def check(  # noqa: C901
-    name: str,
-    obj: Any,
-    expected_type: Any,
-    **kwargs
-) -> Any:
-    '''
+def check(name: str, obj: Any, expected_type: Any, **kwargs) -> Any:
+    """
     Check function for validating that inputs we are receiving are of the right
     type, have the expected values, and can handle defaults as necessary.
 
@@ -404,20 +428,22 @@ def check(  # noqa: C901
         Ensure that the value of val is within 0 and 100:
 
         >>> check('example', val, int, choices=list(range(100)))
-    '''
+    """
+
     def validate_regex_pattern(regex, obj):
-        if (isinstance(obj, str)
-                and len(re.findall(regex, str(obj))) <= 0):
+        if isinstance(obj, str) and len(re.findall(regex, str(obj))) <= 0:
             raise UnexpectedValueError(
                 f'{name} has value of {obj}.  Does not match pattern {regex}'
             )
 
     def validate_choice_list(choices, obj):
         if obj not in choices:
-            raise UnexpectedValueError((
-                f'{name} has value of {obj}.  Expected one of '
-                f'{",".join([str(i) for i in choices])}'
-            ))
+            raise UnexpectedValueError(
+                (
+                    f'{name} has value of {obj}.  Expected one of '
+                    f'{",".join([str(i) for i in choices])}'
+                )
+            )
 
     def validate_expected_type(expected, obj, softcheck=True):
         # We need to conditionally set the expected nametype local var based
@@ -432,21 +458,22 @@ def check(  # noqa: C901
             return obj
         elif expected == arrow.Arrow:
             return arrow.get(obj)
-        elif ((softcheck and isinstance(obj, str)
-                and expected not in [list, tuple])):
+        elif softcheck and isinstance(obj, str) and expected not in [list, tuple]:
             # if the expected type is not a list or tuple and it is a
             # string type, then we will attempt to recast the object
             # to be the expected type.
             try:
                 new_obj = expected(obj)
-            except Exception:
+            except Exception as err:
                 # if the recasting fails, then just pass through.
-                raise TypeError((  # noqa: PLW0707
-                    f'{name} is of type {obj.__class__.__name__}.  '
-                    f'Expected {exp}'
-                ))
+                raise TypeError(
+                    (  # noqa: PLW0707
+                        f'{name} is of type {obj.__class__.__name__}.  '
+                        f'Expected {exp}'
+                    )
+                ) from err
             else:
-                if expected == bool:
+                if expected is bool:
                     # if the expected type was boolean, then we will
                     # want to ensure that the string is one of the
                     # allowed values.  From there we will set the
@@ -460,9 +487,9 @@ def check(  # noqa: C901
                     # In every other case, just set the object to be the
                     # recasted object and set the type_pass flag.
                     return new_obj
-        raise TypeError((
-            f'{name} is of type {obj.__class__.__name__}.  Expected {exp}'
-        ))
+        raise TypeError(
+            (f'{name} is of type {obj.__class__.__name__}.  Expected {exp}')
+        )
 
     def validate_normalized(obj, func, arg):
         if isinstance(obj, (list, tuple)):
@@ -473,38 +500,44 @@ def check(  # noqa: C901
         else:
             func(arg, obj)
 
-    pmap = dict_merge({
-        'uuid': (r'^[0-9a-f]{8}-'
-                 r'[0-9a-f]{4}-'
-                 r'[0-9a-f]{4}-'
-                 r'[0-9a-f]{4}-'
-                 r'[0-9a-f]{12}$'
-                 ),
-        'email': r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
-        'hex': r'^[a-fA-f0-9]+$',
-        'url': (r'^(https?:\/\/)?'
+    pmap = dict_merge(
+        {
+            'uuid': (
+                r'^[0-9a-f]{8}-'
+                r'[0-9a-f]{4}-'
+                r'[0-9a-f]{4}-'
+                r'[0-9a-f]{4}-'
+                r'[0-9a-f]{12}$'
+            ),
+            'email': r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
+            'hex': r'^[a-fA-f0-9]+$',
+            'url': (
+                r'^(https?:\/\/)?'
                 r'([\da-z\.-]+)\.'
                 r'([a-z\.]{2,6})([\/\w \.-]*)*\/?$'
-                ),
-        'ipv4': r'^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$',
-        'ipv6': (r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|'
-                 r'([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:'
-                 r'[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}'
-                 r'(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}'
-                 r'(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}'
-                 r'(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}'
-                 r'(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:'
-                 r'((:[0-9a-fA-F]{1,4}){1,6})|:'
-                 r'((:[0-9a-fA-F]{1,4}){1,7}|:)|'
-                 r'fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::'
-                 r'(ffff(:0{1,4}){0,1}:){0,1}'
-                 r'((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}'
-                 r'(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|'
-                 r'([0-9a-fA-F]{1,4}:){1,4}:'
-                 r'((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}'
-                 r'(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
-                 ),
-    }, kwargs.get('pattern_map', {}))
+            ),
+            'ipv4': r'^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$',
+            'ipv6': (
+                r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|'
+                r'([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:'
+                r'[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}'
+                r'(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}'
+                r'(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}'
+                r'(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}'
+                r'(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:'
+                r'((:[0-9a-fA-F]{1,4}){1,6})|:'
+                r'((:[0-9a-fA-F]{1,4}){1,7}|:)|'
+                r'fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::'
+                r'(ffff(:0{1,4}){0,1}:){0,1}'
+                r'((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}'
+                r'(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|'
+                r'([0-9a-fA-F]{1,4}:){1,4}:'
+                r'((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}'
+                r'(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
+            ),
+        },
+        kwargs.get('pattern_map', {}),
+    )
 
     # We have a simple function to convert the case of string values so that
     # we can ensure correct output.
@@ -527,16 +560,18 @@ def check(  # noqa: C901
 
     # If the object is none of the right types then we want to raise a
     # TypeError as it was something we weren't expecting.
-    obj = validate_expected_type(
-        expected_type, obj, kwargs.get('softcheck', True))
+    obj = validate_expected_type(expected_type, obj, kwargs.get('softcheck', True))
 
     if kwargs.get('items_type'):
         # If the items within the list should also be of a specific type,
         # we can check those as well
         lobj = []
         for item in obj:
-            lobj.append(validate_expected_type(
-                kwargs.get('items_type'), item, kwargs.get('softcheck', True)))
+            lobj.append(
+                validate_expected_type(
+                    kwargs.get('items_type'), item, kwargs.get('softcheck', True)
+                )
+            )
         obj = lobj
 
     # if the object is only expected to have one of a finite set of values,
@@ -548,15 +583,12 @@ def check(  # noqa: C901
     # If a pattern was specified, then we will want to pull the pattern from
     # the pattern map and validate that the
     if kwargs.get('pattern') and kwargs.get('pattern') in pmap:
-        validate_normalized(obj, validate_regex_pattern,
-                            pmap[kwargs.get('pattern')])
+        validate_normalized(obj, validate_regex_pattern, pmap[kwargs.get('pattern')])
 
     # If there wasn't a pattern matching that identifier, then throw an
     # IndexError
     elif kwargs.get('pattern') and kwargs.get('pattern') not in pmap.keys():
-        raise IndexError(
-            f'pattern name {kwargs.get("pattern")} not found in map'
-        )
+        raise IndexError(f'pattern name {kwargs.get("pattern")} not found in map')
 
     # If a raw regex pattern was provided instead, then we will pass that over
     # and validate

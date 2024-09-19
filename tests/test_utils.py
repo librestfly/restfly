@@ -9,7 +9,7 @@ from restfly.utils import (
     force_case,
     trunc,
     url_validator,
-    redact_values
+    redact_values,
 )
 
 
@@ -24,20 +24,26 @@ def test_foce_case_list():
 
 
 def test_dict_merge():
-    assert dict_merge({'a': 1}, {'b': 2}) == {'a': 1, 'b': 2}
-    assert dict_merge({'s': {'a': 1}, 'b': 2}, {'s': {'c': 3, 'a': 4}}) == {
-        's': {'a': 4, 'c': 3},
-        'b': 2
-    }
-    assert dict_merge({'a': 1}, {'b': 2}, {'c': 3}, {'a': 5}) == {
-        'a': 5,
-        'b': 2,
-        'c': 3
-    }
+    with pytest.deprecated_call():
+        assert dict_merge({'a': 1}, {'b': 2}) == {'a': 1, 'b': 2}
+        assert dict_merge({'s': {'a': 1}, 'b': 2}, {'s': {'c': 3, 'a': 4}}) == {
+            's': {'a': 4, 'c': 3},
+            'b': 2,
+        }
+        assert dict_merge({'a': 1}, {'b': 2}, {'c': 3}, {'a': 5}) == {
+            'a': 5,
+            'b': 2,
+            'c': 3,
+        }
 
 
 def test_dict_flatten():
     assert dict_flatten({'a': 1, 'b': {'c': 2}}) == {'a': 1, 'b.c': 2}
+    assert dict_flatten({'A': 1, 'B': {'c': 2}}, lower_key=True) == {'a': 1, 'b.c': 2}
+    assert dict_flatten({'a': 1, 'b': [{'c': 2, 'd': {'e': 1}}]}) == {
+        'a': 1,
+        'b': [{'c': 2, 'd.e': 1}],
+    }
 
 
 def test_dict_clean():
@@ -46,14 +52,9 @@ def test_dict_clean():
         'b': {'c': 2, 'd': None},
         'e': None,
         'f': [{'g': 1, 'h': None}, {'i': None}],
-        'j': [1, None, {}]
+        'j': [1, None, {}],
     }
-    assert dict_clean(dirty) == {
-        'a': 1,
-        'b': {'c': 2},
-        'f': [{'g': 1}],
-        'j': [1, None]
-    }
+    assert dict_clean(dirty) == {'a': 1, 'b': {'c': 2}, 'f': [{'g': 1}], 'j': [1, None]}
 
 
 def test_trunc():
@@ -68,7 +69,7 @@ examples = {
     'hex': '1234567890abcdef',
     'url': 'http://company.com/path/of/stuff',
     'ipv4': '192.168.0.1',
-    'ipv6': '2001:0db8:0000:0000:0000:ff00:0042:8329'
+    'ipv6': '2001:0db8:0000:0000:0000:ff00:0042:8329',
 }
 
 
@@ -221,10 +222,14 @@ def test_pattern_map_failure():
 
 def test_url_validator():
     assert url_validator('https://google.com') is True
-    assert url_validator('https://httpbin.org/404',
-                         validate=['scheme', 'netloc', 'path']) is True
-    assert url_validator('https://httpbin.org',
-                         validate=['scheme', 'netloc', 'path']) is False
+    assert (
+        url_validator('https://httpbin.org/404', validate=['scheme', 'netloc', 'path'])
+        is True
+    )
+    assert (
+        url_validator('https://httpbin.org', validate=['scheme', 'netloc', 'path'])
+        is False
+    )
     assert url_validator('httpbin.org') is False
 
 
@@ -234,10 +239,6 @@ def test_redact_values():
         'a': 'REDACTED',
         'b': 2,
         'c': 'REDACTED',
-        'd': {
-            'e': 'REDACTED',
-            'f': 5,
-            'g': 6
-        }
+        'd': {'e': 'REDACTED', 'f': 5, 'g': 6},
     }
     assert redact_values(test) == test

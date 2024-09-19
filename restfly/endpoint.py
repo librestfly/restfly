@@ -1,11 +1,12 @@
-'''
+"""
 Endpoints
 =========
 
 .. autoclass:: APIEndpoint
     :members:
     :private-members:
-'''
+"""
+
 from typing import Optional, Union, Dict
 from box import Box, BoxList
 from requests import Response
@@ -13,11 +14,11 @@ from .session import APISession
 
 
 class APIEndpoint:  # noqa: PLR0903
-    '''
+    """
     APIEndpoint is the base model for which all API endpoint classes are
-    sired from.  The main benefit is the addition of the ``_check()``
-    function from which it's possible to check the type & content of a
-    variable to ensure that we are passing good data to the API.
+    sired from.  The main benefit is the ability to use the http request methods that
+    are attached to this base class.  This allows for keeping common CRUD-type calls
+    together with minimal manual URL munging.
 
     Attributes:
         _path (str):
@@ -36,7 +37,8 @@ class APIEndpoint:  # noqa: PLR0903
         api (APISession):
             The APISession (or sired child) instance that the endpoint will
             be using to perform calls to the API.
-    '''
+    """
+
     _path: str = None
     _box: bool = None
     _conv_json: bool = None
@@ -46,12 +48,10 @@ class APIEndpoint:  # noqa: PLR0903
         self._api = api
         self._log = api._log
 
-    def _req(self,
-             method: str,
-             path: Optional[str] = None,
-             **kwargs
-             ) -> Union[Box, BoxList, Response]:
-        '''
+    def _req(
+        self, method: str, path: Optional[str] = None, **kwargs
+    ) -> Union[Box, BoxList, Response]:
+        """
         An abstraction of the APISession._req method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
         directly, and instead is offered as a shortcut for methods within the
@@ -70,7 +70,7 @@ class APIEndpoint:  # noqa: PLR0903
             ...     _path = 'test'
             ...     def list(**kwargs):
             ...         return self._req('GET', **kwargs)
-        '''
+        """
         if self._box:
             kwargs['box'] = kwargs.get('box', self._box)
         if self._box_attrs:
@@ -80,11 +80,10 @@ class APIEndpoint:  # noqa: PLR0903
         new_path = '/'.join([p for p in [self._path, path] if p])
         return self._api._req(method, new_path, **kwargs)  # noqa: PLW0212
 
-    def _delete(self,
-                path: Optional[str] = None,
-                **kwargs
-                ) -> Union[Box, BoxList, Response]:
-        '''
+    def _delete(
+        self, path: Optional[str] = None, **kwargs
+    ) -> Union[Box, BoxList, Response]:
+        """
         An abstraction of the APISession.delete method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
         directly, and instead is offered as a shortcut for methods within the
@@ -101,14 +100,13 @@ class APIEndpoint:  # noqa: PLR0903
             ...     _path = 'test'
             ...     def list(**kwargs):
             ...         return self._delete(**kwargs)
-        '''
+        """
         return self._req('DELETE', path, **kwargs)
 
-    def _get(self,
-             path: Optional[str] = None,
-             **kwargs
-             ) -> Union[Box, BoxList, Response]:
-        '''
+    def _get(
+        self, path: Optional[str] = None, **kwargs
+    ) -> Union[Box, BoxList, Response]:
+        """
         An abstraction of the APISession.get method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
         directly, and instead is offered as a shortcut for methods within the
@@ -125,14 +123,13 @@ class APIEndpoint:  # noqa: PLR0903
             ...     _path = 'test'
             ...     def list(**kwargs):
             ...         return self._get(**kwargs)
-        '''
+        """
         return self._req('GET', path, **kwargs)
 
-    def _head(self,
-              path: Optional[str] = None,
-              **kwargs
-              ) -> Union[Box, BoxList, Response]:
-        '''
+    def _head(
+        self, path: Optional[str] = None, **kwargs
+    ) -> Union[Box, BoxList, Response]:
+        """
         An abstraction of the APISession.head method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
         directly, and instead is offered as a shortcut for methods within the
@@ -149,14 +146,13 @@ class APIEndpoint:  # noqa: PLR0903
             ...     _path = 'test'
             ...     def list(**kwargs):
             ...         return self._head(**kwargs)
-        '''
+        """
         return self._req('HEAD', path, **kwargs)
 
-    def _patch(self,
-               path: Optional[str] = None,
-               **kwargs
-               ) -> Union[Box, BoxList, Response]:
-        '''
+    def _patch(
+        self, path: Optional[str] = None, **kwargs
+    ) -> Union[Box, BoxList, Response]:
+        """
         An abstraction of the APISession.patch method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
         directly, and instead is offered as a shortcut for methods within the
@@ -173,14 +169,13 @@ class APIEndpoint:  # noqa: PLR0903
             ...     _path = 'test'
             ...     def list(**kwargs):
             ...         return self._patch(**kwargs)
-        '''
+        """
         return self._req('PATCH', path, **kwargs)
 
-    def _post(self,
-              path: Optional[str] = None,
-              **kwargs
-              ) -> Union[Box, BoxList, Response]:
-        '''
+    def _post(
+        self, path: Optional[str] = None, **kwargs
+    ) -> Union[Box, BoxList, Response]:
+        """
         An abstraction of the APISession.post method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
         directly, and instead is offered as a shortcut for methods within the
@@ -197,14 +192,13 @@ class APIEndpoint:  # noqa: PLR0903
             ...     _path = 'test'
             ...     def list(**kwargs):
             ...         return self._post(**kwargs)
-        '''
+        """
         return self._req('POST', path, **kwargs)
 
-    def _put(self,
-             path: Optional[str] = None,
-             **kwargs
-             ) -> Union[Box, BoxList, Response]:
-        '''
+    def _put(
+        self, path: Optional[str] = None, **kwargs
+    ) -> Union[Box, BoxList, Response]:
+        """
         An abstraction of the APISession.put method leveraging the local
         APIEndpoint _path attribute as well.  This isn't intended to be called
         directly, and instead is offered as a shortcut for methods within the
@@ -221,5 +215,5 @@ class APIEndpoint:  # noqa: PLR0903
             ...     _path = 'test'
             ...     def list(**kwargs):
             ...         return self._put(**kwargs)
-        '''
+        """
         return self._req('PUT', path, **kwargs)

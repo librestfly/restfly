@@ -1,0 +1,60 @@
+default_language_version:
+  python: python3
+  node: 22.2.0
+#minimum_pre_commit_version: "3.2.0"
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.4
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+        name: Linting using ruff
+        exclude: ^tests/.*
+      - id: ruff-format
+        name: Formatting using ruff
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-ast
+        name: Check python files are valid
+      - id: check-merge-conflict
+        name: Check that merge conflicts are not being committed
+      - id: debug-statements
+        name: Detect accidentally committed debug statements
+      - id: check-builtin-literals
+        name: Require literal syntax when initializing builtin types
+      - id: detect-private-key
+        name: Detect if private key is added to the repository
+      - id: end-of-file-fixer
+        name: Make sure that there is an empty line at the end
+      - id: mixed-line-ending
+        name: Detect if mixed line ending is used (\r vs. \r\n)
+        args: [--fix=lf]
+      - id: check-xml
+        name: Check XML files with xmllint
+      - id: trailing-whitespace
+        name: Remove trailing whitespace at end of line
+      - id: check-json
+        name: Check for valid json
+      - id: pretty-format-json
+        name: Format JSON files
+        args:
+          - --autofix
+          - --no-sort-keys
+          - --indent
+          - "4"
+        pass_filenames: true
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-no-log-warn
+        name: Check if there are no deprecate log warn
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: Ensure unit tests are passing
+        entry: uv run py.test
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true

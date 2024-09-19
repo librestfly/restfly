@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0]
+### Updated
+- Reformatted code using ruff
+- Switched the pipelining to uv
+- Switched deployment to using uv
+- Changed the documentation theme to furo
+- Improved the `dict_flatten()` based on feedback from users
+- Refactored base iterator based off of work done with pyTenable's GQL implimentation.
+- Updated errors to include the associated status code in docs.
+
+
+### Deprecated
+- `dict_merge()` is no longer necessary and has been marked as such.
+
 
 ## [1.4.7]
 ### Fixed
@@ -152,6 +166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial Version
 
 
+[1.5.0]: https://github.com/SteveMcGrath/restfly/compare/1.4.7...1.5.0
 [1.4.7]: https://github.com/SteveMcGrath/restfly/compare/1.4.6...1.4.7
 [1.4.6]: https://github.com/SteveMcGrath/restfly/compare/1.4.5...1.4.6
 [1.4.5]: https://github.com/SteveMcGrath/restfly/compare/1.4.4...1.4.5
