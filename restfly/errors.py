@@ -25,6 +25,7 @@ Errors
 .. autoexception:: ExpectationFailedError
 .. autoexception:: TeapotResponseError
 .. autoexception:: MisdirectRequestError
+.. autoexception:: InvalidContentError
 .. autoexception:: TooEarlyError
 .. autoexception:: UpgradeRequiredError
 .. autoexception:: PreconditionRequiredError
@@ -480,6 +481,21 @@ class MisdirectRequestError(APIError):  # 421 Response
         code (int):
             The HTTP response code from the offending response.
         response (request.Response):
+            This is the Response object that had caused the Exception to fire.
+    """
+
+
+class InvalidContentError(APIError):
+    """
+    The request contained content that did not match the expected schema or was
+    otherwise invalid in some way.
+
+    Typically associated with a ``422`` Status code.
+
+    Attributes:
+        code (int):
+            The HTTP response code from the offending response.
+        response (requests.Response):
             This is the Response object that had caused the Exception to fire.
     """
 

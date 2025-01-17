@@ -7,22 +7,26 @@ Sessions
     :private-members:
 """
 
+import json
+import logging
+import platform
 import sys
 import time
 import warnings
-import platform
-import json
-import logging
-from typing import Union, Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple, Union
 from urllib.parse import urlparse
+
+from box import Box, BoxList
 from requests import Response, Session
 from requests.exceptions import (
     ConnectionError as RequestsConnectionError,
+)
+from requests.exceptions import (
     RequestException as RequestsRequestException,
 )
-from box import Box, BoxList
-from .utils import redact_values, format_json_response
+
 from . import errors
+from .utils import format_json_response, redact_values
 from .version import version
 
 
@@ -173,6 +177,7 @@ class APISession:  # noqa: PLR0902
         418: errors.TeapotResponseError,
         420: errors.TooManyRequestsError,
         421: errors.MisdirectRequestError,
+        422: errors.InvalidContentError,
         425: errors.TooEarlyError,
         426: errors.UpgradeRequiredError,
         428: errors.PreconditionRequiredError,
