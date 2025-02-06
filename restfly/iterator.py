@@ -30,21 +30,24 @@ class APIIterator:
             The APISession object that will be used for querying for the
             data.
         count (int):
-            The current number of records that have been returned
+            The number of items that have been iterated considering
+            all the pages.
         max_items (int):
             The maximum number of items to return before stopping iteration.
         max_pages (int):
-            The maximum number of pages to request before throwing stopping
-            iteration.
+            The maximum number of pages to request before stopping iteration.
         num_pages (int):
-            The number of pages that have been requested.
+            The number of pages that have been requested. This number gets
+            incremented by 1 everytime the _get_page function is called
         page (list):
             The current page of data being walked through.  pages will be
             cycled through as the iterator requests more information from the
             API.
-        page_count (int): The number of record returned from the current page.
+        page_count (int): The number of items iterated from the current page.
         total (int):
             The total number of records that exist for the current request.
+            Do not set this if API does not return total records in the system
+            when requesting for paginated records
     """
 
     count = 0
@@ -100,6 +103,9 @@ class APIIterator:
             ...        self.page = [{'id': i + self._offset} for i in items]
             ...        self._offset += self._limit
         """
+        raise NotImplementedError(
+            'Please overwrite the _get_page method based on your API response format'
+        )
 
     def __getitem__(self, key: int) -> Any:
         return self.page[key]
@@ -135,20 +141,20 @@ class APIIterator:
         # If there are no more records to return, then we should raise a
         # StopIteration exception to break the iterator out.
         if (
-            (self.total and self.count + 1 > self.total)  # noqa: PLR0916
-            or (self.max_items and self.count >= self.max_items)
+            (self.total and self.count == self.total)  # noqa: PLR0916
+            or (self.max_items and self.count == self.max_items)
         ):
             raise StopIteration()
 
         # If we have worked through the current page of records and we still
         # haven't hit to the total number of available records, then we should
         # query the next page of records.
-        if self.page_count >= len(self.page) and (
-            not self.total or self.count + 1 <= self.total
+        if self.page_count == len(self.page) and (
+            not self.total or self.count < self.total
         ):
             # If the number of pages requested reaches the total number of
             # pages that should be requested, then stop iteration.
-            if self.max_pages and self.num_pages + 1 > self.max_pages:
+            if self.max_pages and self.num_pages == self.max_pages:
                 raise StopIteration()
 
             # Perform the _get_page call.
