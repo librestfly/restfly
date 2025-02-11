@@ -104,7 +104,7 @@ class APIIterator:
             ...        self._offset += self._limit
         """
         raise NotImplementedError(
-            'Please overwrite the _get_page method based on your API response format'
+            f'{self.__class__.__name__} has not reimplemented APIIterator `_get_page`. The iterator is non-functional.'
         )
 
     def __getitem__(self, key: int) -> Any:
