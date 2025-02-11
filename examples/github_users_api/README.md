@@ -8,7 +8,6 @@ Before you begin, ensure you have the following installed:
 
 - Python 3.12 or higher
 - `restfly` library
-- `python-dotenv` library
 
 ## Steps to Run
 
@@ -34,25 +33,19 @@ Follow these steps to set up and run the examples:
 2. **Install Dependencies**
 
    ```bash
-   pip install restfly python-dotenv
+   pip install restfly
    ```
 
-3. **Configure Environment Variables**
-
-   Update the `.env` file in the `examples` directory and add your GitHub API key:
-
-   ```env
-   GITHUB_URL=https://api.github.com
-   GITHUB_TOKEN=your_github_token_here
-   LOG_LEVEL=INFO  # Possible values are DEBUG, INFO, WARN, ERROR, CRITICAL
-   ```
-
-4. **Run the Example**
+3. **Run the Example**
 
    Navigate to the `examples` directory and run the `main.py` file:
    ```bash
-   python main.py
+   python main.py --log-level=debug --token=<GITHUB_TOKEN>
    ```
+   **Note**:
+   - The default log level is `INFO`.
+   - The GitHub token can be set using the environment variable `GITHUB_TOKEN`.
+     if you do not want to pass it as a command line argument.
 
 ## Additional Information
 

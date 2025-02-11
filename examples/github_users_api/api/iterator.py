@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict
 
 from restfly.errors import RestflyException, UnauthorizedError
@@ -35,7 +36,8 @@ class GithubIterator(APIIterator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._log.debug(f'max_pages: {self.max_pages} | max_items: {self.max_items}')
+        self.log = logging.getLogger('GithubLogger')
+        self.log.debug(f'max_pages: {self.max_pages} | max_items: {self.max_items}')
 
     def _get_page(self):
         """
@@ -44,7 +46,7 @@ class GithubIterator(APIIterator):
         This method handles the Github API pagination.
         Based on the number of records fethced, the offset is updated.
         """
-        self._log.debug(f'num_pages: {self.num_pages}, count: {self.count}')
+        self.log.debug(f'num_pages: {self.num_pages}, count: {self.count}')
         try:
             resp = self._api.get(self._path, params=self._params)
 
@@ -59,6 +61,6 @@ class GithubIterator(APIIterator):
             # Not updating self.total as Github API does not provide total user count
             self.page = resp
         except UnauthorizedError as login_error:
-            self._log.error(f'Authentication failure. Error Details: {login_error}')
+            self.log.error(f'Authentication failure. Error Details: {login_error}')
         except RestflyException as ex:
-            self._log.error(f'Error fetching page: {ex}')
+            self.log.error(f'Error fetching page: {ex}')

@@ -1,3 +1,5 @@
+import logging
+
 from restfly.endpoint import APIEndpoint
 from restfly.errors import RestflyException, UnauthorizedError
 
@@ -11,6 +13,7 @@ class UsersAPI(APIEndpoint):
     """
 
     _path = 'users'
+    log = logging.getLogger('GithubLogger')
 
     def list(
         self,
@@ -59,6 +62,6 @@ class UsersAPI(APIEndpoint):
                 return resp.json()
             resp.raise_for_status()
         except UnauthorizedError as login_error:
-            self._log.error(f'Authentication failure. Error Details: {login_error}')
+            self.log.error(f'Authentication failure. Error Details: {login_error}')
         except RestflyException as ex:
-            self._log.error(f'Error fetching current user: {ex}')
+            self.log.error(f'Error fetching current user: {ex}')
