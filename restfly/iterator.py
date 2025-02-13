@@ -141,20 +141,20 @@ class APIIterator:
         # If there are no more records to return, then we should raise a
         # StopIteration exception to break the iterator out.
         if (
-            (self.total and self.count == self.total)  # noqa: PLR0916
-            or (self.max_items and self.count == self.max_items)
+            (self.total and self.count >= self.total)  # noqa: PLR0916
+            or (self.max_items and self.count >= self.max_items)
         ):
             raise StopIteration()
 
         # If we have worked through the current page of records and we still
         # haven't hit to the total number of available records, then we should
         # query the next page of records.
-        if self.page_count == len(self.page) and (
+        if self.page_count >= len(self.page) and (
             not self.total or self.count < self.total
         ):
             # If the number of pages requested reaches the total number of
             # pages that should be requested, then stop iteration.
-            if self.max_pages and self.num_pages == self.max_pages:
+            if self.max_pages and self.num_pages >= self.max_pages:
                 raise StopIteration()
 
             # Perform the _get_page call.
