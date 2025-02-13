@@ -13,7 +13,8 @@ class ExampleIterator(APIIterator):
 
 
 def test_iterator_stubs():
-    assert APIIterator(None)._get_page() is None
+    with pytest.raises(NotImplementedError):
+        APIIterator(None)._get_page()
 
 
 def test_iterator_get_key():
@@ -26,7 +27,8 @@ def test_iterator_get_key():
 
 def test_blank_page():
     class ExIterator(APIIterator):
-        page = []
+        def _get_page(self):
+            self.page = []
 
     with pytest.raises(StopIteration):
         ExIterator(None).next()
