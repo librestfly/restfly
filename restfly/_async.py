@@ -174,7 +174,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(
+        return await self._request(  # ty: ignore[invalid-return-type]
             method="GET",
             path=path,
             params=params,
@@ -336,7 +336,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(
+        return await self._request(  # ty: ignore[invalid-return-type]
             method="POST",
             path=path,
             params=params,
@@ -503,7 +503,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(
+        return await self._request(  # ty: ignore[invalid-return-type]
             method="PUT",
             path=path,
             params=params,
@@ -670,7 +670,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(
+        return await self._request(  # ty: ignore[invalid-return-type]
             method="PATCH",
             path=path,
             params=params,
@@ -837,7 +837,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(
+        return await self._request(  # ty: ignore[invalid-return-type]
             method="DELETE",
             path=path,
             params=params,
@@ -1046,7 +1046,7 @@ class AsyncAPIEndpoint(APIBaseEndpoint, AsyncHTTPClientVerbs):
         if self._path is not None:
             path = f"{self._path}{path}"
 
-        return await self._client._request(
+        return await self._client._request(  # ty: ignore[invalid-return-type]
             method=method,
             path=path,
             params=params,
