@@ -170,7 +170,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(
+        return self._request(  # ty: ignore[invalid-return-type]
             method="GET",
             path=path,
             params=params,
@@ -331,7 +331,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(
+        return self._request(  # ty: ignore[invalid-return-type]
             method="POST",
             path=path,
             params=params,
@@ -498,7 +498,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(
+        return self._request(  # ty: ignore[invalid-return-type]
             method="PUT",
             path=path,
             params=params,
@@ -665,7 +665,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(
+        return self._request(  # ty: ignore[invalid-return-type]
             method="PATCH",
             path=path,
             params=params,
@@ -832,7 +832,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(
+        return self._request(  # ty: ignore[invalid-return-type]
             method="DELETE",
             path=path,
             params=params,
@@ -1041,7 +1041,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         if self._path is not None:
             path = f"{self._path}{path}"
 
-        return self._client._request(
+        return self._client._request(  # ty: ignore[invalid-return-type]
             method=method,
             path=path,
             params=params,

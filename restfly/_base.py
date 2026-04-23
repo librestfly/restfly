@@ -156,7 +156,7 @@ class APIClientBase:
             max_redirects=max_redirects,
             event_hooks=event_hooks,
             base_url=self._base_url,
-            transport=transport,  # type: ignore[arg-type]
+            transport=transport,  # type: ignore[arg-type] #ty: ignore[invalid-argument-type]
             trust_env=trust_env,
             default_encoding=default_encoding,
         )
