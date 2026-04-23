@@ -1,3 +1,7 @@
+"""
+Error handling classes and data-classes.
+"""
+
 import logging
 from dataclasses import dataclass
 
@@ -6,11 +10,21 @@ from pydantic import BaseModel
 
 
 class RetryError(Exception):
+    """
+    RetryError is thrown when too many retries have been made to the endpoint and we
+    have been forced to stop attempting to call the API endpoint.
+    """
+
     def __init__(self, url: str, method: str, attempts: int):
         super().__init__(f"Too many attempts ({attempts}) to {method} {url}")
 
 
 class APIError(Exception):
+    """
+    The Base API Error class to be thrown in the event that a non-OK status code is
+    returned.
+    """
+
     status_code: int
     """ Status code of the HTTP Response """
 
@@ -37,6 +51,31 @@ class APIError(Exception):
 
 @dataclass
 class ErrorStatus:
+    """
+    Defines the attributes associated to each non-OK status code.
+
+    Parameters:
+        retry:
+            Should the request be retried?
+        template:
+            The log/exception to be sent. This string template will accept both the
+            request and response objects.
+        model:
+            The Pydantic model (if any) to coerce the response body into.
+        exception:
+            The Exception class to throw.
+        backoff:
+            How many seconds to wait before retrying? This field will be overloaded
+            if the client detects a Retry-After header and will use the response
+            value instead of this if it exists.
+        jitter:
+            If this value is set to a non-zero value, then when calculating the amount
+            of time to wait, the client will randomly select a value between 0 and this
+            value and append it to the wait before retying. Normally we will want this
+            set to something in order to ensure that we stagger retries to the API to
+            prevent overwhelming it.
+    """
+
     retry: bool = False
     template: str = (
         r"[{response.status_code}] Response from {request.method} {request.url}"
@@ -48,6 +87,9 @@ class ErrorStatus:
 
 
 def default_error_status() -> ErrorStatus:
+    """
+    Used for the defaultdict implementation of the error map.
+    """
     return ErrorStatus()
 
 

@@ -7,6 +7,9 @@ test-parallel: (test-py "3.12") (test-py "3.13") (test-py "3.14")
 
 test: (test-py "3.12") (test-py "3.13") (test-py "3.14")
 
+docs:
+    sphinx-build -M clean docs docs/_build
+    sphinx-build -M html docs docs/_build
 
 test-py version: (lint version) (unit-tests version) audit
 

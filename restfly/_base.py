@@ -46,17 +46,17 @@ class APIClientBase:
     __client_class__: type[Client] | type[AsyncClient]
     __endpoint_class__: type[APIBaseEndpoint]
 
+    _base_url: str = ""
+    """ The base URL fragment to prefix all API calls with. """
+
     _client: Client | AsyncClient
-    """ HTTPX Sync Client """
+    """ HTTPX Client Session object """
 
     _json_model_kwargs: dict[str, Any]
-    """ Client-level Pydantic BaseModel.model_dump kwargs"""
+    """ Client-level Pydantic BaseModel.model_dump kwargs """
 
     _xml_model_kwargs: dict[str, Any]
-    """ Client-level Pydantic-XML BaseXmlModel.to_xml kwargs"""
-
-    _base_url: str = ""
-    """ Base URL to pass to both clients at initialization"""
+    """ Client-level Pydantic-XML BaseXmlModel.to_xml kwargs """
 
     _lib_name: str = "RESTFly"
     """ Library name """
@@ -71,8 +71,17 @@ class APIClientBase:
     """ Logger for the client """
 
     __error_map__: dict[int, ErrorStatus] = ERROR_MAP
+    """ The default error map """
 
     _error_map: defaultdict[int, ErrorStatus]
+    """
+    The error map determining how to handle non-OK status codes. Represented by the
+    integer status code along with an ErrorStatus data-class object detailing how to
+    handle the response. Any overloads to the base error map should be provided here
+    and this attribute will be then be replaced at initialization with the merging of
+    the default map, this attribute, and anything passed to the constructor. The
+    resulting error map will be used during operation of the APIClass object.
+    """
 
     def __init__(
         self,
@@ -199,7 +208,15 @@ class APIClientBase:
             json: Overrides the content and data attributes with JSON-formatted data.
             xml: Overrides the content and data attributes with XML-formatted data.
             headers: Any additional headers to pass into the request.
-            request_model_kwargs
+            request_model_kwargs:
+                The pydantic/pydantic-xml kwargs to be passed to the model as part of
+                marshalling the data into the expected format.
+            cookies: The cookies to pass to the request.
+            timeout: The HTTP request timeout.
+            extensions: Any request extensions passed as part of the request.
+
+        Returns:
+            The kwargs dictionary to be passed to the request builder.
         """
         # Initialize mutables
         headers = {} if headers is None else headers
@@ -267,9 +284,18 @@ class APIClientBase:
 
 class APIBaseEndpoint:
     _path: str | None = None
-    _model: type[BaseModel] | type[BaseXmlModel] | None = None
+    """ Path fragment to append to the base url already stored within the client. """
+
     _logger: logging.Logger
+    """
+    The same logging handler that the client has, it also exists here for convenience.
+    """
+
     _client: APIClientBase
+    """
+    The client object that this endpoint is associated with. Provided here in order to
+    interact with other endpoints that may be grafted to the client.
+    """
 
     def __init__(self, client: APIClientBase | APIBaseEndpoint) -> None:
         match client:

@@ -1,9 +1,12 @@
 words = [
+    "aenter",
+    "aexit",
     "apiclient",
     "asyncapiclient",
     "autodoc",
     "basemodel",
     "defaultdict",
+    "dunder",
     "emap",
     "extlinks",
     "furo",
@@ -15,7 +18,7 @@ words = [
     "queryparams",
     "restfly",
     "retriable",
-    "RESTFly",
+    "tfly",
     "typeadapter",
     "viewcode",
 ]
