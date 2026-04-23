@@ -139,18 +139,35 @@ class AsyncHTTPClientVerbs:
         error_map: dict[int, ErrorStatus] | None = None,
     ) -> Model | list[Model] | Response:
         """
-        Construct and send an HTTP request.
+        Construct and send an HTTP GET request.
 
         Args:
-            method: HTTP Method to use.
-            path: URL to query.
-            response_model: Pydantic model to coerce the response into.
-            headers: Request-specific headers.
-            cookies: Request-specific cookies.
-            auth: Request-specific authentication.
-            follow_redirects: Should the client follow any redirects?
-            timeout: Request-specific timeout settings.
-            extensions: Any additional httpx extensions to pass to the client.
+            path:
+                URL to query.
+            response_model:
+                Pydantic model to coerce the response into.
+            response_model_kwargs:
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                un-marshalling the response data.
+            params:
+                Request query parameters.
+            headers:
+                Request-specific headers.
+            cookies:
+                Request-specific cookies.
+            auth:
+                Request-specific authentication.
+            follow_redirects:
+                Should the client follow any redirects?
+            timeout:
+                Request-specific timeout settings.
+            extensions:
+                Any additional httpx extensions to pass to the client.
+            max_retries:
+                The maximum number of retries to attempt before giving up. Overloads
+                the client default.
+            error_map:
+                Replaces the client error map with this one instead.
 
         Returns:
             Returns the HTTPX Response object if no response_model is specified. If a
@@ -269,26 +286,50 @@ class AsyncHTTPClientVerbs:
         error_map: dict[int, ErrorStatus] | None = None,
     ) -> Model | list[Model] | Response:
         """
-        Construct and send an HTTP request.
+        Construct and send an HTTP POST request.
 
         Args:
-            method: HTTP Method to use.
-            path: URL to query.
-            data: Body of the request to url encode (not JSON).
-            files: Files to upload with the request.
-            json: Body of the request to encode (format as JSON).
-            xml: Body of the request to encode (format as XML).
-            response_model: Pydantic model to coerce the response into.
+            path:
+                URL to query.
+            response_model:
+                Pydantic model to coerce the response into.
             response_model_kwargs:
-                kwargs to pass into the pydantic `model_validate` method.
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                un-marshalling the response data.
             request_model_kwargs:
-                kwargs to pass into the pydantic `model_dump` method.
-            headers: Request-specific headers.
-            cookies: Request-specific cookies.
-            auth: Request-specific authentication.
-            follow_redirects: Should the client follow any redirects?
-            timeout: Request-specific timeout settings.
-            extensions: Any additional httpx extensions to pass to the client.
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                marshalling the body of the data into the request.
+            params:
+                Request query parameters.
+            content:
+                Raw body of the request.
+            data:
+                URL form-encoded body for the request.
+            json:
+                Data object to marshal into JSON. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            xml:
+                Data object to marshal into XML. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            files:
+                A dictionary of upload files to include in the body of the request.
+            headers:
+                Request-specific headers.
+            cookies:
+                Request-specific cookies.
+            auth:
+                Request-specific authentication.
+            follow_redirects:
+                Should the client follow any redirects?
+            timeout:
+                Request-specific timeout settings.
+            extensions:
+                Any additional httpx extensions to pass to the client.
+            max_retries:
+                The maximum number of retries to attempt before giving up. Overloads
+                the client default.
+            error_map:
+                Replaces the client error map with this one instead.
 
         Returns:
             Returns the HTTPX Response object if no response_model is specified. If a
@@ -412,26 +453,50 @@ class AsyncHTTPClientVerbs:
         error_map: dict[int, ErrorStatus] | None = None,
     ) -> Model | list[Model] | Response:
         """
-        Construct and send an HTTP request.
+        Construct and send an HTTP PUT request.
 
         Args:
-            method: HTTP Method to use.
-            path: URL to query.
-            data: Body of the request to url encode (not JSON).
-            files: Files to upload with the request.
-            json: Body of the request to encode (format as JSON).
-            xml: Body of the request to encode (format as XML).
-            response_model: Pydantic model to coerce the response into.
+            path:
+                URL to query.
+            response_model:
+                Pydantic model to coerce the response into.
             response_model_kwargs:
-                kwargs to pass into the pydantic `model_validate` method.
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                un-marshalling the response data.
             request_model_kwargs:
-                kwargs to pass into the pydantic `model_dump` method.
-            headers: Request-specific headers.
-            cookies: Request-specific cookies.
-            auth: Request-specific authentication.
-            follow_redirects: Should the client follow any redirects?
-            timeout: Request-specific timeout settings.
-            extensions: Any additional httpx extensions to pass to the client.
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                marshalling the body of the data into the request.
+            params:
+                Request query parameters.
+            content:
+                Raw body of the request.
+            data:
+                URL form-encoded body for the request.
+            json:
+                Data object to marshal into JSON. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            xml:
+                Data object to marshal into XML. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            files:
+                A dictionary of upload files to include in the body of the request.
+            headers:
+                Request-specific headers.
+            cookies:
+                Request-specific cookies.
+            auth:
+                Request-specific authentication.
+            follow_redirects:
+                Should the client follow any redirects?
+            timeout:
+                Request-specific timeout settings.
+            extensions:
+                Any additional httpx extensions to pass to the client.
+            max_retries:
+                The maximum number of retries to attempt before giving up. Overloads
+                the client default.
+            error_map:
+                Replaces the client error map with this one instead.
 
         Returns:
             Returns the HTTPX Response object if no response_model is specified. If a
@@ -555,26 +620,50 @@ class AsyncHTTPClientVerbs:
         error_map: dict[int, ErrorStatus] | None = None,
     ) -> Model | list[Model] | Response:
         """
-        Construct and send an HTTP request.
+        Construct and send an HTTP PATCH request.
 
         Args:
-            method: HTTP Method to use.
-            path: URL to query.
-            data: Body of the request to url encode (not JSON).
-            files: Files to upload with the request.
-            json: Body of the request to encode (format as JSON).
-            xml: Body of the request to encode (format as XML).
-            response_model: Pydantic model to coerce the response into.
+            path:
+                URL to query.
+            response_model:
+                Pydantic model to coerce the response into.
             response_model_kwargs:
-                kwargs to pass into the pydantic `model_validate` method.
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                un-marshalling the response data.
             request_model_kwargs:
-                kwargs to pass into the pydantic `model_dump` method.
-            headers: Request-specific headers.
-            cookies: Request-specific cookies.
-            auth: Request-specific authentication.
-            follow_redirects: Should the client follow any redirects?
-            timeout: Request-specific timeout settings.
-            extensions: Any additional httpx extensions to pass to the client.
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                marshalling the body of the data into the request.
+            params:
+                Request query parameters.
+            content:
+                Raw body of the request.
+            data:
+                URL form-encoded body for the request.
+            json:
+                Data object to marshal into JSON. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            xml:
+                Data object to marshal into XML. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            files:
+                A dictionary of upload files to include in the body of the request.
+            headers:
+                Request-specific headers.
+            cookies:
+                Request-specific cookies.
+            auth:
+                Request-specific authentication.
+            follow_redirects:
+                Should the client follow any redirects?
+            timeout:
+                Request-specific timeout settings.
+            extensions:
+                Any additional httpx extensions to pass to the client.
+            max_retries:
+                The maximum number of retries to attempt before giving up. Overloads
+                the client default.
+            error_map:
+                Replaces the client error map with this one instead.
 
         Returns:
             Returns the HTTPX Response object if no response_model is specified. If a
@@ -698,26 +787,50 @@ class AsyncHTTPClientVerbs:
         error_map: dict[int, ErrorStatus] | None = None,
     ) -> Model | list[Model] | Response:
         """
-        Construct and send an HTTP request.
+        Construct and send an HTTP DELETE request.
 
         Args:
-            method: HTTP Method to use.
-            path: URL to query.
-            data: Body of the request to url encode (not JSON).
-            files: Files to upload with the request.
-            json: Body of the request to encode (format as JSON).
-            xml: Body of the request to encode (format as XML).
-            response_model: Pydantic model to coerce the response into.
+            path:
+                URL to query.
+            response_model:
+                Pydantic model to coerce the response into.
             response_model_kwargs:
-                kwargs to pass into the pydantic `model_validate` method.
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                un-marshalling the response data.
             request_model_kwargs:
-                kwargs to pass into the pydantic `model_dump` method.
-            headers: Request-specific headers.
-            cookies: Request-specific cookies.
-            auth: Request-specific authentication.
-            follow_redirects: Should the client follow any redirects?
-            timeout: Request-specific timeout settings.
-            extensions: Any additional httpx extensions to pass to the client.
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                marshalling the body of the data into the request.
+            params:
+                Request query parameters.
+            content:
+                Raw body of the request.
+            data:
+                URL form-encoded body for the request.
+            json:
+                Data object to marshal into JSON. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            xml:
+                Data object to marshal into XML. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            files:
+                A dictionary of upload files to include in the body of the request.
+            headers:
+                Request-specific headers.
+            cookies:
+                Request-specific cookies.
+            auth:
+                Request-specific authentication.
+            follow_redirects:
+                Should the client follow any redirects?
+            timeout:
+                Request-specific timeout settings.
+            extensions:
+                Any additional httpx extensions to pass to the client.
+            max_retries:
+                The maximum number of retries to attempt before giving up. Overloads
+                the client default.
+            error_map:
+                Replaces the client error map with this one instead.
 
         Returns:
             Returns the HTTPX Response object if no response_model is specified. If a
@@ -878,22 +991,52 @@ class AsyncAPIEndpoint(APIBaseEndpoint, AsyncHTTPClientVerbs):
         error_map: dict[int, ErrorStatus] | None = None,
     ) -> Model | list[Model] | Response:
         """
-        Construct and send an HTTP request.
+        Construct and send an HTTP POST request.
 
         Args:
-            method: HTTP Method to use.
-            path: URL path fragment to us in constructing the request URL.
-            data: Body of the request to url encode (not JSON).
-            files: Files to upload with the request.
-            json: Body of the request to encode (format as JSON).
-            xml: Body of the request to encode (format as XML).
-            response_model: Pydantic model to coerce the response into.
-            headers: Request-specific headers.
-            cookies: Request-specific cookies.
-            auth: Request-specific authentication.
-            follow_redirects: Should the client follow any redirects?
-            timeout: Request-specific timeout settings.
-            extensions: Any additional httpx extensions to pass to the client.
+            method:
+                The HTTP method used to make the call.
+            path:
+                URL to query.
+            response_model:
+                Pydantic model to coerce the response into.
+            response_model_kwargs:
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                un-marshalling the response data.
+            request_model_kwargs:
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                marshalling the body of the data into the request.
+            params:
+                Request query parameters.
+            content:
+                Raw body of the request.
+            data:
+                URL form-encoded body for the request.
+            json:
+                Data object to marshal into JSON. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            xml:
+                Data object to marshal into XML. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            files:
+                A dictionary of upload files to include in the body of the request.
+            headers:
+                Request-specific headers.
+            cookies:
+                Request-specific cookies.
+            auth:
+                Request-specific authentication.
+            follow_redirects:
+                Should the client follow any redirects?
+            timeout:
+                Request-specific timeout settings.
+            extensions:
+                Any additional httpx extensions to pass to the client.
+            max_retries:
+                The maximum number of retries to attempt before giving up. Overloads
+                the client default.
+            error_map:
+                Replaces the client error map with this one instead.
 
         Returns:
             Returns the HTTPX Response object if no response_model is specified. If a
@@ -938,6 +1081,18 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
         assigned at initialization of the object through this method.
         """
         assign_annotations(self, AsyncAPIEndpoint)
+
+    async def __aenter__(self):
+        """
+        Async Context Manager __aenter__ dunder. See PEP-343 for more details.
+        """
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, exc_traceback):
+        """
+        Async Context Manager __aexit__ dunder. See PEP-343 for more details.
+        """
+        return self._deauthenticate()
 
     def __init__(
         self,
@@ -997,6 +1152,17 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
             build=build,
             retry_max=retry_max,
         )
+
+    async def _deauthenticate(self):
+        """
+        De-authentication stub.  De-authentication is automatically run as part
+        of leaving context within the context manager.
+
+        Example:
+            >>> class ExampleAPISession(APISession):
+            ...     def _deauthenticate(self):
+            ...         self.delete('session/token')
+        """
 
     async def _request_hook(self, request: Request) -> None:
         """
@@ -1152,22 +1318,52 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
         error_map: dict[int, ErrorStatus] | None = None,
     ) -> Model | list[Model] | Response:
         """
-        Construct and send an HTTP request.
+        Construct and send an HTTP POST request.
 
         Args:
-            method: HTTP Method to use.
-            path: URL to query.
-            data: Body of the request to url encode (not JSON).
-            files: Files to upload with the request.
-            json: Body of the request to encode (format as JSON).
-            xml: Body of the request to encode (format as XML).
-            response_model: Pydantic model to coerce the response into.
-            headers: Request-specific headers.
-            cookies: Request-specific cookies.
-            auth: Request-specific authentication.
-            follow_redirects: Should the client follow any redirects?
-            timeout: Request-specific timeout settings.
-            extensions: Any additional httpx extensions to pass to the client.
+            method:
+                The HTTP method used to make the call.
+            path:
+                URL to query.
+            response_model:
+                Pydantic model to coerce the response into.
+            response_model_kwargs:
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                un-marshalling the response data.
+            request_model_kwargs:
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                marshalling the body of the data into the request.
+            params:
+                Request query parameters.
+            content:
+                Raw body of the request.
+            data:
+                URL form-encoded body for the request.
+            json:
+                Data object to marshal into JSON. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            xml:
+                Data object to marshal into XML. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            files:
+                A dictionary of upload files to include in the body of the request.
+            headers:
+                Request-specific headers.
+            cookies:
+                Request-specific cookies.
+            auth:
+                Request-specific authentication.
+            follow_redirects:
+                Should the client follow any redirects?
+            timeout:
+                Request-specific timeout settings.
+            extensions:
+                Any additional httpx extensions to pass to the client.
+            max_retries:
+                The maximum number of retries to attempt before giving up. Overloads
+                the client default.
+            error_map:
+                Replaces the client error map with this one instead.
 
         Returns:
             Returns the HTTPX Response object if no response_model is specified. If a
