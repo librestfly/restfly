@@ -6,7 +6,7 @@ from httpx import Client, QueryParams
 from pydantic import BaseModel
 from pydantic_xml import BaseXmlModel
 from restfly import APIEndpoint
-from restfly._base import APIClientBase
+from restfly._base import APIBaseEndpoint, APIClientBase
 
 
 class HTTPBinResponse(BaseModel):
@@ -92,7 +92,7 @@ def test_client_marshal_xml_string_passthrough(client: APIClientBase):
 
 def test_client_basemodel_queryparams():
     class ExampleParams(BaseModel):
-        test: int  # type: ignore
+        test: int
 
     class TestClient(APIClientBase):
         __client_class__ = Client
@@ -103,3 +103,34 @@ def test_client_basemodel_queryparams():
     params = ExampleParams(test=1)
     client = TestClient(params=params)
     assert client._client._params == QueryParams("test=1")
+
+
+def test_base_endpoint_init():
+    class OkCode(APIBaseEndpoint):
+        _path = "/200"
+
+    class CodesAPI(APIBaseEndpoint):
+        _path = "/status"
+
+        ok: OkCode
+
+    class TestClient(APIClientBase):
+        __client_class__ = Client
+        __endpoint_class__ = APIBaseEndpoint
+        _base_url = "https://httpbin.org"
+        _lib_name = "RESTFly-Test"
+
+        codes: CodesAPI
+
+    client = TestClient()
+    assert client == client.codes._client == client.codes.ok._client
+
+
+def test_base_endpoint_typerror_init():
+    class Failpoint(APIBaseEndpoint):
+        _path = "/status"
+
+    with pytest.raises(TypeError) as err:
+        _ = Failpoint(None)  # ty: ignore[invalid-argument-type]
+
+    assert err.match(r"Client \w+ is not a valid client type.")

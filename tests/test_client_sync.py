@@ -7,6 +7,7 @@ from httpx import Request, Response
 from pydantic import BaseModel
 from pytest_httpx import HTTPXMock
 from restfly import APIClient, APIError, RetryError
+from restfly._sync import HTTPClientVerbs
 
 
 @pytest.fixture
@@ -23,6 +24,11 @@ class HTTPBinResponse(BaseModel):
     headers: dict[str, str]
     origin: str
     url: str
+
+
+def test_http_methods_not_implemented():
+    with pytest.raises(NotImplementedError):
+        HTTPClientVerbs()._request("GET", "/")
 
 
 def test_request_hook(client: APIClient, caplog: pytest.LogCaptureFixture):
@@ -54,6 +60,20 @@ def test_hooks_in_request(
 
     assert "REQUESTING GET: https://httpbin.org" in caplog.text
     assert "[200] GET: https://httpbin.org" in caplog.text
+
+
+def test_deauth_hook(httpx_mock: HTTPXMock):
+    class ExClient(APIClient):
+        _base_url: str = "https://httpbin.org"
+        _lib_name: str = "RESTFlyTest"
+
+        def _deauthenticate(self):
+            raise TypeError("msg: Deauth")
+
+    with pytest.raises(TypeError) as err:
+        with ExClient():
+            pass
+    assert err.match("msg: Deauth")
 
 
 def test_client_raw_request(client: APIClient, httpx_mock: HTTPXMock):
