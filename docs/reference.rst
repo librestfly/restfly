@@ -1,5 +1,5 @@
-RESTFly Reference Guide
-=======================
+Reference Guide
+===============
 
 
 Traditional Python Sync API
@@ -15,6 +15,14 @@ Async Python API
 .. autoclass:: restfly.AsyncAPIClient
 
 .. autoclass:: restfly.AsyncAPIEndpoint
+
+
+Iterators
+---------
+
+.. autoclass:: restfly.APIIterator
+
+.. autoclass:: restfly.AsyncAPIIterator
 
 Error Handling
 --------------
