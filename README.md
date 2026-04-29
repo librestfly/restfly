@@ -1,4 +1,4 @@
-![RESTFly Logo]: docs/_static/logo-light-hero.svg
+![RESTFly Logo](docs/_static/logo-light-hero.svg)
 
 # What is RESTFly?
 

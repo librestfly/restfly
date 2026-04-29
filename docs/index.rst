@@ -42,7 +42,10 @@ documentation every time I needed something when more and more libraries were su
 type hints to aide developers within their SDKs.
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    userguide
    reference
+   GitHub <https://github.com/librestfly/restfly>
+   File an Issue <https://github.com/librestfly/restfly/issues>
+   Examples <https://github.com/librestfly/restfly/tree/main/examples>
