@@ -5,12 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0-a1]
+## [2.0.0]
 
 ### Refactored
 
 - Complete Rewrite using HTTPX as the base instead of Requests.
-- Supports FastAPI-esque support of Pydantic and Pydantic-XML fore data coersion.
+- Supports FastAPI-styled support of Pydantic and Pydantic-XML forced data coercion.
+
+[2.0.0]: https://github.com/SteveMcGrath/restfly/compare/1.5.0...2.0.0
 
 ## [1.5.0]
 

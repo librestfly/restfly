@@ -1,6 +1,8 @@
 # pyright: strict, reportPrivateUsage=false
+import json
 import logging
 import re
+from io import BytesIO
 
 import pytest
 from httpx import Request, Response
@@ -256,3 +258,20 @@ def test_client_delete_method(client: APIClient, httpx_mock: HTTPXMock):
     assert isinstance(resp2, HTTPBinResponse)
     assert resp1.json()["url"] == "https://httpbin.org/delete"
     assert resp2.url == "https://httpbin.org/delete"
+
+
+def test_client_stream_method(client: APIClient, httpx_mock: HTTPXMock):
+    payload = {
+        "args": {},
+        "headers": {"Accept": "application/json"},
+        "origin": "127.0.0.1",
+        "url": "https://httpbin.org/get",
+    }
+    httpx_mock.add_response(url="https://httpbin.org/get", json=payload)
+    with client._stream("GET", "/get") as r:
+        assert r.status_code == 200
+        b = BytesIO()
+        for data in r.iter_bytes():
+            b.write(data)
+        b.seek(0)
+    assert json.load(b) == payload
