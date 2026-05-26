@@ -1,6 +1,6 @@
 [project]
 name = "RESTFly"
-version = "2.0.0-a1"
+version = "2.0.0"
 description = "Write your own API Client libraries quickly."
 readme = "README.md"
 requires-python = ">=3.12"

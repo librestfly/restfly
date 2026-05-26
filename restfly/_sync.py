@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import random
+from contextlib import contextmanager
 from ssl import SSLContext
 from time import sleep
-from typing import Any, Callable, Literal, Self, overload, override
+from typing import Any, Callable, Iterator, Literal, Self, overload, override
 
 from ._base import APIBaseEndpoint, APIClientBase
 from ._errors import ErrorStatus, RetryError
@@ -61,8 +62,106 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
+        stream: bool = False,
     ) -> Model | list[Model] | Response:
         raise NotImplementedError
+
+    @contextmanager
+    def _stream(
+        self,
+        method: HTTPMethods,
+        path: str,
+        *,
+        params: QueryParamTypes | None = None,
+        content: RequestContent | None = None,
+        data: RequestData | None = None,
+        files: RequestFiles | None = None,
+        headers: dict[str, str] | None = None,
+        json: Model | Any | None = None,
+        xml: XMLModel | str | bytes | None = None,
+        request_model_kwargs: dict[str, Any] | None = None,
+        cookies: CookieTypes | None = None,
+        auth: AuthTypes | UseClientDefault | None = USE_CLIENT_DEFAULT,
+        follow_redirects: bool | UseClientDefault = USE_CLIENT_DEFAULT,
+        timeout: TimeoutTypes | UseClientDefault = USE_CLIENT_DEFAULT,
+        extensions: RequestExtensions | None = None,
+        max_retries: int | None = None,
+        error_map: dict[int, ErrorStatus] | None = None,
+    ) -> Iterator[Response]:
+        """
+        Construct and send an HTTP request and stream the response back.  This is an
+        alternative method to making a call to _request that also supports closing of
+        the response through the use of a context manager.
+
+        Args:
+            method:
+                The HTTP method used to make the call.
+            path:
+                URL to query.
+            request_model_kwargs:
+                Keyword arguments to pass to Pydantic/Pydantic-XML as part of
+                marshalling the body of the data into the request.
+            params:
+                Request query parameters.
+            content:
+                Raw body of the request.
+            data:
+                URL form-encoded body for the request.
+            json:
+                Data object to marshal into JSON. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            xml:
+                Data object to marshal into XML. Content passed with this parameter
+                will also set the ``Content-Type`` header to ``application/json``.
+            files:
+                A dictionary of upload files to include in the body of the request.
+            headers:
+                Request-specific headers.
+            cookies:
+                Request-specific cookies.
+            auth:
+                Request-specific authentication.
+            follow_redirects:
+                Should the client follow any redirects?
+            timeout:
+                Request-specific timeout settings.
+            extensions:
+                Any additional httpx extensions to pass to the client.
+            max_retries:
+                The maximum number of retries to attempt before giving up. Overloads
+                the client default.
+            error_map:
+                Replaces the client error map with this one instead.
+
+        Returns:
+            Returns the HTTPX Response object with streaming enabled.
+        """
+        response: Response = self._request(  # type: ignore[assignment] # ty: ignore[invalid-assignment]
+            method=method,
+            path=path,
+            params=params,
+            content=content,
+            data=data,
+            files=files,
+            headers=headers,
+            json=json,
+            xml=xml,
+            request_model_kwargs=request_model_kwargs,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=follow_redirects,
+            timeout=timeout,
+            extensions=extensions,
+            max_retries=max_retries,
+            error_map=error_map,
+            stream=True,
+            response_model=None,
+            response_model_kwargs=None,
+        )
+        try:
+            yield response
+        finally:
+            response.close()
 
     @overload
     def _get(
@@ -884,6 +983,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
+        stream: bool = ...,
     ) -> Response: ...
 
     @overload
@@ -909,6 +1009,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
+        stream: bool = False,
     ) -> Model: ...
 
     @overload
@@ -934,6 +1035,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
+        stream: bool = False,
     ) -> list[Model]: ...
 
     @overload
@@ -959,6 +1061,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
+        stream: bool = ...,
     ) -> Model | list[Model] | Response: ...
 
     @override
@@ -984,6 +1087,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
+        stream: bool = False,
     ) -> Model | list[Model] | Response:
         """
         Construct and send an HTTP POST request.
@@ -1061,6 +1165,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
             response_model_kwargs=response_model_kwargs,
             request_model_kwargs=request_model_kwargs,
             error_map=error_map,
+            stream=stream,
         )
 
 
@@ -1211,6 +1316,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
+        stream: bool = ...,
     ) -> Response: ...
 
     @overload
@@ -1236,6 +1342,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
+        stream: bool = False,
     ) -> Model: ...
 
     @overload
@@ -1261,6 +1368,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
+        stream: bool = False,
     ) -> list[Model]: ...
 
     @overload
@@ -1286,6 +1394,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
+        stream: bool = ...,
     ) -> Model | list[Model] | Response: ...
 
     @override
@@ -1311,9 +1420,10 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
+        stream: bool = False,
     ) -> Model | list[Model] | Response:
         """
-        Construct and send an HTTP POST request.
+        Construct and send an HTTP request.
 
         Args:
             method:
@@ -1397,7 +1507,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         while request_counter <= max_retries:
             request_counter += 1
             response = self._client.send(
-                request, auth=auth, follow_redirects=follow_redirects
+                request, auth=auth, follow_redirects=follow_redirects, stream=stream
             )
 
             # If the response is ok, then we should return the response.  If a model is
