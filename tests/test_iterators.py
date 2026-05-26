@@ -23,7 +23,8 @@ class AsyncExampleIterator(AsyncAPIIterator):
 
 
 def test_iterator_stubs():
-    assert APIIterator(None)._get_page() is None  # ty: ignore[invalid-argument-type]
+    with pytest.raises(NotImplementedError):
+        APIIterator(None)._get_page()  # ty: ignore[invalid-argument-type]
 
 
 def test_iterator_get_key():
@@ -35,7 +36,9 @@ def test_iterator_get_key():
 
 
 def test_blank_page():
-    class ExIterator(APIIterator): ...
+    class ExIterator(APIIterator):
+        def _get_page(self):
+            return None
 
     with pytest.raises(StopIteration):
         next(ExIterator(None))  # ty: ignore[invalid-argument-type]

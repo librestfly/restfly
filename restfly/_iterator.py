@@ -134,6 +134,7 @@ class APIIterator:
             ...        self.page = [{'id': i + self._offset} for i in items]
             ...        self._offset += self._limit
         """
+        raise NotImplementedError("Get Page Method isn't implemented.")
 
     def get(self, key: int, default: Any | None = None) -> Any:
         """
