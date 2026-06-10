@@ -4,7 +4,7 @@ from httpx import Response
 from pydantic import BaseModel, TypeAdapter
 from pydantic_xml import BaseXmlModel
 
-from ._types import Model, XMLModel
+from .types import Model, XMLModel
 
 
 @overload

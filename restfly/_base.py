@@ -9,8 +9,10 @@ from typing import Any, Callable
 from pydantic import BaseModel
 from pydantic_xml import BaseXmlModel
 
-from ._errors import ERROR_MAP, ErrorStatus, default_error_status
-from ._types import (
+from ._errors import APIError, ErrorStatus, build_error_map
+from ._utils import assign_annotations
+from ._version import version as RESTFLY_VERSION
+from .types import (
     DEFAULT_LIMITS,
     DEFAULT_MAX_REDIRECTS,
     DEFAULT_TIMEOUT_CONFIG,
@@ -38,8 +40,6 @@ from ._types import (
     UseClientDefault,
     XMLModel,
 )
-from ._utils import assign_annotations
-from ._version import version as RESTFLY_VERSION
 
 
 class APIClientBase:
@@ -70,8 +70,11 @@ class APIClientBase:
     _logger: logging.Logger
     """ Logger for the client """
 
-    __error_map__: dict[int, ErrorStatus] = ERROR_MAP
-    """ The default error map """
+    _error_class: type[APIError] = APIError
+    """ API Exception Class to use for all API Errors/Exceptions """
+
+    __error_map__: dict[int, ErrorStatus] | None = None
+    """ The default built-in error map. If None the library default is used. """
 
     _error_map: defaultdict[int, ErrorStatus]
     """
@@ -112,10 +115,12 @@ class APIClientBase:
         json_model_kwargs: dict[str, Any] | None = None,
         xml_model_kwargs: dict[str, Any] | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
+        error_class: type[APIError] | None = None,
     ) -> None:
         # Initialize mutables.
         headers = {} if headers is None else headers
         error_map = {} if error_map is None else error_map
+        error_class = self._error_class if error_class is None else error_class
 
         # Initialize the private attributes for the client object.
         self._base_url = base_url if base_url else self._base_url
@@ -124,14 +129,13 @@ class APIClientBase:
         self._json_model_kwargs = json_model_kwargs if json_model_kwargs else {}
         self._xml_model_kwargs = xml_model_kwargs if xml_model_kwargs else {}
 
-        # Construct the Error Map default dict using the built-in error_map as well as
+        # Construct the error map default dict using the built-in error_map as well as
         # the over loadable _error_map extension and then lastly update with any
         # error_map provided at initialization.  Lastly store the resulting defaultdict
         # over the _error_map private attribute.
-        emap = defaultdict(default_error_status, self.__error_map__)
-        for updates in (getattr(self, "_error_map", {}), error_map):
-            emap.update(updates)
-        self._error_map = emap
+        self._error_map = build_error_map(
+            base_map=self.__error_map__, overloads=error_map, error_class=error_class
+        )
 
         # If we had received a pydantic model for the client params, then we will first
         # coerce them into a python dictionary.

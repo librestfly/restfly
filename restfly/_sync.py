@@ -8,7 +8,8 @@ from typing import Any, Callable, Iterator, Literal, Self, overload, override
 
 from ._base import APIBaseEndpoint, APIClientBase
 from ._errors import ErrorStatus, RetryError
-from ._types import (
+from ._utils import assign_annotations, unmarshal
+from .types import (
     DEFAULT_LIMITS,
     DEFAULT_MAX_REDIRECTS,
     DEFAULT_TIMEOUT_CONFIG,
@@ -36,14 +37,13 @@ from ._types import (
     XMLModel,
     codes,
 )
-from ._utils import assign_annotations, unmarshal
 
 
 class HTTPClientVerbs:
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = "",
         *,
         response_model: type[Model] | type[list[Model]] | None = None,
         params: QueryParamTypes | None = None,
@@ -70,7 +70,7 @@ class HTTPClientVerbs:
     def _stream(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = "",
         *,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
@@ -166,7 +166,7 @@ class HTTPClientVerbs:
     @overload
     def _get(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
@@ -184,7 +184,7 @@ class HTTPClientVerbs:
     @overload
     def _get(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model],
         response_model_kwargs: dict[str, Any] | None = ...,
@@ -202,7 +202,7 @@ class HTTPClientVerbs:
     @overload
     def _get(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[list[Model]],
         response_model_kwargs: dict[str, Any] | None = ...,
@@ -219,7 +219,7 @@ class HTTPClientVerbs:
 
     def _get(
         self,
-        path: str,
+        path: str = "",
         *,
         response_model: type[Model] | type[list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
@@ -288,7 +288,7 @@ class HTTPClientVerbs:
     @overload
     def _post(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: Literal[None] = ...,
         params: QueryParamTypes | None = ...,
@@ -312,7 +312,7 @@ class HTTPClientVerbs:
     @overload
     def _post(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model],
         params: QueryParamTypes | None = ...,
@@ -336,7 +336,7 @@ class HTTPClientVerbs:
     @overload
     def _post(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[list[Model]],
         params: QueryParamTypes | None = ...,
@@ -359,7 +359,7 @@ class HTTPClientVerbs:
 
     def _post(
         self,
-        path: str,
+        path: str = "",
         *,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
@@ -455,7 +455,7 @@ class HTTPClientVerbs:
     @overload
     def _put(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: Literal[None] = ...,
         params: QueryParamTypes | None = ...,
@@ -479,7 +479,7 @@ class HTTPClientVerbs:
     @overload
     def _put(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model],
         params: QueryParamTypes | None = ...,
@@ -503,7 +503,7 @@ class HTTPClientVerbs:
     @overload
     def _put(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[list[Model]],
         params: QueryParamTypes | None = ...,
@@ -526,7 +526,7 @@ class HTTPClientVerbs:
 
     def _put(
         self,
-        path: str,
+        path: str = "",
         *,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
@@ -622,7 +622,7 @@ class HTTPClientVerbs:
     @overload
     def _patch(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: Literal[None] = ...,
         params: QueryParamTypes | None = ...,
@@ -646,7 +646,7 @@ class HTTPClientVerbs:
     @overload
     def _patch(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model],
         params: QueryParamTypes | None = ...,
@@ -670,7 +670,7 @@ class HTTPClientVerbs:
     @overload
     def _patch(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[list[Model]],
         params: QueryParamTypes | None = ...,
@@ -693,7 +693,7 @@ class HTTPClientVerbs:
 
     def _patch(
         self,
-        path: str,
+        path: str = "",
         *,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
@@ -789,7 +789,7 @@ class HTTPClientVerbs:
     @overload
     def _delete(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: Literal[None] = ...,
         params: QueryParamTypes | None = ...,
@@ -813,7 +813,7 @@ class HTTPClientVerbs:
     @overload
     def _delete(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model],
         params: QueryParamTypes | None = ...,
@@ -837,7 +837,7 @@ class HTTPClientVerbs:
     @overload
     def _delete(
         self,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[list[Model]],
         params: QueryParamTypes | None = ...,
@@ -860,7 +860,7 @@ class HTTPClientVerbs:
 
     def _delete(
         self,
-        path: str,
+        path: str = "",
         *,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
@@ -964,7 +964,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = ...,
         *,
         response_model: Literal[None] = ...,
         params: QueryParamTypes | None = ...,
@@ -990,7 +990,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model],
         params: QueryParamTypes | None = ...,
@@ -1016,7 +1016,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[list[Model]],
         params: QueryParamTypes | None = ...,
@@ -1042,7 +1042,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model] | type[list[Model]] | None = ...,
         params: QueryParamTypes | None = ...,
@@ -1068,7 +1068,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = "",
         *,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
@@ -1297,7 +1297,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = ...,
         *,
         response_model: Literal[None] = ...,
         params: QueryParamTypes | None = ...,
@@ -1323,7 +1323,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model],
         params: QueryParamTypes | None = ...,
@@ -1349,7 +1349,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[list[Model]],
         params: QueryParamTypes | None = ...,
@@ -1375,7 +1375,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = ...,
         *,
         response_model: type[Model] | type[list[Model]] | None = ...,
         params: QueryParamTypes | None = ...,
@@ -1401,7 +1401,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
     def _request(
         self,
         method: HTTPMethods,
-        path: str,
+        path: str = "",
         *,
         response_model: type[Model] | type[list[Model]] | None = None,
         params: QueryParamTypes | None = None,

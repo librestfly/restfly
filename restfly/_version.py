@@ -1,1 +1,3 @@
-version = "2.0.0"
+from importlib.metadata import version as ver
+
+version = ver("restfly")

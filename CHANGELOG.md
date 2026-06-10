@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1]
+
+### Changed
+
+- Made the types module public. This is necessary for library typing.
+- Switched the version declaration from a simple string to using `importlib`'s version metadata library. Unblocks the
+  use of `uv version` for version management within the `pyproject.toml` file itself.
+- Made the path param an optional param with a default of an empty string. Means endpoints aren't required to pass a
+  path when there isn't a need for one. General DX improvement based on usage.
+- Refactored the error map initialization code to allow for overloading the base exception class with a simple
+  declaration within the Client object. General DX improvement.
+
+[2.0.1]: https://github.com/librestfly/restfly/compare/2.0.0...2.0.1
+
 ## [2.0.0]
 
 ### Refactored
@@ -12,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete Rewrite using HTTPX as the base instead of Requests.
 - Supports FastAPI-styled support of Pydantic and Pydantic-XML forced data coercion.
 
-[2.0.0]: https://github.com/SteveMcGrath/restfly/compare/1.5.0...2.0.0
+[2.0.0]: https://github.com/librestfly/restfly/compare/1.5.0...2.0.0
 
 ## [1.5.0]
 
@@ -23,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switched deployment to using uv
 - Changed the documentation theme to furo
 - Improved the `dict_flatten()` based on feedback from users
-- Refactored base iterator based off of work done with pyTenable's GQL implimentation.
+- Refactored base iterator based off of work done with pyTenable's GQL implementation.
 - Updated errors to include the associated status code in docs.
 
 ### Deprecated
@@ -223,26 +237,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Version
 
-[1.5.0]: https://github.com/SteveMcGrath/restfly/compare/1.4.7...1.5.0
-[1.4.7]: https://github.com/SteveMcGrath/restfly/compare/1.4.6...1.4.7
-[1.4.6]: https://github.com/SteveMcGrath/restfly/compare/1.4.5...1.4.6
-[1.4.5]: https://github.com/SteveMcGrath/restfly/compare/1.4.4...1.4.5
-[1.4.4]: https://github.com/SteveMcGrath/restfly/compare/1.4.3...1.4.4
-[1.4.3]: https://github.com/SteveMcGrath/restfly/compare/1.4.2...1.4.3
-[1.4.2]: https://github.com/SteveMcGrath/restfly/compare/1.4.1...1.4.2
-[1.4.1]: https://github.com/SteveMcGrath/restfly/compare/1.4.0...1.4.1
-[1.4.0]: https://github.com/SteveMcGrath/restfly/compare/1.3.6...1.4.0
-[1.3.6]: https://github.com/SteveMcGrath/restfly/compare/1.3.5...1.3.6
-[1.3.5]: https://github.com/SteveMcGrath/restfly/compare/1.3.4...1.3.5
-[1.3.4]: https://github.com/SteveMcGrath/restfly/compare/1.3.3...1.3.4
-[1.3.3]: https://github.com/SteveMcGrath/restfly/compare/1.3.2...1.3.3
-[1.3.2]: https://github.com/SteveMcGrath/restfly/compare/1.3.1...1.3.2
-[1.3.1]: https://github.com/SteveMcGrath/restfly/compare/1.3.0...1.3.1
-[1.3.0]: https://github.com/SteveMcGrath/restfly/compare/1.2.0...1.3.0
-[1.2.0]: https://github.com/SteveMcGrath/restfly/compare/1.1.1...1.2.0
-[1.1.1]: https://github.com/SteveMcGrath/restfly/compare/1.1.0...1.1.1
-[1.1.0]: https://github.com/SteveMcGrath/restfly/compare/1.0.3...1.1.0
-[1.0.3]: https://github.com/SteveMcGrath/restfly/compare/1.0.2...1.0.3
-[1.0.2]: https://github.com/SteveMcGrath/restfly/compare/1.0.1...1.0.2
-[1.0.1]: https://github.com/SteveMcGrath/restfly/compare/1.0.0...1.0.1
-[1.0.0]: https://github.com/SteveMcGrath/restfly/commit/96c389866da658374736942a0771bf47ff0ccb4c
+[1.5.0]: https://github.com/librestfly/restfly/compare/1.4.7...1.5.0
+[1.4.7]: https://github.com/librestfly/restfly/compare/1.4.6...1.4.7
+[1.4.6]: https://github.com/librestfly/restfly/compare/1.4.5...1.4.6
+[1.4.5]: https://github.com/librestfly/restfly/compare/1.4.4...1.4.5
+[1.4.4]: https://github.com/librestfly/restfly/compare/1.4.3...1.4.4
+[1.4.3]: https://github.com/librestfly/restfly/compare/1.4.2...1.4.3
+[1.4.2]: https://github.com/librestfly/restfly/compare/1.4.1...1.4.2
+[1.4.1]: https://github.com/librestfly/restfly/compare/1.4.0...1.4.1
+[1.4.0]: https://github.com/librestfly/restfly/compare/1.3.6...1.4.0
+[1.3.6]: https://github.com/librestfly/restfly/compare/1.3.5...1.3.6
+[1.3.5]: https://github.com/librestfly/restfly/compare/1.3.4...1.3.5
+[1.3.4]: https://github.com/librestfly/restfly/compare/1.3.3...1.3.4
+[1.3.3]: https://github.com/librestfly/restfly/compare/1.3.2...1.3.3
+[1.3.2]: https://github.com/librestfly/restfly/compare/1.3.1...1.3.2
+[1.3.1]: https://github.com/librestfly/restfly/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/librestfly/restfly/compare/1.2.0...1.3.0
+[1.2.0]: https://github.com/librestfly/restfly/compare/1.1.1...1.2.0
+[1.1.1]: https://github.com/librestfly/restfly/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/librestfly/restfly/compare/1.0.3...1.1.0
+[1.0.3]: https://github.com/librestfly/restfly/compare/1.0.2...1.0.3
+[1.0.2]: https://github.com/librestfly/restfly/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/librestfly/restfly/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/librestfly/restfly/commit/96c389866da658374736942a0771bf47ff0ccb4c

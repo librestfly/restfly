@@ -3,7 +3,8 @@ Error handling classes and data-classes.
 """
 
 import logging
-from dataclasses import dataclass
+from collections import defaultdict
+from dataclasses import dataclass, replace
 
 from httpx import Response
 from pydantic import BaseModel
@@ -86,11 +87,32 @@ class ErrorStatus:
     jitter: float = 0.5
 
 
-def default_error_status() -> ErrorStatus:
+def build_error_map(
+    base_map: dict[int, ErrorStatus] | None = None,
+    overloads: dict[int, ErrorStatus] | None = None,
+    error_class: type[APIError] | None = None,
+) -> defaultdict[int, ErrorStatus]:
     """
-    Used for the defaultdict implementation of the error map.
+    Error map builder.
     """
-    return ErrorStatus()
+    if base_map is None:
+        base_map = ERROR_MAP
+    if overloads is None:
+        overloads = {}
+    if error_class is None:
+        error_class = APIError
+
+    def error_status() -> ErrorStatus:
+        return ErrorStatus(exception=error_class if error_class else APIError)
+
+    error_map = defaultdict(
+        error_status,
+        {k: replace(v, exception=error_class) for k, v in base_map.items()},
+    )
+    error_map.update(
+        {k: replace(v, exception=error_class) for k, v in overloads.items()}
+    )
+    return error_map
 
 
 ERROR_MAP = {
