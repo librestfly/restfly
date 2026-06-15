@@ -6,6 +6,7 @@ words = [
     "autoclass",
     "autodoc",
     "basemodel",
+    "caplog",
     "defaultdict",
     "dunder",
     "emap",

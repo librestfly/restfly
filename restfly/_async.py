@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from ssl import SSLContext
 from typing import Any, AsyncIterator, Callable, Literal, overload, override
 
-from ._base import APIBaseEndpoint, APIClientBase
+from ._base import APIBaseEndpoint, APIClientBase, APIError
 from ._errors import ErrorStatus, RetryError
 from ._utils import assign_annotations, unmarshal
 from .types import (
@@ -1225,6 +1225,12 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
         product: str = "unknown",
         build: str = "unknown",
         retry_max: int = 5,
+        json_load_kwargs: dict[str, Any] | None = None,
+        json_dump_kwargs: dict[str, Any] | None = None,
+        xml_load_kwargs: dict[str, Any] | None = None,
+        xml_dump_kwargs: dict[str, Any] | None = None,
+        error_map: dict[int, ErrorStatus] | None = None,
+        error_class: type[APIError] | None = None,
     ) -> None:
         # Add the class event hooks to loop in the logging facilities.
         event_hooks = {} if event_hooks is None else event_hooks
@@ -1256,6 +1262,12 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
             product=product,
             build=build,
             retry_max=retry_max,
+            json_load_kwargs=json_load_kwargs,
+            json_dump_kwargs=json_dump_kwargs,
+            xml_load_kwargs=xml_load_kwargs,
+            xml_dump_kwargs=xml_dump_kwargs,
+            error_map=error_map,
+            error_class=error_class,
         )
 
     async def _deauthenticate(self):
@@ -1522,8 +1534,8 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
                 return unmarshal(
                     response=response,
                     model=response_model,
-                    json_model_kwargs=self._json_model_kwargs | response_model_kwargs,
-                    xml_model_kwargs=self._xml_model_kwargs | response_model_kwargs,
+                    json_model_kwargs=self._json_load_kwargs | response_model_kwargs,
+                    xml_model_kwargs=self._xml_load_kwargs | response_model_kwargs,
                 )
 
             # If no model was passed, then simply return the response object.

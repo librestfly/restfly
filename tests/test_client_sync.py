@@ -33,6 +33,39 @@ def test_http_methods_not_implemented():
         HTTPClientVerbs()._request("GET", "/")
 
 
+def test_client_pydantic_model_kwargs():
+    class TestClient(APIClient):
+        _base_url = "https://httpbin.org"
+        _lib_name = "RESTFlyTest"
+
+    assert TestClient()._json_load_kwargs == {}
+    assert TestClient()._xml_load_kwargs == {}
+
+    class TestClient(APIClient):
+        _base_url = "https://httpbin.org"
+        _lib_name = "RESTFlyTest"
+        _json_load_kwargs = {"exclude_none": True}
+        _xml_load_kwargs = {"something": "true"}
+
+    assert TestClient()._json_load_kwargs == {"exclude_none": True}
+    assert TestClient()._xml_load_kwargs == {"something": "true"}
+
+    class TestClient(APIClient):
+        _base_url = "https://httpbin.org"
+        _lib_name = "RESTFlyTest"
+        _json_model_kwargs = {"exclude_none": True}
+        _xml_model_kwargs = {"something": "true"}
+
+        def __init__(self, **kwargs):
+            super().__init__(
+                json_load_kwargs={"something_else": False},
+                xml_load_kwargs={"this": True},
+            )
+
+    assert TestClient()._json_load_kwargs == {"something_else": False}
+    assert TestClient()._xml_load_kwargs == {"this": True}
+
+
 def test_request_hook(client: APIClient, caplog: pytest.LogCaptureFixture):
     req = Request(method="GET", url="https://httpbin.org")
 

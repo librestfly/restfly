@@ -52,10 +52,16 @@ class APIClientBase:
     _client: Client | AsyncClient
     """ HTTPX Client Session object """
 
-    _json_model_kwargs: dict[str, Any]
+    _json_load_kwargs: dict[str, Any]
+    """ Client-level Pydantic BaseModel.model_validate kwargs """
+
+    _json_dump_kwargs: dict[str, Any]
     """ Client-level Pydantic BaseModel.model_dump kwargs """
 
-    _xml_model_kwargs: dict[str, Any]
+    _xml_load_kwargs: dict[str, Any]
+    """ Client-level Pydantic-XML BaseXmlModel.from_xml kwargs """
+
+    _xml_dump_kwargs: dict[str, Any]
     """ Client-level Pydantic-XML BaseXmlModel.to_xml kwargs """
 
     _lib_name: str = "RESTFly"
@@ -112,8 +118,10 @@ class APIClientBase:
         product: str = "unknown",
         build: str = "unknown",
         retry_max: int = 5,
-        json_model_kwargs: dict[str, Any] | None = None,
-        xml_model_kwargs: dict[str, Any] | None = None,
+        json_load_kwargs: dict[str, Any] | None = None,
+        json_dump_kwargs: dict[str, Any] | None = None,
+        xml_load_kwargs: dict[str, Any] | None = None,
+        xml_dump_kwargs: dict[str, Any] | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
         error_class: type[APIError] | None = None,
     ) -> None:
@@ -126,8 +134,26 @@ class APIClientBase:
         self._base_url = base_url if base_url else self._base_url
         self._logger = logging.getLogger(__name__)
         self._retry_max = retry_max if retry_max else self._retry_max
-        self._json_model_kwargs = json_model_kwargs if json_model_kwargs else {}
-        self._xml_model_kwargs = xml_model_kwargs if xml_model_kwargs else {}
+        self._json_load_kwargs = (
+            json_load_kwargs
+            if json_load_kwargs
+            else getattr(self, "_json_load_kwargs", {})
+        )
+        self._json_dump_kwargs = (
+            json_dump_kwargs
+            if json_dump_kwargs
+            else getattr(self, "_json_dump_kwargs", {})
+        )
+        self._xml_load_kwargs = (
+            xml_load_kwargs
+            if xml_load_kwargs
+            else getattr(self, "_xml_load_kwargs", {})
+        )
+        self._xml_dump_kwargs = (
+            xml_dump_kwargs
+            if xml_dump_kwargs
+            else getattr(self, "_xml_dump_kwargs", {})
+        )
 
         # Construct the error map default dict using the built-in error_map as well as
         # the over loadable _error_map extension and then lastly update with any
@@ -231,14 +257,14 @@ class APIClientBase:
         # The query parameters must always be transformed into a dictionary to be
         # properly passed to HTTPX
         if isinstance(params, BaseModel):
-            params = params.model_dump(mode="json", **self._json_model_kwargs)
+            params = params.model_dump(mode="json", **self._json_dump_kwargs)
 
         # If the XML model actually is Pydantic-XML model, then we will want to marshal
         # it into bytes and set the content type to XML.
         if isinstance(xml, BaseXmlModel):
             xml_kwargs: dict[str, Any] = {}
             for updates in (
-                getattr(self, "_xml_model_kwargs", {}),
+                getattr(self, "_xml_dump_kwargs", {}),
                 request_model_kwargs,
             ):
                 xml_kwargs.update(updates)
@@ -256,7 +282,7 @@ class APIClientBase:
         elif isinstance(json, BaseModel):
             pydantic_kwargs: dict[str, Any] = {}
             for updates in (
-                getattr(self, "_json_model_kwargs", {}),
+                getattr(self, "_json_dump_kwargs", {}),
                 request_model_kwargs,
             ):
                 pydantic_kwargs.update(updates)
