@@ -3,16 +3,21 @@ pkg_folder := "restfly"
 
 
 [parallel]
-test-parallel: (test-py "3.12") (test-py "3.13") (test-py "3.14")
+test-parallel: (test-py "3.12") (test-py "3.13") (test-py "3.14") (test-py "3.15")
 
-test: (test-py "3.12") (test-py "3.13") (test-py "3.14")
+test: (test-py "3.12") (test-py "3.13") (test-py "3.14") (test-py "3.15")
+
 
 docs:
     sphinx-build -M clean docs docs/_build
     sphinx-build -M html docs docs/_build
 
-test-py version: (lint version) (unit-tests version) audit
+test-py version: (lint version) (unit-tests version) audit version-check
 
+
+version-check:
+    echo "Ensuring that the project file and version file both agree on $(uv version --short)"
+    grep "$(uv version --short)" restfly/_version.py
 
 lint version:
     uv run --python {{version}} --isolated --group test mypy {{pkg_folder}}

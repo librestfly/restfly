@@ -1529,6 +1529,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
                 return unmarshal(
                     response=response,
                     model=response_model,
+                    client=self,
                     json_model_kwargs=self._json_load_kwargs | response_model_kwargs,
                     xml_model_kwargs=self._xml_load_kwargs | response_model_kwargs,
                 )

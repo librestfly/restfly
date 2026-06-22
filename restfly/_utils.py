@@ -1,4 +1,6 @@
-from typing import Any, get_origin, get_type_hints, overload
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, get_origin, get_type_hints, overload
 
 from httpx import Response
 from pydantic import BaseModel, TypeAdapter
@@ -6,12 +8,17 @@ from pydantic_xml import BaseXmlModel
 
 from .types import Model, XMLModel
 
+if TYPE_CHECKING:
+    from ._async import AsyncAPIClient
+    from ._sync import APIClient
+
 
 @overload
 def unmarshal(
     response: Response,
     *,
     model: type[XMLModel],
+    client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = ...,
     xml_model_kwargs: dict[str, Any] | None = ...,
 ) -> XMLModel: ...
@@ -22,6 +29,7 @@ def unmarshal(
     response: Response,
     *,
     model: type[Model],
+    client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = ...,
     xml_model_kwargs: dict[str, Any] | None = ...,
 ) -> Model: ...
@@ -32,6 +40,7 @@ def unmarshal(
     response: Response,
     *,
     model: type[list[Model]],
+    client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = ...,
     xml_model_kwargs: dict[str, Any] | None = ...,
 ) -> list[Model]: ...
@@ -41,12 +50,18 @@ def unmarshal(
     response: Response,
     *,
     model: type[Model] | type[XMLModel] | type[list[Model]],
+    client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = None,
     xml_model_kwargs: dict[str, Any] | None = None,
 ) -> XMLModel | Model | list[Model]:
     # initialize the mutables.
+    ctx = {"restfly_client": client}
     json_model_kwargs = {} if json_model_kwargs is None else json_model_kwargs
+    json_model_kwargs["context"] = json_model_kwargs.get("context", {}) | ctx
+
     xml_model_kwargs = {} if xml_model_kwargs is None else xml_model_kwargs
+    xml_model_kwargs["context"] = xml_model_kwargs.get("context", {}) | ctx
+
     # If the model has an origin or list, then we will need to wrap it in a type
     # adapter and return the model that way.  This allows us to handle things like
     # lists just like how FastAPI allows you to wrap models in list definitions.

@@ -32,7 +32,10 @@ def test_client_init(client: APIClientBase):
         (
             r"Integration/1\.0 \([\w\d\-\ ]+;[\w\d\-\ ]+; Build/[\w\d\.\-\ ]+\) "
             r"[\w\d\-]+/[\w\d\.\-]+ "
-            r"\(RESTFly/[\w\d\.\-]+; HTTPX/[\w\d\-\.]+; Python/[0-9\.\-]+; [\w\d\-]+/[\d\w\-]+\)"
+            r"\(RESTFly/[\w\d\.\-]+; "
+            r"HTTPX/[\w\d\-\.]+; "
+            r"Python/[0-9a-z\.\-]+; "
+            r"[\w\d\-]+/[\d\w\-]+\)"
         )
     )
 

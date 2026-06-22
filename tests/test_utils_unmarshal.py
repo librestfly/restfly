@@ -2,6 +2,7 @@ import pytest
 from httpx import Response
 from pydantic import BaseModel
 from pydantic_xml import BaseXmlModel
+from restfly._sync import APIClient
 from restfly._utils import unmarshal
 
 
@@ -50,20 +51,24 @@ def json_error_resp() -> Response:
 
 
 def test_unmarshal_pydantic(json_resp, json_model):
-    resp = unmarshal(json_resp, model=json_model)
+    client = APIClient()
+    resp = unmarshal(json_resp, model=json_model, client=client)
     assert resp == json_model(a=1)
 
 
 def test_unmarshal_pydantic_xml(xml_resp, xml_model):
-    resp = unmarshal(xml_resp, model=xml_model)
+    client = APIClient()
+    resp = unmarshal(xml_resp, model=xml_model, client=client)
     assert resp == xml_model(a=2)
 
 
 def test_unmarshal_pydantic_typeadapter(json_list_resp, json_model):
-    resp = unmarshal(json_list_resp, model=list[json_model])
+    client = APIClient()
+    resp = unmarshal(json_list_resp, model=list[json_model], client=client)
     assert resp == [json_model(a=1), json_model(a=2)]
 
 
 def test_unmarshal_typeerror(json_resp):
+    client = APIClient()
     with pytest.raises(TypeError):
-        unmarshal(json_resp, model=dict[str, str])
+        unmarshal(json_resp, model=dict[str, str], client=client)

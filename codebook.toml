@@ -24,5 +24,6 @@ words = [
     "retriable",
     "tfly",
     "typeadapter",
+    "unmarshal",
     "viewcode",
 ]
