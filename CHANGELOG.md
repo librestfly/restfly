@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3]
+
+### Added
+
+- Added a new APIModel class based on pydantic. This new class also supports saving/deleteing directly from the model
+  and may be used to facilitate a more object-oriented approach to updating object data.
+
+[2.0.3]: https://github.com/librestfly/restfly/compare/2.0.2...2.0.3
+
+## [2.0.2]
+
+### Changed
+
+- Decomposed the model kwargs into `json_load_kwargs`, `json_dump_kwargs`, `xml_load_kwargs`, and `xml_dump_kwargs` to
+  properly notate what each kwargs dictionary is used for.
+
+### Added
+
+- Testing harness for build_error_map
+
+[2.0.2]: https://github.com/librestfly/restfly/compare/2.0.1...2.0.2
+
 ## [2.0.1]
 
 ### Changed

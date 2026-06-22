@@ -1536,6 +1536,7 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
                     model=response_model,
                     json_model_kwargs=self._json_load_kwargs | response_model_kwargs,
                     xml_model_kwargs=self._xml_load_kwargs | response_model_kwargs,
+                    client=self,
                 )
 
             # If no model was passed, then simply return the response object.

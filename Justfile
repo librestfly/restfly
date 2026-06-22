@@ -3,9 +3,9 @@ pkg_folder := "restfly"
 
 
 [parallel]
-test-parallel: (test-py "3.12") (test-py "3.13") (test-py "3.14")
+test-parallel: (test-py "3.12") (test-py "3.13") (test-py "3.14") (test-py "3.15")
 
-test: (test-py "3.12") (test-py "3.13") (test-py "3.14")
+test: (test-py "3.12") (test-py "3.13") (test-py "3.14") (test-py "3.15")
 
 docs:
     sphinx-build -M clean docs docs/_build

@@ -16,6 +16,11 @@ Async Python API
 
 .. autoclass:: restfly.AsyncAPIEndpoint
 
+APIModels
+---------
+
+.. autoclass:: restfly.APIModel
+
 
 Iterators
 ---------
