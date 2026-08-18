@@ -49,7 +49,7 @@ def unmarshal(
 def unmarshal(
     response: Response,
     *,
-    model: type[Model] | type[XMLModel] | type[list[Model]],
+    model: type[Model | XMLModel | list[Model]],
     client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = None,
     xml_model_kwargs: dict[str, Any] | None = None,
@@ -75,7 +75,7 @@ def unmarshal(
     # if the model passed to us is a Pydantic-XML model.  If it is, then unmarshal the
     # XML data.
     elif isinstance(model, type) and issubclass(model, BaseXmlModel):
-        return model.from_xml(response.content, **xml_model_kwargs)
+        return model.from_xml(response.content, **xml_model_kwargs)  # ty: ignore[invalid-return-type]
 
     # If the model is a Pydantic class, then unmarshal with validate_json.
     elif isinstance(model, type) and issubclass(model, BaseModel):

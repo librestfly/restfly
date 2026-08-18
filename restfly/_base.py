@@ -3,8 +3,9 @@ from __future__ import annotations
 import logging
 import platform
 from collections import defaultdict
+from collections.abc import Callable
 from ssl import SSLContext
-from typing import Any, Callable
+from typing import Any
 
 from pydantic import BaseModel
 from pydantic_xml import BaseXmlModel
@@ -43,7 +44,7 @@ from .types import (
 
 
 class APIClientBase:
-    __client_class__: type[Client] | type[AsyncClient]
+    __client_class__: type[Client | AsyncClient]
     __endpoint_class__: type[APIBaseEndpoint]
 
     _base_url: str = ""

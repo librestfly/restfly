@@ -11,14 +11,14 @@ from ._version import version as __version__
 
 __author__ = "Steven McGrath <steve@mcgrath.sh>"
 __all__ = [
+    "APIClient",
+    "APIEndpoint",
+    "APIError",
+    "APIIterator",
+    "APIModel",
     "AsyncAPIClient",
     "AsyncAPIEndpoint",
     "AsyncAPIIterator",
-    "APIClient",
-    "APIEndpoint",
-    "APIIterator",
-    "APIError",
-    "APIModel",
     "ErrorStatus",
     "RetryError",
     "__version__",
