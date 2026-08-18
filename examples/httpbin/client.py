@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from httpx import Response
+
 from restfly import APIClient, APIEndpoint
 
 from . import models

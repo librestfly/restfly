@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import random
 from asyncio import sleep
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from ssl import SSLContext
-from typing import Any, AsyncIterator, Callable, Literal, overload, override
+from typing import Any, overload, override
 
 from ._base import APIBaseEndpoint, APIClientBase, APIError
 from ._errors import ErrorStatus, RetryError
@@ -45,7 +46,7 @@ class AsyncHTTPClientVerbs:
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
         data: RequestData | None = None,
@@ -224,7 +225,7 @@ class AsyncHTTPClientVerbs:
         self,
         path: str = "",
         *,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         params: QueryParamTypes | None = None,
@@ -273,7 +274,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(  # ty: ignore[invalid-return-type]
+        return await self._request(
             method="GET",
             path=path,
             params=params,
@@ -295,7 +296,7 @@ class AsyncHTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -373,7 +374,7 @@ class AsyncHTTPClientVerbs:
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -435,7 +436,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(  # ty: ignore[invalid-return-type]
+        return await self._request(
             method="POST",
             path=path,
             params=params,
@@ -462,7 +463,7 @@ class AsyncHTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -540,7 +541,7 @@ class AsyncHTTPClientVerbs:
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -602,7 +603,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(  # ty: ignore[invalid-return-type]
+        return await self._request(
             method="PUT",
             path=path,
             params=params,
@@ -629,7 +630,7 @@ class AsyncHTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -707,7 +708,7 @@ class AsyncHTTPClientVerbs:
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -769,7 +770,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(  # ty: ignore[invalid-return-type]
+        return await self._request(
             method="PATCH",
             path=path,
             params=params,
@@ -796,7 +797,7 @@ class AsyncHTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -874,7 +875,7 @@ class AsyncHTTPClientVerbs:
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -936,7 +937,7 @@ class AsyncHTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return await self._request(  # ty: ignore[invalid-return-type]
+        return await self._request(
             method="DELETE",
             path=path,
             params=params,
@@ -971,7 +972,7 @@ class AsyncAPIEndpoint(APIBaseEndpoint, AsyncHTTPClientVerbs):
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -1049,7 +1050,7 @@ class AsyncAPIEndpoint(APIBaseEndpoint, AsyncHTTPClientVerbs):
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: type[Model] | type[list[Model]] | None = ...,
+        response_model: type[Model | list[Model]] | None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -1082,7 +1083,7 @@ class AsyncAPIEndpoint(APIBaseEndpoint, AsyncHTTPClientVerbs):
         headers: dict[str, str] | None = None,
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -1150,7 +1151,7 @@ class AsyncAPIEndpoint(APIBaseEndpoint, AsyncHTTPClientVerbs):
         if self._path is not None:
             path = f"{self._path}{path}"
 
-        return await self._client._request(  # ty: ignore[invalid-return-type]
+        return await self._client._request(
             method=method,
             path=path,
             params=params,
@@ -1316,7 +1317,7 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -1394,7 +1395,7 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: type[Model] | type[list[Model]] | None = ...,
+        response_model: type[Model | list[Model]] | None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -1420,7 +1421,7 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
         data: RequestData | None = None,

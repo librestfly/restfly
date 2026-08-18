@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import random
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from ssl import SSLContext
 from time import sleep
-from typing import Any, Callable, Iterator, Literal, Self, overload, override
+from typing import Any, Self, overload, override
 
 from ._base import APIBaseEndpoint, APIClientBase
 from ._errors import APIError, ErrorStatus, RetryError
@@ -45,7 +46,7 @@ class HTTPClientVerbs:
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
         data: RequestData | None = None,
@@ -221,7 +222,7 @@ class HTTPClientVerbs:
         self,
         path: str = "",
         *,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         params: QueryParamTypes | None = None,
         headers: dict[str, str] | None = None,
@@ -269,7 +270,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(  # ty: ignore[invalid-return-type]
+        return self._request(
             method="GET",
             path=path,
             params=params,
@@ -290,7 +291,7 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -368,7 +369,7 @@ class HTTPClientVerbs:
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -430,7 +431,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(  # ty: ignore[invalid-return-type]
+        return self._request(
             method="POST",
             path=path,
             params=params,
@@ -457,7 +458,7 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -535,7 +536,7 @@ class HTTPClientVerbs:
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -597,7 +598,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(  # ty: ignore[invalid-return-type]
+        return self._request(
             method="PUT",
             path=path,
             params=params,
@@ -624,7 +625,7 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -702,7 +703,7 @@ class HTTPClientVerbs:
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -764,7 +765,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(  # ty: ignore[invalid-return-type]
+        return self._request(
             method="PATCH",
             path=path,
             params=params,
@@ -791,7 +792,7 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -869,7 +870,7 @@ class HTTPClientVerbs:
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -931,7 +932,7 @@ class HTTPClientVerbs:
             response_model _is_ specified, then the response will be coerced into the
             response model and the instance of the model will be returned.
         """
-        return self._request(  # ty: ignore[invalid-return-type]
+        return self._request(
             method="DELETE",
             path=path,
             params=params,
@@ -966,7 +967,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -1044,7 +1045,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: type[Model] | type[list[Model]] | None = ...,
+        response_model: type[Model | list[Model]] | None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -1077,7 +1078,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         headers: dict[str, str] | None = None,
         json: Model | Any | None = None,
         xml: XMLModel | str | bytes | None = None,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -1145,7 +1146,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         if self._path is not None:
             path = f"{self._path}{path}"
 
-        return self._client._request(  # ty: ignore[invalid-return-type]
+        return self._client._request(
             method=method,
             path=path,
             params=params,
@@ -1311,7 +1312,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: Literal[None] = ...,
+        response_model: None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -1389,7 +1390,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: type[Model] | type[list[Model]] | None = ...,
+        response_model: type[Model | list[Model]] | None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
@@ -1415,7 +1416,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: type[Model] | type[list[Model]] | None = None,
+        response_model: type[Model | list[Model]] | None = None,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
         data: RequestData | None = None,
