@@ -5,7 +5,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from ssl import SSLContext
 from time import sleep
-from typing import Any, Self, overload, override
+from typing import Any, Final, Self, overload, override
 
 from ._base import APIBaseEndpoint, APIClientBase
 from ._errors import APIError, ErrorStatus, RetryError
@@ -24,7 +24,6 @@ from .types import (
     HeaderTypes,
     HTTPMethods,
     Limits,
-    Model,
     ProxyTypes,
     QueryParamTypes,
     Request,
@@ -32,10 +31,12 @@ from .types import (
     RequestData,
     RequestExtensions,
     RequestFiles,
+    RequestModel,
+    RequestXMLModel,
     Response,
+    ResponseModel,
     TimeoutTypes,
     UseClientDefault,
-    XMLModel,
     codes,
 )
 
@@ -46,14 +47,14 @@ class HTTPClientVerbs:
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: type[Model | list[Model]] | None = None,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = None,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
         data: RequestData | None = None,
         files: RequestFiles | None = None,
         headers: dict[str, str] | None = None,
-        json: Model | Any | None = None,
-        xml: XMLModel | str | bytes | None = None,
+        json: RequestModel | Any | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -64,7 +65,7 @@ class HTTPClientVerbs:
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
         stream: bool = False,
-    ) -> Model | list[Model] | Response:
+    ) -> ResponseModel | list[ResponseModel] | Response:
         raise NotImplementedError
 
     @contextmanager
@@ -78,8 +79,8 @@ class HTTPClientVerbs:
         data: RequestData | None = None,
         files: RequestFiles | None = None,
         headers: dict[str, str] | None = None,
-        json: Model | Any | None = None,
-        xml: XMLModel | str | bytes | None = None,
+        json: RequestModel | Any | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
         auth: AuthTypes | UseClientDefault | None = USE_CLIENT_DEFAULT,
@@ -187,7 +188,7 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: type[Model],
+        response_model: type[ResponseModel],
         response_model_kwargs: dict[str, Any] | None = ...,
         params: QueryParamTypes | None = ...,
         headers: dict[str, str] | None = ...,
@@ -198,14 +199,14 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> Model: ...
+    ) -> ResponseModel: ...
 
     @overload
     def _get(
         self,
         path: str = ...,
         *,
-        response_model: type[list[Model]],
+        response_model: type[list[ResponseModel]],
         response_model_kwargs: dict[str, Any] | None = ...,
         params: QueryParamTypes | None = ...,
         headers: dict[str, str] | None = ...,
@@ -216,13 +217,13 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> list[Model]: ...
+    ) -> list[ResponseModel]: ...
 
     def _get(
         self,
         path: str = "",
         *,
-        response_model: type[Model | list[Model]] | None = None,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         params: QueryParamTypes | None = None,
         headers: dict[str, str] | None = None,
@@ -233,7 +234,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
-    ) -> Model | list[Model] | Response:
+    ) -> ResponseModel | list[ResponseModel] | Response:
         """
         Construct and send an HTTP GET request.
 
@@ -296,8 +297,8 @@ class HTTPClientVerbs:
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -315,13 +316,13 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: type[Model],
+        response_model: type[ResponseModel],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -332,20 +333,20 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> Model: ...
+    ) -> ResponseModel: ...
 
     @overload
     def _post(
         self,
         path: str = ...,
         *,
-        response_model: type[list[Model]],
+        response_model: type[list[ResponseModel]],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -356,7 +357,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> list[Model]: ...
+    ) -> list[ResponseModel]: ...
 
     def _post(
         self,
@@ -366,10 +367,10 @@ class HTTPClientVerbs:
         content: RequestContent | None = None,
         data: RequestData | None = None,
         files: RequestFiles | None = None,
-        json: Model | Any | None = None,
-        xml: XMLModel | str | bytes | None = None,
+        json: RequestModel | Any | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model | list[Model]] | None = None,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -379,7 +380,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
-    ) -> Model | list[Model] | Response:
+    ) -> ResponseModel | list[ResponseModel] | Response:
         """
         Construct and send an HTTP POST request.
 
@@ -463,8 +464,8 @@ class HTTPClientVerbs:
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -482,13 +483,13 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: type[Model],
+        response_model: type[ResponseModel],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -499,20 +500,20 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> Model: ...
+    ) -> ResponseModel: ...
 
     @overload
     def _put(
         self,
         path: str = ...,
         *,
-        response_model: type[list[Model]],
+        response_model: type[list[ResponseModel]],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -523,7 +524,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> list[Model]: ...
+    ) -> list[ResponseModel]: ...
 
     def _put(
         self,
@@ -533,10 +534,10 @@ class HTTPClientVerbs:
         content: RequestContent | None = None,
         data: RequestData | None = None,
         files: RequestFiles | None = None,
-        json: Model | Any | None = None,
-        xml: XMLModel | str | bytes | None = None,
+        json: RequestModel | Any | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model | list[Model]] | None = None,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -546,7 +547,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
-    ) -> Model | list[Model] | Response:
+    ) -> ResponseModel | list[ResponseModel] | Response:
         """
         Construct and send an HTTP PUT request.
 
@@ -630,8 +631,8 @@ class HTTPClientVerbs:
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -649,13 +650,13 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: type[Model],
+        response_model: type[ResponseModel],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -666,20 +667,20 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> Model: ...
+    ) -> ResponseModel: ...
 
     @overload
     def _patch(
         self,
         path: str = ...,
         *,
-        response_model: type[list[Model]],
+        response_model: type[list[ResponseModel]],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -690,7 +691,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> list[Model]: ...
+    ) -> list[ResponseModel]: ...
 
     def _patch(
         self,
@@ -700,10 +701,10 @@ class HTTPClientVerbs:
         content: RequestContent | None = None,
         data: RequestData | None = None,
         files: RequestFiles | None = None,
-        json: Model | Any | None = None,
-        xml: XMLModel | str | bytes | None = None,
+        json: RequestModel | Any | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model | list[Model]] | None = None,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -713,7 +714,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
-    ) -> Model | list[Model] | Response:
+    ) -> ResponseModel | list[ResponseModel] | Response:
         """
         Construct and send an HTTP PATCH request.
 
@@ -797,8 +798,8 @@ class HTTPClientVerbs:
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -816,13 +817,13 @@ class HTTPClientVerbs:
         self,
         path: str = ...,
         *,
-        response_model: type[Model],
+        response_model: type[ResponseModel],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -833,20 +834,20 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> Model: ...
+    ) -> ResponseModel: ...
 
     @overload
     def _delete(
         self,
         path: str = ...,
         *,
-        response_model: type[list[Model]],
+        response_model: type[list[ResponseModel]],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -857,7 +858,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = ...,
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
-    ) -> list[Model]: ...
+    ) -> list[ResponseModel]: ...
 
     def _delete(
         self,
@@ -867,10 +868,10 @@ class HTTPClientVerbs:
         content: RequestContent | None = None,
         data: RequestData | None = None,
         files: RequestFiles | None = None,
-        json: Model | Any | None = None,
-        xml: XMLModel | str | bytes | None = None,
+        json: RequestModel | Any | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
-        response_model: type[Model | list[Model]] | None = None,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -880,7 +881,7 @@ class HTTPClientVerbs:
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
-    ) -> Model | list[Model] | Response:
+    ) -> ResponseModel | list[ResponseModel] | Response:
         """
         Construct and send an HTTP DELETE request.
 
@@ -957,6 +958,10 @@ class HTTPClientVerbs:
 
 class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
     _client: APIClient
+    """
+    The client object that this endpoint is associated with. Provided here in order to
+    interact with other endpoints that may be grafted to the client.
+    """
 
     def __init__(self, client: APIClient | APIEndpoint) -> None:
         super().__init__(client)
@@ -972,8 +977,8 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -993,13 +998,13 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: type[Model],
+        response_model: type[ResponseModel],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -1011,7 +1016,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
         stream: bool = False,
-    ) -> Model: ...
+    ) -> ResponseModel: ...
 
     @overload
     def _request(
@@ -1019,13 +1024,13 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: type[list[Model]],
+        response_model: type[list[ResponseModel]],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -1037,7 +1042,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
         stream: bool = False,
-    ) -> list[Model]: ...
+    ) -> list[ResponseModel]: ...
 
     @overload
     def _request(
@@ -1045,13 +1050,13 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: type[Model | list[Model]] | None = ...,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -1063,7 +1068,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
         stream: bool = ...,
-    ) -> Model | list[Model] | Response: ...
+    ) -> ResponseModel | list[ResponseModel] | Response: ...
 
     @override
     def _request(
@@ -1076,9 +1081,9 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         data: RequestData | None = None,
         files: RequestFiles | None = None,
         headers: dict[str, str] | None = None,
-        json: Model | Any | None = None,
-        xml: XMLModel | str | bytes | None = None,
-        response_model: type[Model | list[Model]] | None = None,
+        json: RequestModel | Any | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -1089,7 +1094,7 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
         stream: bool = False,
-    ) -> Model | list[Model] | Response:
+    ) -> ResponseModel | list[ResponseModel] | Response:
         """
         Construct and send an HTTP POST request.
 
@@ -1171,9 +1176,11 @@ class APIEndpoint(APIBaseEndpoint, HTTPClientVerbs):
 
 
 class APIClient(APIClientBase, HTTPClientVerbs):
-    __client_class__: type[Client] = Client
-    __endpoint_class__: type[APIEndpoint] = APIEndpoint
+    __client_class__ = Client
+    __endpoint_class__ = APIEndpoint
+
     _client: Client
+    """ HTTPX Client Session object """
 
     @override
     def __assign_annotations__(self) -> None:
@@ -1317,8 +1324,8 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -1338,13 +1345,13 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: type[Model],
+        response_model: type[ResponseModel],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -1356,7 +1363,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
         stream: bool = False,
-    ) -> Model: ...
+    ) -> ResponseModel: ...
 
     @overload
     def _request(
@@ -1364,13 +1371,13 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: type[list[Model]],
+        response_model: type[list[ResponseModel]],
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -1382,7 +1389,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
         stream: bool = False,
-    ) -> list[Model]: ...
+    ) -> list[ResponseModel]: ...
 
     @overload
     def _request(
@@ -1390,13 +1397,13 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = ...,
         *,
-        response_model: type[Model | list[Model]] | None = ...,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = ...,
         params: QueryParamTypes | None = ...,
         content: RequestContent | None = ...,
         data: RequestData | None = ...,
         files: RequestFiles | None = ...,
-        json: Model | Any | None = ...,
-        xml: XMLModel | str | bytes | None = ...,
+        json: RequestModel | Any | None = ...,
+        xml: RequestXMLModel | str | bytes | None = ...,
         response_model_kwargs: dict[str, Any] | None = ...,
         request_model_kwargs: dict[str, Any] | None = ...,
         headers: dict[str, str] | None = ...,
@@ -1408,7 +1415,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         max_retries: int | None = ...,
         error_map: dict[int, ErrorStatus] | None = ...,
         stream: bool = ...,
-    ) -> Model | list[Model] | Response: ...
+    ) -> ResponseModel | list[ResponseModel] | Response: ...
 
     @override
     def _request(
@@ -1416,14 +1423,14 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         method: HTTPMethods,
         path: str = "",
         *,
-        response_model: type[Model | list[Model]] | None = None,
+        response_model: type[ResponseModel | list[ResponseModel]] | None = None,
         params: QueryParamTypes | None = None,
         content: RequestContent | None = None,
         data: RequestData | None = None,
         files: RequestFiles | None = None,
         headers: dict[str, str] | None = None,
-        json: Model | Any | None = None,
-        xml: XMLModel | str | bytes | None = None,
+        json: RequestModel | Any | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
         response_model_kwargs: dict[str, Any] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -1434,7 +1441,7 @@ class APIClient(APIClientBase, HTTPClientVerbs):
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
         stream: bool = False,
-    ) -> Model | list[Model] | Response:
+    ) -> ResponseModel | list[ResponseModel] | Response:
         """
         Construct and send an HTTP request.
 

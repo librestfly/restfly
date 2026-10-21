@@ -36,8 +36,11 @@ from httpx._urls import URL
 from pydantic import BaseModel
 from pydantic_xml import BaseXmlModel
 
-Model = TypeVar("Model", bound=BaseModel)
-XMLModel = TypeVar("XMLModel", bound=BaseXmlModel)
+RequestModel = TypeVar("RequestModel", bound=BaseModel)
+ResponseModel = TypeVar("ResponseModel", bound=BaseModel)
+RequestXMLModel = TypeVar("RequestXMLModel", bound=BaseXmlModel)
+ResponseXMLModel = TypeVar("ResponseXMLModel", bound=BaseXmlModel)
+
 
 HTTPMethods = Literal["GET", "OPTIONS", "HEAD", "POST", "PUT", "PATCH", "DELETE"]
 QueryParamTypes = BaseModel | _QueryParamTypes
@@ -61,7 +64,6 @@ __all__ = [
     "HTTPMethods",
     "HeaderTypes",
     "Limits",
-    "Model",
     "ProxyTypes",
     "QueryParamTypes",
     "Request",
@@ -69,9 +71,12 @@ __all__ = [
     "RequestData",
     "RequestExtensions",
     "RequestFiles",
+    "RequestModel",
+    "RequestXMLModel",
     "Response",
+    "ResponseModel",
+    "ResponseXMLModel",
     "TimeoutTypes",
     "UseClientDefault",
-    "XMLModel",
     "codes",
 ]

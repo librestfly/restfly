@@ -30,16 +30,16 @@ from .types import (
     HeaderTypes,
     HTTPMethods,
     Limits,
-    Model,
     ProxyTypes,
     QueryParamTypes,
     RequestContent,
     RequestData,
     RequestExtensions,
     RequestFiles,
+    RequestModel,
+    RequestXMLModel,
     TimeoutTypes,
     UseClientDefault,
-    XMLModel,
 )
 
 
@@ -50,7 +50,7 @@ class APIClientBase:
     _base_url: str = ""
     """ The base URL fragment to prefix all API calls with. """
 
-    _client: Client | AsyncClient
+    # _client: Client | AsyncClient
     """ HTTPX Client Session object """
 
     _json_load_kwargs: dict[str, Any]
@@ -215,8 +215,8 @@ class APIClientBase:
         content: RequestContent | None = None,
         data: RequestData | None = None,
         files: RequestFiles | None = None,
-        json: Model | object | None = None,
-        xml: XMLModel | str | bytes | None = None,
+        json: RequestModel | object | None = None,
+        xml: RequestXMLModel | str | bytes | None = None,
         headers: dict[str, str] | None = None,
         request_model_kwargs: dict[str, Any] | None = None,
         cookies: CookieTypes | None = None,
@@ -322,7 +322,7 @@ class APIBaseEndpoint:
     The same logging handler that the client has, it also exists here for convenience.
     """
 
-    _client: APIClientBase
+    # _client: APIClientBase
     """
     The client object that this endpoint is associated with. Provided here in order to
     interact with other endpoints that may be grafted to the client.

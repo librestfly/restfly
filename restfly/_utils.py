@@ -6,7 +6,7 @@ from httpx import Response
 from pydantic import BaseModel, TypeAdapter
 from pydantic_xml import BaseXmlModel
 
-from .types import Model, XMLModel
+from .types import ResponseModel, ResponseXMLModel
 
 if TYPE_CHECKING:
     from ._async import AsyncAPIClient
@@ -17,43 +17,43 @@ if TYPE_CHECKING:
 def unmarshal(
     response: Response,
     *,
-    model: type[XMLModel],
+    model: type[ResponseXMLModel],
     client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = ...,
     xml_model_kwargs: dict[str, Any] | None = ...,
-) -> XMLModel: ...
+) -> ResponseXMLModel: ...
 
 
 @overload
 def unmarshal(
     response: Response,
     *,
-    model: type[Model],
+    model: type[ResponseModel],
     client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = ...,
     xml_model_kwargs: dict[str, Any] | None = ...,
-) -> Model: ...
+) -> ResponseModel: ...
 
 
 @overload
 def unmarshal(
     response: Response,
     *,
-    model: type[list[Model]],
+    model: type[list[ResponseModel]],
     client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = ...,
     xml_model_kwargs: dict[str, Any] | None = ...,
-) -> list[Model]: ...
+) -> list[ResponseModel]: ...
 
 
 def unmarshal(
     response: Response,
     *,
-    model: type[Model | XMLModel | list[Model]],
+    model: type[ResponseModel | ResponseXMLModel | list[ResponseModel]],
     client: APIClient | AsyncAPIClient,
     json_model_kwargs: dict[str, Any] | None = None,
     xml_model_kwargs: dict[str, Any] | None = None,
-) -> XMLModel | Model | list[Model]:
+) -> ResponseXMLModel | ResponseModel | list[ResponseModel]:
     # initialize the mutables.
     ctx = {"restfly_client": client}
     json_model_kwargs = {} if json_model_kwargs is None else json_model_kwargs
@@ -75,7 +75,7 @@ def unmarshal(
     # if the model passed to us is a Pydantic-XML model.  If it is, then unmarshal the
     # XML data.
     elif isinstance(model, type) and issubclass(model, BaseXmlModel):
-        return model.from_xml(response.content, **xml_model_kwargs)  # ty: ignore[invalid-return-type]
+        return model.from_xml(response.content, **xml_model_kwargs)
 
     # If the model is a Pydantic class, then unmarshal with validate_json.
     elif isinstance(model, type) and issubclass(model, BaseModel):
