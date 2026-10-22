@@ -276,3 +276,10 @@ async def test_client_stream_method(client: AsyncAPIClient, httpx_mock: HTTPXMoc
             b.write(data)
         b.seek(0)
     assert json.load(b) == payload
+
+
+async def test_client_204_response(client: AsyncAPIClient, httpx_mock: HTTPXMock):
+    httpx_mock.add_response(status_code=204, url="https://httpbin.org/get")
+    resp = await client._get("/get")
+    assert isinstance(resp, Response)
+    assert resp.status_code == 204

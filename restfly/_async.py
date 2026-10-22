@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import random
+import sys
 from asyncio import sleep
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 from ssl import SSLContext
-from typing import Any, overload, override
+from typing import Any, overload
+
+if sys.version_info < (3, 12):
+    from typing_extensions import override
+else:
+    from typing import override
 
 from ._base import APIBaseEndpoint, APIClientBase, APIError
 from ._errors import ErrorStatus, RetryError
@@ -38,7 +44,6 @@ from .types import (
     ResponseXMLModel,
     TimeoutTypes,
     UseClientDefault,
-    codes,
 )
 
 
@@ -90,7 +95,7 @@ class AsyncHTTPClientVerbs:
         extensions: RequestExtensions | None = None,
         max_retries: int | None = None,
         error_map: dict[int, ErrorStatus] | None = None,
-    ) -> AsyncIterator[Response]:
+    ) -> AsyncGenerator[Response]:
         """
         Construct and send an HTTP request and stream the response back.  This is an
         alternative method to making a call to _request that also supports closing of
@@ -1535,11 +1540,12 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
             response = await self._client.send(
                 request, auth=auth, follow_redirects=follow_redirects, stream=stream
             )
+            is_ok = response.status_code >= 200 and response.status_code < 300
 
             # If the response is ok, then we should return the response.  If a model is
             # presented to us, then we will pass the model to the unmarshal utility to
             # handle transitioning the data into the expected class.
-            if response.status_code == codes.OK and response_model:
+            if is_ok and response_model:
                 return unmarshal(
                     response=response,
                     model=response_model,
@@ -1549,7 +1555,7 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
                 )
 
             # If no model was passed, then simply return the response object.
-            elif response.status_code == codes.OK:
+            elif is_ok:
                 return response
 
             # As the response wasn't ok, let's grab the ErrorStatus object that relates
