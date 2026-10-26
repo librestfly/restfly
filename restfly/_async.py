@@ -1211,7 +1211,7 @@ class AsyncAPIClient(APIClientBase, AsyncHTTPClientVerbs):
         """
         Async Context Manager __aexit__ dunder. See PEP-343 for more details.
         """
-        return self._deauthenticate()
+        return await self._deauthenticate()
 
     def __init__(
         self,
